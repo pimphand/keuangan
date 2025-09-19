@@ -13,88 +13,172 @@
         body {
             font-size: 11pt;
             margin: 0;
-            padding: 0;
+            padding: 20px;
+            font-family: Arial, sans-serif;
         }
 
         .header {
-            margin-bottom: 20px;
+            margin-bottom: 25px;
+            position: relative;
         }
 
         .logo-section {
             display: flex;
             align-items: center;
-            margin-bottom: 15px;
+            margin-bottom: 20px;
+            position: relative;
         }
 
         .logo {
-            width: 60px;
-            height: 60px;
-            margin-right: 15px;
+            width: 150px;
+            height: auto;
+            max-height: 150px;
+            margin-right: 20px;
+            object-fit: contain;
+        }
+
+        .company-info {
+            flex: 1;
         }
 
         .company-info h1 {
             margin: 0;
-            font-size: 18pt;
+            font-size: 12pt;
             font-weight: bold;
+            color: #2c3e50;
+            line-height: 1.2;
         }
 
         .company-info p {
-            margin: 2px 0;
-            font-size: 10pt;
+            margin: 3px 0;
+            font-size: 11pt;
             color: #666;
         }
 
         .report-title {
-            text-align: center;
-            margin: 10px 0;
+            position: absolute;
+            top: 0;
+            right: 0;
+            text-align: right;
         }
 
         .report-title h2 {
             margin: 0;
             font-size: 14pt;
             font-weight: bold;
+            color: #2c3e50;
+            line-height: 1.3;
+        }
+
+        .header-line {
+            border-bottom: 1px solid #2c3e50;
+            margin-top: 5px;
+            margin-bottom: 10px;
+        }
+
+        .info-table {
+            margin-bottom: 20px;
+            font-size: 11pt;
+        }
+
+        .info-table td {
+            padding: 5px 10px;
+            vertical-align: top;
+        }
+
+        .info-table td:first-child {
+            font-weight: bold;
+            background-color: #f8f9fa;
+            width: 25%;
+        }
+
+        .info-table td:nth-child(2) {
+            width: 5%;
+            text-align: center;
         }
 
         .table,
         .table th,
         .table td {
-            border: 1px solid;
+            border: 1px solid #333;
         }
 
         .table {
             border-collapse: collapse;
+            width: 100%;
+            font-size: 10pt;
+        }
+
+        .table th {
+            background-color: #f8f9fa;
+            padding: 8px;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .table td {
+            padding: 6px;
+            vertical-align: top;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .text-right {
+            text-align: right;
+        }
+
+        .text-bold {
+            font-weight: bold;
+        }
+
+        .tfoot tr:last-child {
+            background-color: #e9ecef;
+            font-weight: bold;
+        }
+
+        .tfoot tr:first-child {
+            background-color: #f8f9fa;
+            font-weight: bold;
+        }
+
+        .tfoot td {
+            padding: 8px;
         }
     </style>
 
     <div class="header">
         <div class="logo-section">
             <img src="{{ public_path('logo.png') }}" alt="Logo" class="logo">
-            <div class="company-info">
-                <h1>PT Mataram Digital Teknologi</h1>
-                <p>Perusahaan Teknologi Digital</p>
-                <p>www.mataramdigital.com</p>
+            <div class="report-title">
+                <h2>LAPORAN KEUANGAN</h2>
+                <div class="header-line"></div>
+                <h2>PT Mataram Digital Teknologi</h2>
             </div>
-        </div>
-
-        <div class="report-title">
-            <h2>LAPORAN KEUANGAN</h2>
         </div>
     </div>
 
-    <table style="width: 50%">
+    <table class="info-table">
+        @php
+            use Carbon\Carbon;
+            \Carbon\Carbon::setLocale('id');
+        @endphp
+
         <tr>
-            <td width="40%">DARI TANGGAL</td>
-            <td width="5%" class="text-center">:</td>
-            <td>{{ date('d-m-Y', strtotime($_GET['dari'])) }}</td>
+            <td>DARI TANGGAL</td>
+            <td>:</td>
+            <td>{{ Carbon::parse($_GET['dari'])->translatedFormat('d F Y') }}</td>
         </tr>
         <tr>
-            <td width="40%">SAMPAI TANGGAL</td>
-            <td width="5%" class="text-center">:</td>
-            <td>{{ date('d-m-Y', strtotime($_GET['sampai'])) }}</td>
+            <td>SAMPAI TANGGAL</td>
+            <td>:</td>
+            <td>{{ Carbon::parse($_GET['sampai'])->translatedFormat('d F Y') }}</td>
         </tr>
+
         <tr>
-            <td width="40%">KATEGORI</td>
-            <td width="5%" class="text-center">:</td>
+            <td>KATEGORI</td>
+            <td>:</td>
             <td>
                 @php
                     $id_kategori = $_GET['kategori'];
@@ -107,7 +191,7 @@
                 @else
                     @php
                         $katt = DB::table('kategori')->where('id', $id_kategori)->first();
-                        $kat = $katt->kategori
+                        $kat = $katt->kategori;
                     @endphp
                 @endif
 
@@ -115,19 +199,18 @@
             </td>
         </tr>
     </table>
-    <br>
-    <table class="table" width="100%">
+    <table class="table">
         <thead>
             <tr>
-                <th rowspan="2" class="text-center" width="1%">NO</th>
-                <th rowspan="2" class="text-center" width="9%">TANGGAL</th>
-                <th rowspan="2" class="text-center">KATEGORI</th>
-                <th rowspan="2" class="text-center">KETERANGAN</th>
-                <th colspan="2" class="text-center">JENIS</th>
+                <th rowspan="2" class="text-center" width="5%">NO</th>
+                <th rowspan="2" class="text-center" width="12%">TANGGAL</th>
+                <th rowspan="2" class="text-center" width="18%">KATEGORI</th>
+                <th rowspan="2" class="text-center" width="25%">KETERANGAN</th>
+                <th colspan="2" class="text-center" width="40%">JENIS</th>
             </tr>
             <tr>
-                <th class="text-center">PEMASUKAN</th>
-                <th class="text-center">PENGELUARAN</th>
+                <th class="text-center" width="20%">PEMASUKAN</th>
+                <th class="text-center" width="20%">PENGELUARAN</th>
             </tr>
         </thead>
         <tbody>
@@ -138,46 +221,46 @@
                 $total_pengeluaran = 0;
               @endphp
             @foreach($transaksi as $t)
-                        <?php
-                if ($t->jenis == "Pemasukan") {
-                    $saldo += $t->nominal;
-                } else {
-                    $saldo -= $t->nominal;
-                }
-                                                                                                                                          ?>
-                        <tr>
-                            <td class="text-center">{{ $no++ }}</td>
-                            <td class="text-center">{{ date('d-m-Y', strtotime($t->tanggal)) }}</td>
-                            <td>{{ $t->kategori->kategori }}</td>
-                            <td>{{ $t->keterangan }}</td>
-                            <td class="text-center">
-                                @if($t->jenis == "Pemasukan")
-                                    {{ "Rp." . number_format($t->nominal) . ",-" }}
-                                    @php $total_pemasukan += $t->nominal; @endphp
-                                @else
-                                    {{ "-" }}
-                                @endif
-                            </td>
-                            <td class="text-center">
-                                @if($t->jenis == "Pengeluaran")
-                                    {{ "Rp." . number_format($t->nominal) . ",-" }}
-                                    @php $total_pengeluaran += $t->nominal; @endphp
-                                @else
-                                    {{ "-" }}
-                                @endif
-                            </td>
-                        </tr>
+                @php
+                    if ($t->jenis == "Pemasukan") {
+                        $saldo += $t->nominal;
+                    } else {
+                        $saldo -= $t->nominal;
+                    }
+                @endphp
+                <tr>
+                    <td class="text-center">{{ $no++ }}</td>
+                    <td class="text-center">{{ date('d-m-Y', strtotime($t->tanggal)) }}</td>
+                    <td>{{ $t->kategori->kategori }}</td>
+                    <td>{{ $t->keterangan }}</td>
+                    <td class="text-center">
+                        @if($t->jenis == "Pemasukan")
+                            {{ "Rp." . number_format($t->nominal) . ",-" }}
+                            @php $total_pemasukan += $t->nominal; @endphp
+                        @else
+                            {{ "-" }}
+                        @endif
+                    </td>
+                    <td class="text-center">
+                        @if($t->jenis == "Pengeluaran")
+                            {{ "Rp." . number_format($t->nominal) . ",-" }}
+                            @php $total_pengeluaran += $t->nominal; @endphp
+                        @else
+                            {{ "-" }}
+                        @endif
+                    </td>
+                </tr>
             @endforeach
         </tbody>
-        <tfoot>
+        <tfoot class="tfoot">
             <tr>
                 <td colspan="4" class="text-bold text-right">Sub Total</td>
-                <td class="text-center">{{ "Rp." . number_format($total_pemasukan) . ",-" }}</td>
-                <td class="text-center">{{ "Rp." . number_format($total_pengeluaran) . ",-" }}</td>
+                <td class="text-center text-bold">{{ "Rp." . number_format($total_pemasukan) . ",-" }}</td>
+                <td class="text-center text-bold">{{ "Rp." . number_format($total_pengeluaran) . ",-" }}</td>
             </tr>
             <tr>
                 <td colspan="4" class="text-bold text-right">Total (Pemasukan - Pengeluaran)</td>
-                <td colspan="2" class="text-center">
+                <td colspan="2" class="text-center text-bold">
                     {{ "Rp." . number_format($total_pemasukan - $total_pengeluaran) . ",-" }}
                 </td>
             </tr>

@@ -332,11 +332,13 @@ class HomeController extends Controller
             if ($_GET['kategori'] == "") {
                 $transaksi = Transaksi::whereDate('tanggal', '>=', $_GET['dari'])
                     ->whereDate('tanggal', '<=', $_GET['sampai'])
+                    ->orderBy('tanggal', 'desc')
                     ->get();
             } else {
                 $transaksi = Transaksi::where('kategori_id', $_GET['kategori'])
                     ->whereDate('tanggal', '>=', $_GET['dari'])
                     ->whereDate('tanggal', '<=', $_GET['sampai'])
+                    ->orderBy('tanggal', 'desc')
                     ->get();
             }
             // $transaksi = Transaksi::orderBy('id','desc')->get();
