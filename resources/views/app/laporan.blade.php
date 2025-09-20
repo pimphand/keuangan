@@ -35,9 +35,9 @@
                                         <label>Rentang Tanggal</label>
                                         <input class="form-control" placeholder="Pilih Rentang Tanggal" type="text"
                                             id="daterange" name="daterange"
-                                            value="<?php if (isset($_GET['daterange'])) {
+                                            value="@php if (isset($_GET['daterange'])) {
         echo $_GET['daterange'];
-    } ?>">
+    } @endphp">
                                         <input type="hidden" name="dari" id="dari">
                                         <input type="hidden" name="sampai" id="sampai">
                                     </div>
@@ -48,11 +48,11 @@
                                         <select class="form-control" name="kategori">
                                             <option value="">Semua Kategori</option>
                                             @foreach($kategori as $k)
-                                                <option <?php if (isset($_GET['kategori'])) {
+                                                <option @php if (isset($_GET['kategori'])) {
             if ($_GET['kategori'] == $k->id) {
                 echo "selected='selected'";
             }
-        } ?> value="{{ $k->id }}">{{ $k->kategori }}</option>
+        } @endphp value="{{ $k->id }}">{{ $k->kategori }}</option>
                                             @endforeach
                                         </select>
                                     </div>

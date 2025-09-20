@@ -17,7 +17,8 @@ class Kasbon extends Model
         'keterangan',
         'status',
         'disetujui_id',
-        'alasan'
+        'alasan',
+        'type_transaksi'
     ];
 
     protected $casts = [

@@ -20,9 +20,7 @@ class PegawaiController extends Controller
         $user = Auth::user();
 
         // Get recent transactions for the user
-        $transaksiTerkini = \App\Transaksi::orderBy('created_at', 'desc')
-            ->limit(3)
-            ->get();
+        $transaksiTerkini =  $query = Kasbon::where('user_id', $user->id)->orderBy('created_at', 'desc')->limit(3)->get();
 
         // Get recent announcements for the user
         $pengumumanTerkini = Pengumuman::active()

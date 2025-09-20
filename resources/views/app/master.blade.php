@@ -315,13 +315,10 @@
 
         @yield('konten')
 
-
-
-
         <div class="footer">
             <div class="copyright">
-                <p>Copyright &copy; Aplikasi Keuangan Menggunakan Laravel. by <a href="https://www.malasngoding.com"
-                        target="_blank">malasngoding.com</a> {{ date('Y') }}</p>
+                <p>Copyright &copy; by <a href="https://www.sanjaya.com" target="_blank">Sanjaya Indonesia</a>
+                    {{ date('Y') }}</p>
             </div>
         </div>
     </div>

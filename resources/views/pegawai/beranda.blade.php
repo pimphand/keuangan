@@ -33,8 +33,18 @@
                 <div class="flex justify-between items-start mb-4">
                     <div>
                         <h2 class="text-sm font-medium opacity-90 mb-1">PT MATARAM DIGITAL TEKNOLOGI</h2>
-                        <p class="text-xs opacity-75">Limit Tersedia</p>
-                        <p class="text-2xl font-bold">Rp 12.345.678</p>
+                        <div class="flex justify-content-between">
+                            <span>
+                                <p class="text-xs opacity-75">Saldo Tersedia</p>
+                                <p class="text-2xl font-bold">Rp {{ number_format($user->saldo, 0, ',', '.') }}</p>
+                            </span>
+                            <span>
+                                <p class="text-xs opacity-75">Kasbon Tersedia</p>
+                                <p class="text-2xl font-bold">Rp {{ number_format($user->kasbon, 0, ',', '.') }}</p>
+                            </span>
+                        </div>
+
+
                     </div>
                     <div class="text-right">
                         <h3 class="text-lg font-bold">MDTPay</h3>
@@ -102,14 +112,14 @@
                                 class="fas fa-clock {{ $transaksi->jenis == 'masuk' ? 'text-green-600' : 'text-red-600' }} text-xs"></i>
                         </div>
                         <div class="flex-1">
-                            <p class="text-sm font-medium text-gray-800">{{ $transaksi->kategori->nama ?? 'Transaksi' }}</p>
+                            <p class="text-sm font-medium text-gray-800">{{ $transaksi->type_transaksi }}</p>
                             <p class="text-xs text-gray-500">
-                                {{ \Carbon\Carbon::parse($transaksi->created_at)->format('d F Y') }}
+                                {{ \Carbon\Carbon::parse($transaksi->created_at)->format('d F Y h:i') }}
                             </p>
                         </div>
                         <div class="text-right">
                             <p
-                                class="text-sm font-semibold {{ $transaksi->jenis == 'masuk' ? 'text-green-600' : 'text-red-600' }}">
+                                class="text-sm font-semibold {{ $transaksi->type_transaksi == 'masuk' ? 'text-green-600' : 'text-red-600' }}">
                                 {{ $transaksi->jenis == 'masuk' ? '+' : '-' }} Rp
                                 {{ number_format($transaksi->nominal, 0, ',', '.') }}
                             </p>
@@ -163,7 +173,7 @@
                                             {{ $pengumuman->creator ? $pengumuman->creator->name : 'Sistem' }}
                                         </span>
                                         <span class="text-xs text-gray-500">
-                                            {{ $pengumuman->created_at->format('d M Y') }}
+                                            {{ $pengumuman->created_at->format('d M Y h:i') }}
                                         </span>
                                     </div>
                                 </div>

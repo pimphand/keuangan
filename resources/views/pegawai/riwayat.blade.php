@@ -46,8 +46,7 @@
                         <div class="flex-1">
                             <!-- Header with badges -->
                             <div class="flex flex-wrap items-center gap-3 mb-3">
-                                <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium
-                                                                                                        {{ $absen->jenis == 'masuk' ? 'bg-green-100 text-green-800' :
+                                <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium {{ $absen->jenis == 'masuk' ? 'bg-green-100 text-green-800' :
                         ($absen->jenis == 'keluar' ? 'bg-red-100 text-red-800' :
                             ($absen->jenis == 'izin' ? 'bg-yellow-100 text-yellow-800' :
                                 'bg-blue-100 text-blue-800')) }}">
@@ -65,7 +64,7 @@
                                 @endif
 
                                 <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium
-                                                                                                        {{ $absen->status == 'valid' ? 'bg-green-100 text-green-800' :
+                                                                                                                    {{ $absen->status == 'valid' ? 'bg-green-100 text-green-800' :
                         ($absen->status == 'invalid' ? 'bg-red-100 text-red-800' :
                             'bg-yellow-100 text-yellow-800') }}">
                                     {{ ucfirst($absen->status) }}
