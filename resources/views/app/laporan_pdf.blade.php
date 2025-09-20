@@ -18,7 +18,7 @@
         }
 
         .header {
-            margin-bottom: 25px;
+            margin-bottom: 10px;
             position: relative;
         }
 
@@ -146,126 +146,288 @@
         .tfoot td {
             padding: 8px;
         }
+
+        .signature-section {
+            margin-top: 50px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            width: 100%;
+        }
+
+        .signature-box {
+            text-align: center;
+            width: 30%;
+            flex: 1;
+        }
+
+        .signature-title {
+            font-size: 11pt;
+            margin-bottom: 30px;
+            color: #2c3e50;
+        }
+
+        .signature-name {
+            font-size: 11pt;
+            font-weight: bold;
+            color: #2c3e50;
+            border-top: 1px solid #333;
+            padding-top: 4px;
+        }
+
+        .signature-table {
+            width: 100%;
+            text-align: center;
+            margin-top: 40px;
+            table-layout: fixed;
+        }
+
+        .signature-table td {
+            vertical-align: bottom;
+            padding: 0 20px;
+        }
+
+        .signature-title {
+            font-size: 11pt;
+            margin-bottom: 50px;
+            /* jarak antar tulisan dengan tanda tangan */
+            color: #2c3e50;
+        }
+
+        .signature-space {
+            height: 60px;
+            /* area kosong buat tanda tangan */
+        }
+
+        .signature-name {
+            font-size: 11pt;
+            font-weight: bold;
+            color: #2c3e50;
+            border-top: 1px solid #333;
+            padding-top: 5px;
+        }
+
+        /* Page numbering styles */
+        @page {
+            margin: 2cm 1.5cm 3cm 1.5cm;
+
+            @bottom-center {
+                content: "Halaman " counter(page) " dari " counter(pages);
+                font-size: 10pt;
+                color: #666;
+                font-family: Arial, sans-serif;
+            }
+        }
+
+        .page-number {
+            position: fixed;
+            bottom: 1cm;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 10pt;
+            color: #666;
+            font-family: Arial, sans-serif;
+            text-align: center;
+            z-index: 1000;
+        }
+
+        /* Ensure content doesn't overlap with page numbers */
+        .main-content {
+            margin-bottom: 2cm;
+        }
+
+        /* Page break controls */
+        .page-break {
+            page-break-before: always;
+        }
+
+        .no-break {
+            page-break-inside: avoid;
+        }
+
+        /* Ensure table headers repeat on new pages */
+        .table thead {
+            display: table-header-group;
+        }
+
+        .table tfoot {
+            display: table-footer-group;
+        }
+
+        /* Prevent breaking signature section */
+        .signature-section {
+            page-break-inside: avoid;
+            margin-top: 50px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            width: 100%;
+        }
     </style>
 
-    <div class="header">
-        <div class="logo-section">
-            <img src="{{ public_path('logo.png') }}" alt="Logo" class="logo">
-            <div class="report-title">
-                <h2>LAPORAN KEUANGAN</h2>
-                <div class="header-line"></div>
-                <h2>PT Mataram Digital Teknologi</h2>
+    <div class="main-content">
+        <div class="header">
+            <div class="logo-section">
+                <img src="{{ public_path('logo.png') }}" alt="Logo" class="logo">
+                <div class="report-title">
+                    <h2>LAPORAN KEUANGAN</h2>
+                    <div class="header-line"></div>
+                    <h2>PT Mataram Digital Teknologi</h2>
+                </div>
             </div>
         </div>
-    </div>
 
-    <table class="info-table">
-        @php
-            use Carbon\Carbon;
-            \Carbon\Carbon::setLocale('id');
-        @endphp
-
-        <tr>
-            <td>DARI TANGGAL</td>
-            <td>:</td>
-            <td>{{ Carbon::parse($_GET['dari'])->translatedFormat('d F Y') }}</td>
-        </tr>
-        <tr>
-            <td>SAMPAI TANGGAL</td>
-            <td>:</td>
-            <td>{{ Carbon::parse($_GET['sampai'])->translatedFormat('d F Y') }}</td>
-        </tr>
-
-        <tr>
-            <td>KATEGORI</td>
-            <td>:</td>
-            <td>
-                @php
-                    $id_kategori = $_GET['kategori'];
-                @endphp
-
-                @if($id_kategori == "")
-                    @php
-                        $kat = "SEMUA KATEGORI";
-                    @endphp
-                @else
-                    @php
-                        $katt = DB::table('kategori')->where('id', $id_kategori)->first();
-                        $kat = $katt->kategori;
-                    @endphp
-                @endif
-
-                {{$kat}}
-            </td>
-        </tr>
-    </table>
-    <table class="table">
-        <thead>
-            <tr>
-                <th rowspan="2" class="text-center" width="5%">NO</th>
-                <th rowspan="2" class="text-center" width="12%">TANGGAL</th>
-                <th rowspan="2" class="text-center" width="18%">KATEGORI</th>
-                <th rowspan="2" class="text-center" width="25%">KETERANGAN</th>
-                <th colspan="2" class="text-center" width="40%">JENIS</th>
-            </tr>
-            <tr>
-                <th class="text-center" width="20%">PEMASUKAN</th>
-                <th class="text-center" width="20%">PENGELUARAN</th>
-            </tr>
-        </thead>
-        <tbody>
+        <table class="info-table">
             @php
-                $no = 1;
-                $saldo = 0;
-                $total_pemasukan = 0;
-                $total_pengeluaran = 0;
-              @endphp
-            @foreach($transaksi as $t)
-                @php
-                    if ($t->jenis == "Pemasukan") {
-                        $saldo += $t->nominal;
-                    } else {
-                        $saldo -= $t->nominal;
-                    }
-                @endphp
-                <tr>
-                    <td class="text-center">{{ $no++ }}</td>
-                    <td class="text-center">{{ date('d-m-Y', strtotime($t->tanggal)) }}</td>
-                    <td>{{ $t->kategori->kategori }}</td>
-                    <td>{{ $t->keterangan }}</td>
-                    <td class="text-center">
-                        @if($t->jenis == "Pemasukan")
-                            {{ "Rp." . number_format($t->nominal) . ",-" }}
-                            @php $total_pemasukan += $t->nominal; @endphp
-                        @else
-                            {{ "-" }}
-                        @endif
-                    </td>
-                    <td class="text-center">
-                        @if($t->jenis == "Pengeluaran")
-                            {{ "Rp." . number_format($t->nominal) . ",-" }}
-                            @php $total_pengeluaran += $t->nominal; @endphp
-                        @else
-                            {{ "-" }}
-                        @endif
-                    </td>
-                </tr>
-            @endforeach
-        </tbody>
-        <tfoot class="tfoot">
+                use Carbon\Carbon;
+                \Carbon\Carbon::setLocale('id');
+            @endphp
+
             <tr>
-                <td colspan="4" class="text-bold text-right">Sub Total</td>
-                <td class="text-center text-bold">{{ "Rp." . number_format($total_pemasukan) . ",-" }}</td>
-                <td class="text-center text-bold">{{ "Rp." . number_format($total_pengeluaran) . ",-" }}</td>
+                <td>DARI TANGGAL</td>
+                <td>:</td>
+                <td>{{ Carbon::parse($_GET['dari'])->translatedFormat('d F Y') }}</td>
             </tr>
             <tr>
-                <td colspan="4" class="text-bold text-right">Total (Pemasukan - Pengeluaran)</td>
-                <td colspan="2" class="text-center text-bold">
-                    {{ "Rp." . number_format($total_pemasukan - $total_pengeluaran) . ",-" }}
+                <td>SAMPAI TANGGAL</td>
+                <td>:</td>
+                <td>{{ Carbon::parse($_GET['sampai'])->translatedFormat('d F Y') }}</td>
+            </tr>
+
+            <tr>
+                <td>KATEGORI</td>
+                <td>:</td>
+                <td>
+                    @php
+                        $id_kategori = $_GET['kategori'];
+                    @endphp
+
+                    @if($id_kategori == "")
+                        @php
+                            $kat = "SEMUA KATEGORI";
+                        @endphp
+                    @else
+                        @php
+                            $katt = DB::table('kategori')->where('id', $id_kategori)->first();
+                            $kat = $katt->kategori;
+                        @endphp
+                    @endif
+
+                    {{$kat}}
                 </td>
             </tr>
-        </tfoot>
-    </table>
+        </table>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th rowspan="2" class="text-center" width="5%">NO</th>
+                    <th rowspan="2" class="text-center" width="12%">TANGGAL</th>
+                    <th rowspan="2" class="text-center" width="18%">KATEGORI</th>
+                    <th rowspan="2" class="text-center" width="25%">KETERANGAN</th>
+                    <th colspan="2" class="text-center" width="40%">JENIS</th>
+                </tr>
+                <tr>
+                    <th class="text-center" width="20%">PEMASUKAN</th>
+                    <th class="text-center" width="20%">PENGELUARAN</th>
+                </tr>
+            </thead>
+            <tbody>
+                @php
+                    $no = 1;
+                    $saldo = 0;
+                    $total_pemasukan = 0;
+                    $total_pengeluaran = 0;
+                  @endphp
+                @foreach($transaksi as $t)
+                    @php
+                        if ($t->jenis == "Pemasukan") {
+                            $saldo += $t->nominal;
+                        } else {
+                            $saldo -= $t->nominal;
+                        }
+                    @endphp
+                    <tr>
+                        <td class="text-center">{{ $no++ }}</td>
+                        <td class="text-center">{{ date('d-m-Y', strtotime($t->tanggal)) }}</td>
+                        <td>{{ $t->kategori->kategori }}</td>
+                        <td>{{ $t->keterangan }}</td>
+                        <td class="text-center">
+                            @if($t->jenis == "Pemasukan")
+                                {{ "Rp." . number_format($t->nominal) . ",-" }}
+                                @php $total_pemasukan += $t->nominal; @endphp
+                            @else
+                                {{ "-" }}
+                            @endif
+                        </td>
+                        <td class="text-center">
+                            @if($t->jenis == "Pengeluaran")
+                                {{ "Rp." . number_format($t->nominal) . ",-" }}
+                                @php $total_pengeluaran += $t->nominal; @endphp
+                            @else
+                                {{ "-" }}
+                            @endif
+                        </td>
+                    </tr>
+                @endforeach
+            </tbody>
+            <tfoot class="tfoot">
+                <tr>
+                    <td colspan="4" class="text-bold text-right">Sub Total</td>
+                    <td class="text-center text-bold">{{ "Rp." . number_format($total_pemasukan) . ",-" }}</td>
+                    <td class="text-center text-bold">{{ "Rp." . number_format($total_pengeluaran) . ",-" }}</td>
+                </tr>
+                <tr>
+                    <td colspan="4" class="text-bold text-right">Total (Pemasukan - Pengeluaran)</td>
+                    <td colspan="2" class="text-center text-bold">
+                        {{ "Rp." . number_format($total_pemasukan - $total_pengeluaran) . ",-" }}
+                    </td>
+                </tr>
+            </tfoot>
+        </table>
+
+        <div class="signature-section no-break">
+            <table class="signature-table">
+                <tr>
+                    <td>
+                        <div class="signature-title">Di buat,</div>
+                        <div class="signature-space"></div>
+                        <div class="signature-name">Admin</div>
+                    </td>
+                    <td>
+                        <div class="signature-title">Di setujui,</div>
+                        <div class="signature-space"></div>
+                        <div class="signature-name">Direktur</div>
+                    </td>
+                    <td>
+                        <div class="signature-title">Di ketahui,</div>
+                        <div class="signature-space"></div>
+                        <div class="signature-name">Komisaris</div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+
+        <!-- Page number for browsers that don't support @page -->
+        <div class="page-number">
+            <script>
+                // Add page numbers for browsers that don't support CSS @page
+                if (window.matchMedia('print').matches || window.location.search.includes('print')) {
+                    document.addEventListener('DOMContentLoaded', function () {
+                        var pageNumber = 1;
+                        var pageElements = document.querySelectorAll('.page-break, table');
+                        var pageNumberDiv = document.querySelector('.page-number');
+
+                        // Simple page number display for multi-page content
+                        if (document.body.scrollHeight > window.innerHeight) {
+                            pageNumberDiv.innerHTML = 'Halaman ' + pageNumber + ' - Laporan Keuangan';
+                            pageNumberDiv.style.display = 'block';
+                        }
+                    });
+                }
+            </script>
+        </div>
+
+    </div> <!-- Close main-content div -->
 
 </body>
 

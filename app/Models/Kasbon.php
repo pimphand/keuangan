@@ -1,0 +1,55 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+
+class Kasbon extends Model
+{
+    /** @use HasFactory<\Database\Factories\KasbonFactory> */
+    use HasFactory;
+
+    protected $fillable = [
+        'user_id',
+        'nominal',
+        'keterangan',
+        'status',
+        'disetujui_id',
+        'alasan'
+    ];
+
+    protected $casts = [
+        'nominal' => 'decimal:2',
+    ];
+
+    const STATUS_PENDING = 'pending';
+    const STATUS_APPROVED = 'disetujui';
+    const STATUS_REJECTED = 'ditolak';
+
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    public function disetujui(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'disetujui_id');
+    }
+
+    public function isPending(): bool
+    {
+        return $this->status === self::STATUS_PENDING;
+    }
+
+    public function isApproved(): bool
+    {
+        return $this->status === self::STATUS_APPROVED;
+    }
+
+    public function isRejected(): bool
+    {
+        return $this->status === self::STATUS_REJECTED;
+    }
+}

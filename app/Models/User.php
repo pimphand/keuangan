@@ -21,6 +21,14 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'phone',
+        'address',
+        'photo',
+        'role',
+        'level',
+        'saldo',
+        'kasbon',
+        'status',
     ];
 
     /**
@@ -40,5 +48,17 @@ class User extends Authenticatable
      */
     protected $casts = [
         'email_verified_at' => 'datetime',
+        'saldo' => 'decimal:2',
+        'kasbon' => 'decimal:2',
     ];
+
+    public function kasbons()
+    {
+        return $this->hasMany(Kasbon::class);
+    }
+
+    public function approvedKasbons()
+    {
+        return $this->hasMany(Kasbon::class, 'disetujui_id');
+    }
 }

@@ -21,6 +21,75 @@
     <link rel="stylesheet"
         href="{{ asset('asset_admin/bower_components/bootstrap-daterangepicker/daterangepicker.css') }}">
 
+    <style>
+        .balance-info {
+            display: flex;
+            align-items: center;
+            margin-top: 8px;
+        }
+
+        .balance-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 10px 18px;
+            border-radius: 25px;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 500;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .balance-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .balance-card i {
+            font-size: 18px;
+            opacity: 0.9;
+        }
+
+        .balance-label {
+            font-weight: 400;
+            opacity: 0.9;
+            font-size: 13px;
+        }
+
+        .balance-amount {
+            font-weight: 700;
+            font-size: 16px;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+        }
+
+        .balance-amount.text-success {
+            color: #4ade80 !important;
+        }
+
+        .balance-amount.text-danger {
+            color: #f87171 !important;
+        }
+
+        @media (max-width: 768px) {
+            .balance-card {
+                padding: 8px 14px;
+                font-size: 12px;
+                gap: 8px;
+            }
+
+            .balance-amount {
+                font-size: 13px;
+            }
+
+            .balance-card i {
+                font-size: 14px;
+            }
+        }
+    </style>
+
 </head>
 
 <body>
@@ -48,12 +117,31 @@
             </div>
         </div>
 
-        <div class="header" style="background: transparent;">
+        <div class="header"
+            style="background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); border-bottom: 1px solid #e0e6ed;">
             <div class="header-content clearfix">
 
-                <div class="nav-control">
+                <div class="nav-control d-flex">
                     <div class="hamburger">
                         <span class="toggle-icon"><i class="icon-menu"></i></span>
+                    </div>
+                    <div class="balance-info">
+                        @php
+                            $total_pemasukan = DB::table('transaksi')
+                                ->where('jenis', 'Pemasukan')
+                                ->sum('nominal');
+                            $total_pengeluaran = DB::table('transaksi')
+                                ->where('jenis', 'Pengeluaran')
+                                ->sum('nominal');
+                            $saldo = $total_pemasukan - $total_pengeluaran;
+                        @endphp
+                        <div class="balance-card">
+                            <i class="fa fa-wallet"></i>
+                            <span class="balance-label">Saldo:</span>
+                            <span class="balance-amount {{ $saldo >= 0 ? 'text-success' : 'text-danger' }}">
+                                Rp. {{ number_format($saldo, 0, ',', '.') }}
+                            </span>
+                        </div>
                     </div>
                 </div>
                 <div class="header-left">
@@ -123,13 +211,16 @@
                     @endif
                     <div class="media-body">
                         <h5 class="mb-0">{{ Auth::user()->name }}</h5>
-                        <p class="text-muted mb-0"><?php if (Auth::user()->level == "admin") {
-    echo "Administrator";
-} else if (Auth::user()->level == "bendahara") {
-    echo "Bendahara";
-} else {
-    echo "Pengawas";
-} ?></p>
+                        <p class="text-muted mb-0">
+                            @php
+                                if (Auth::user()->level == "admin") {
+                                    echo "Administrator";
+                                } else if (Auth::user()->level == "bendahara") {
+                                    echo "Bendahara";
+                                } else {
+                                    echo "Pengawas";
+                            } @endphp
+                        </p>
                     </div>
                 </div>
             </div>
@@ -165,6 +256,26 @@
                             <i class="icon-notebook menu-icon mr-3"></i><span class="nav-text">Laporan</span>
                         </a>
                     </li>
+
+                    <li>
+                        <a href="{{ route('pegawai.index') }}" aria-expanded="false">
+                            <i class="icon-clock menu-icon mr-3"></i><span class="nav-text">Absensi Pegawai</span>
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="{{ route('kasbon.index') }}" aria-expanded="false">
+                            <i class="icon-credit-card menu-icon mr-3"></i><span class="nav-text">Kasbon</span>
+                        </a>
+                    </li>
+
+                    @if(Auth::user()->level == "admin")
+                        <li>
+                            <a href="{{ route('absensi.admin') }}" aria-expanded="false">
+                                <i class="icon-list menu-icon mr-3"></i><span class="nav-text">Manajemen Absensi</span>
+                            </a>
+                        </li>
+                    @endif
 
                     @if(Auth::user()->level == "admin")
 
@@ -287,6 +398,56 @@
             autoclose: true,
             format: 'yyyy/mm/dd',
         });
+
+        // Date range picker for laporan page
+        if ($('#daterange').length) {
+            // Initialize date range picker
+            $('#daterange').daterangepicker({
+                autoUpdateInput: false,
+                locale: {
+                    cancelLabel: 'Clear',
+                    format: 'DD/MM/YYYY'
+                }
+            });
+
+            // Handle date range picker events
+            $('#daterange').on('apply.daterangepicker', function (ev, picker) {
+                $(this).val(picker.startDate.format('DD/MM/YYYY') + ' - ' + picker.endDate.format('DD/MM/YYYY'));
+                $('#dari').val(picker.startDate.format('YYYY-MM-DD'));
+                $('#sampai').val(picker.endDate.format('YYYY-MM-DD'));
+            });
+
+            $('#daterange').on('cancel.daterangepicker', function (ev, picker) {
+                $(this).val('');
+                $('#dari').val('');
+                $('#sampai').val('');
+            });
+
+            // Handle "Laporan Akhir" button click
+            $('#laporanAkhir').on('click', function () {
+                // Clear the form and submit to load all data
+                $('#daterange').val('');
+                $('#dari').val('');
+                $('#sampai').val('');
+                $('select[name="kategori"]').val('');
+
+                // Submit the form
+                $('#filterForm').submit();
+            });
+
+            // Set initial values if form was submitted with date range
+            @if(request()->routeIs('laporan') && isset($_GET['dari']) && isset($_GET['sampai']))
+                var dari = '{{ $_GET["dari"] }}';
+                var sampai = '{{ $_GET["sampai"] }}';
+                if (dari && sampai) {
+                    var startDate = moment(dari, 'YYYY-MM-DD');
+                    var endDate = moment(sampai, 'YYYY-MM-DD');
+                    $('#daterange').val(startDate.format('DD/MM/YYYY') + ' - ' + endDate.format('DD/MM/YYYY'));
+                    $('#dari').val(dari);
+                    $('#sampai').val(sampai);
+                }
+            @endif
+        }
 
     </script>
 

@@ -127,6 +127,39 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Office Location Configuration
+    |--------------------------------------------------------------------------
+    |
+    | These values define the office location coordinates and radius for
+    | attendance validation. Users must be within the specified radius
+    | to perform attendance actions.
+    |
+    */
+
+    'office' => [
+        'latitude' => env('OFFICE_LATITUDE', -7.756226),
+        'longitude' => env('OFFICE_LONGITUDE', 110.441357),
+        'radius_meters' => env('OFFICE_RADIUS_METERS', 200),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Work Hours Configuration
+    |--------------------------------------------------------------------------
+    |
+    | This configuration defines the work hours for attendance validation.
+    | Employees can only check out after the work end time.
+    |
+    */
+
+    'work_hours' => [
+        'start_time' => env('WORK_START_TIME', '08:00'),
+        'end_time' => env('WORK_END_TIME', '17:00'),
+        'late_threshold_minutes' => env('LATE_THRESHOLD_MINUTES', 10),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Maintenance Mode Driver
     |--------------------------------------------------------------------------
     |
@@ -185,7 +218,7 @@ return [
         /*
          * Package Service Providers...
          */
-        
+
         /*
          * Application Service Providers...
          */

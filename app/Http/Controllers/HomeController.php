@@ -3,12 +3,14 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
 
 use App\Kategori;
 use App\Transaksi;
 use App\User;
+use App\Models\Absensi;
+use App\Services\ImageProcessingService;
 
 use Hash;
 use Auth;
@@ -280,44 +282,50 @@ class HomeController extends Controller
 
     public function laporan()
     {
-        if (isset($_GET['kategori'])) {
-            $kategori = Kategori::orderBy('kategori', 'asc')->get();
-            if ($_GET['kategori'] == "") {
-                $transaksi = Transaksi::whereDate('tanggal', '>=', $_GET['dari'])
-                    ->whereDate('tanggal', '<=', $_GET['sampai'])
-                    ->get();
-            } else {
-                $transaksi = Transaksi::where('kategori_id', $_GET['kategori'])
-                    ->whereDate('tanggal', '>=', $_GET['dari'])
-                    ->whereDate('tanggal', '<=', $_GET['sampai'])
-                    ->get();
+        $kategori = Kategori::orderBy('kategori', 'asc')->get();
+
+        // Check if form was submitted
+        if (isset($_GET['kategori']) || isset($_GET['dari']) || isset($_GET['sampai'])) {
+            $query = Transaksi::query();
+
+            // Apply date filter if provided
+            if (isset($_GET['dari']) && isset($_GET['sampai']) && !empty($_GET['dari']) && !empty($_GET['sampai'])) {
+                $query->whereDate('tanggal', '>=', $_GET['dari'])
+                    ->whereDate('tanggal', '<=', $_GET['sampai']);
             }
-            // $transaksi = Transaksi::orderBy('id','desc')->get();
-            return view('app.laporan', ['transaksi' => $transaksi, 'kategori' => $kategori]);
+
+            // Apply category filter if provided
+            if (isset($_GET['kategori']) && !empty($_GET['kategori'])) {
+                $query->where('kategori_id', $_GET['kategori']);
+            }
+
+            $transaksi = $query->orderBy('tanggal', 'desc')->get();
         } else {
-            $kategori = Kategori::orderBy('kategori', 'asc')->get();
-            // $transaksi = Transaksi::orderBy('id','desc')->get();
-            return view('app.laporan', ['transaksi' => array(), 'kategori' => $kategori]);
+            // If no filters applied, show empty array
+            $transaksi = collect();
         }
+
+        return view('app.laporan', ['transaksi' => $transaksi, 'kategori' => $kategori]);
     }
 
     public function laporan_print()
     {
-        if (isset($_GET['kategori'])) {
-            $kategori = Kategori::orderBy('kategori', 'asc')->get();
-            if ($_GET['kategori'] == "") {
-                $transaksi = Transaksi::whereDate('tanggal', '>=', $_GET['dari'])
-                    ->whereDate('tanggal', '<=', $_GET['sampai'])
-                    ->get();
-            } else {
-                $transaksi = Transaksi::where('kategori_id', $_GET['kategori'])
-                    ->whereDate('tanggal', '>=', $_GET['dari'])
-                    ->whereDate('tanggal', '<=', $_GET['sampai'])
-                    ->get();
-            }
-            // $transaksi = Transaksi::orderBy('id','desc')->get();
-            return view('app.laporan_print', ['transaksi' => $transaksi, 'kategori' => $kategori]);
+        $kategori = Kategori::orderBy('kategori', 'asc')->get();
+        $query = Transaksi::query();
+
+        // Apply date filter if provided
+        if (isset($_GET['dari']) && isset($_GET['sampai']) && !empty($_GET['dari']) && !empty($_GET['sampai'])) {
+            $query->whereDate('tanggal', '>=', $_GET['dari'])
+                ->whereDate('tanggal', '<=', $_GET['sampai']);
         }
+
+        // Apply category filter if provided
+        if (isset($_GET['kategori']) && !empty($_GET['kategori'])) {
+            $query->where('kategori_id', $_GET['kategori']);
+        }
+
+        $transaksi = $query->orderBy('tanggal', 'desc')->get();
+        return view('app.laporan_print', ['transaksi' => $transaksi, 'kategori' => $kategori]);
     }
 
     // public function laporan_excel()
@@ -327,25 +335,23 @@ class HomeController extends Controller
 
     public function laporan_pdf()
     {
-        if (isset($_GET['kategori'])) {
-            $kategori = Kategori::orderBy('kategori', 'asc')->get();
-            if ($_GET['kategori'] == "") {
-                $transaksi = Transaksi::whereDate('tanggal', '>=', $_GET['dari'])
-                    ->whereDate('tanggal', '<=', $_GET['sampai'])
-                    ->orderBy('tanggal', 'desc')
-                    ->get();
-            } else {
-                $transaksi = Transaksi::where('kategori_id', $_GET['kategori'])
-                    ->whereDate('tanggal', '>=', $_GET['dari'])
-                    ->whereDate('tanggal', '<=', $_GET['sampai'])
-                    ->orderBy('tanggal', 'desc')
-                    ->get();
-            }
-            // $transaksi = Transaksi::orderBy('id','desc')->get();
-            // return view('app.laporan_print',['transaksi' => $transaksi, 'kategori' => $kategori]);
-            $pdf = PDF::loadView('app.laporan_pdf', ['transaksi' => $transaksi, 'kategori' => $kategori]);
-            return $pdf->download('Laporan Keuangan.pdf');
+        $kategori = Kategori::orderBy('kategori', 'asc')->get();
+        $query = Transaksi::query();
+
+        // Apply date filter if provided
+        if (isset($_GET['dari']) && isset($_GET['sampai']) && !empty($_GET['dari']) && !empty($_GET['sampai'])) {
+            $query->whereDate('tanggal', '>=', $_GET['dari'])
+                ->whereDate('tanggal', '<=', $_GET['sampai']);
         }
+
+        // Apply category filter if provided
+        if (isset($_GET['kategori']) && !empty($_GET['kategori'])) {
+            $query->where('kategori_id', $_GET['kategori']);
+        }
+
+        $transaksi = $query->orderBy('tanggal', 'desc')->get();
+        $pdf = PDF::loadView('app.laporan_pdf', ['transaksi' => $transaksi, 'kategori' => $kategori]);
+        return $pdf->download('Laporan Keuangan.pdf');
     }
 
 
@@ -375,12 +381,9 @@ class HomeController extends Controller
 
         // cek jika gambar kosong
         if ($file != "") {
-            // menambahkan waktu sebagai pembuat unik nnama file gambar
-            $nama_file = time() . "_" . $file->getClientOriginalName();
-
-            // isi dengan nama folder tempat kemana file diupload
-            $tujuan_upload = 'gambar/user';
-            $file->move($tujuan_upload, $nama_file);
+            // Process image with WebP conversion and compression
+            $imageService = new ImageProcessingService();
+            $nama_file = $imageService->processAndStore($file, 'gambar/user', 40); // 40% quality
         } else {
             $nama_file = "";
         }
@@ -430,15 +433,14 @@ class HomeController extends Controller
 
         // cek jika gambar tidak kosong
         if ($file != "") {
-            // menambahkan waktu sebagai pembuat unik nnama file gambar
-            $nama_file = time() . "_" . $file->getClientOriginalName();
-
-            // isi dengan nama folder tempat kemana file diupload
-            $tujuan_upload = 'gambar/user';
-            $file->move($tujuan_upload, $nama_file);
+            // Process image with WebP conversion and compression
+            $imageService = new ImageProcessingService();
+            $nama_file = $imageService->processAndStore($file, 'gambar/user', 40); // 40% quality
 
             // hapus file gambar lama
-            File::delete('gambar/user/' . $user->foto);
+            if ($user->foto && Storage::disk('public')->exists($user->foto)) {
+                Storage::disk('public')->delete($user->foto);
+            }
 
             $user->foto = $nama_file;
         }
@@ -456,5 +458,23 @@ class HomeController extends Controller
         $user->delete();
 
         return redirect(route('user'))->with("success", "User telah dihapus!");
+    }
+
+    public function absensi_admin()
+    {
+        $absensi = Absensi::with('user')
+            ->orderBy('waktu_absen', 'desc')
+            ->paginate(20);
+
+        return view('app.absensi_admin', compact('absensi'));
+    }
+
+    public function absensi_update_status(Request $request, $id)
+    {
+        $absensi = Absensi::find($id);
+        $absensi->status = $request->status;
+        $absensi->save();
+
+        return redirect()->back()->with('success', 'Status absensi berhasil diupdate!');
     }
 }

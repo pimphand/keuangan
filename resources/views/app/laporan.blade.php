@@ -26,37 +26,29 @@
                     </div>
                     <div class="card-body">
 
-                        <form method="GET" action="{{ route('laporan') }}">
+                        <form method="GET" action="{{ route('laporan') }}" id="filterForm">
                             @csrf
                             <div class="row">
 
-                                <div class="col-lg-offset-2 col-lg-3">
+                                <div class="col-lg-offset-1 col-lg-3">
                                     <div class="form-group">
-                                        <label>Dari Tanggal</label>
-                                        <input class="form-control datepicker2" placeholder="Dari Tanggal" type="text"
-                                            required="required" name="dari"
-                                            value="<?php if (isset($_GET['dari'])) {
-        echo $_GET['dari'];
+                                        <label>Rentang Tanggal</label>
+                                        <input class="form-control" placeholder="Pilih Rentang Tanggal" type="text"
+                                            id="daterange" name="daterange"
+                                            value="<?php if (isset($_GET['daterange'])) {
+        echo $_GET['daterange'];
     } ?>">
+                                        <input type="hidden" name="dari" id="dari">
+                                        <input type="hidden" name="sampai" id="sampai">
                                     </div>
                                 </div>
                                 <div class="col-lg-3">
-                                    <div class="form-group">
-                                        <label>Sampai Tanggal</label>
-                                        <input class="form-control datepicker2" placeholder="Sampai Tanggal" type="text"
-                                            required="required" name="sampai"
-                                            value="<?php if (isset($_GET['sampai'])) {
-        echo $_GET['sampai'];
-    } ?>">
-                                    </div>
-                                </div>
-                                <div class="col-lg-4">
                                     <div class="form-group">
                                         <label>Kategori</label>
                                         <select class="form-control" name="kategori">
                                             <option value="">Semua Kategori</option>
                                             @foreach($kategori as $k)
-                                                                                <option <?php    if (isset($_GET['kategori'])) {
+                                                <option <?php if (isset($_GET['kategori'])) {
             if ($_GET['kategori'] == $k->id) {
                 echo "selected='selected'";
             }
@@ -70,6 +62,13 @@
                                         <input type="submit" class="btn btn-primary" value="Tampilkan" style="margin-top: 25px">
                                     </div>
                                 </div>
+                                <div class="col-lg-2">
+                                    <div class="form-group">
+                                        <button type="button" class="btn btn-success" id="laporanAkhir" style="margin-top: 25px">
+                                            Laporan Akhir
+                                        </button>
+                                    </div>
+                                </div>
 
                             </div>
 
@@ -80,7 +79,7 @@
                 </div>
 
 
-                @if(isset($_GET['kategori']))
+                @if(isset($_GET['kategori']) || (isset($_GET['dari']) && isset($_GET['sampai'])) || (isset($_GET['laporan_akhir'])))
 
                                 <div class="card">
 
@@ -90,6 +89,7 @@
                                     <div class="card-body">
 
                                         <table style="width: 50%">
+                                            @if(isset($_GET['dari']) && isset($_GET['sampai']) && !empty($_GET['dari']) && !empty($_GET['sampai']))
                                             <tr>
                                                 <th width="25%">DARI TANGGAL</th>
                                                 <th width="5%" class="text-center">:</th>
@@ -100,12 +100,19 @@
                                                 <th width="5%" class="text-center">:</th>
                                                 <td>{{ date('d-m-Y', strtotime($_GET['sampai'])) }}</td>
                                             </tr>
+                                            @else
+                                            <tr>
+                                                <th width="25%">PERIODE</th>
+                                                <th width="5%" class="text-center">:</th>
+                                                <td>SEMUA DATA</td>
+                                            </tr>
+                                            @endif
                                             <tr>
                                                 <th width="25%">KATEGORI</th>
                                                 <th width="5%" class="text-center">:</th>
                                                 <td>
                                                     @php
-                    $id_kategori = $_GET['kategori'];
+                    $id_kategori = isset($_GET['kategori']) ? $_GET['kategori'] : '';
                                                       @endphp
 
                                                     @if($id_kategori == "")
@@ -127,10 +134,10 @@
                                         <br>
                                         <br>
                                         <a target="_BLANK"
-                                            href="{{ route('laporan_pdf', ['kategori' => $_GET['kategori'], 'dari' => $_GET['dari'], 'sampai' => $_GET['sampai']]) }}"
+                                            href="{{ route('laporan_pdf', ['kategori' => isset($_GET['kategori']) ? $_GET['kategori'] : '', 'dari' => isset($_GET['dari']) ? $_GET['dari'] : '', 'sampai' => isset($_GET['sampai']) ? $_GET['sampai'] : '']) }}"
                                             class="btn btn-outline-secondary"><i class="fa fa-file-pdf-o "></i> &nbsp; CETAK PDF</a>
                                         <a target="_BLANK"
-                                            href="{{ route('laporan_print', ['kategori' => $_GET['kategori'], 'dari' => $_GET['dari'], 'sampai' => $_GET['sampai']]) }}"
+                                            href="{{ route('laporan_print', ['kategori' => isset($_GET['kategori']) ? $_GET['kategori'] : '', 'dari' => isset($_GET['dari']) ? $_GET['dari'] : '', 'sampai' => isset($_GET['sampai']) ? $_GET['sampai'] : '']) }}"
                                             class="btn btn-outline-secondary"><i class="fa fa-print "></i> &nbsp; CETAK PRINT</a>
                                         <br>
                                         <br>
