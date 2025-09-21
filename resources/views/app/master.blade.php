@@ -288,6 +288,18 @@
                                 <li><a href="{{ route('user.tambah') }}">Tambah Pengguna Baru</a></li>
                             </ul>
                         </li>
+
+                        <li class="mega-menu mega-menu-sm">
+                            <a class="has-arrow" href="javascript:void()" aria-expanded="false">
+                                <i class="icon-settings menu-icon mr-3"></i><span class="nav-text">Role & Permission</span>
+                            </a>
+                            <ul aria-expanded="false">
+                                <li><a href="{{ route('role') }}">Data Role</a></li>
+                                <li><a href="{{ route('role.create') }}">Tambah Role</a></li>
+                                <li><a href="{{ route('permission') }}">Data Permission</a></li>
+                                <li><a href="{{ route('permission.create') }}">Tambah Permission</a></li>
+                            </ul>
+                        </li>
                     @endif
 
                     <li>

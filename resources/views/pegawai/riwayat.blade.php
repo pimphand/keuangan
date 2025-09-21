@@ -64,7 +64,7 @@
                                 @endif
 
                                 <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium
-                                                                                                                    {{ $absen->status == 'valid' ? 'bg-green-100 text-green-800' :
+                                                                                                                                            {{ $absen->status == 'valid' ? 'bg-green-100 text-green-800' :
                         ($absen->status == 'invalid' ? 'bg-red-100 text-red-800' :
                             'bg-yellow-100 text-yellow-800') }}">
                                     {{ ucfirst($absen->status) }}
@@ -181,7 +181,7 @@
         }
 
         function viewPhoto(photoPath) {
-            document.getElementById('modal-photo').src = '/storage/' + photoPath;
+            document.getElementById('modal-photo').src = '/' + photoPath;
             document.getElementById('photoModal').classList.remove('hidden');
             document.getElementById('photoModal').classList.add('flex');
         }

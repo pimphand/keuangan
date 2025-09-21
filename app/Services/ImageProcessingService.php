@@ -5,7 +5,6 @@ namespace App\Services;
 use Intervention\Image\ImageManager;
 use Intervention\Image\Drivers\Gd\Driver;
 use Illuminate\Http\UploadedFile;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class ImageProcessingService
@@ -40,8 +39,15 @@ class ImageProcessingService
         // Convert to WebP and compress
         $webpData = $image->toWebp($quality);
 
-        // Store the processed image
-        Storage::disk('public')->put($path, $webpData);
+        // Store the processed image directly to public folder
+        $fullPath = public_path($path);
+
+        // Ensure directory exists
+        if (!file_exists(dirname($fullPath))) {
+            mkdir(dirname($fullPath), 0755, true);
+        }
+
+        file_put_contents($fullPath, $webpData);
 
         return $path;
     }
@@ -75,8 +81,12 @@ class ImageProcessingService
      */
     public function getFileSize(string $path): string
     {
-        $size = Storage::disk('public')->size($path);
-        return $this->formatBytes($size);
+        $fullPath = public_path($path);
+        if (file_exists($fullPath)) {
+            $size = filesize($fullPath);
+            return $this->formatBytes($size);
+        }
+        return '0 B';
     }
 
     /**
@@ -105,8 +115,9 @@ class ImageProcessingService
      */
     public function deleteImage(string $path): bool
     {
-        if (Storage::disk('public')->exists($path)) {
-            return Storage::disk('public')->delete($path);
+        $fullPath = public_path($path);
+        if (file_exists($fullPath)) {
+            return unlink($fullPath);
         }
 
         return false;

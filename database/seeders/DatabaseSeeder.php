@@ -18,5 +18,11 @@ class DatabaseSeeder extends Seeder
         //     'name' => 'Test User',
         //     'email' => 'test@example.com',
         // ]);
+
+        // Run comprehensive permission seeder
+        $this->call([
+            ComprehensivePermissionSeeder::class,
+            RolePermissionSeeder::class,
+        ]);
     }
 }

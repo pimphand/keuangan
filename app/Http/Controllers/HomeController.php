@@ -8,14 +8,15 @@ use Illuminate\Support\Facades\DB;
 
 use App\Kategori;
 use App\Transaksi;
-use App\User;
+use App\Models\User;
 use App\Models\Absensi;
+use App\Models\Role;
 use App\Services\ImageProcessingService;
 
-use Hash;
-use Auth;
-use File;
-use PDF;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\File;
+use Barryvdh\DomPDF\Facade\Pdf;
 use App\Exports\LaporanExport;
 use App\Exports\KategoriTemplateExport;
 use App\Exports\TransaksiExport;
@@ -41,10 +42,15 @@ class HomeController extends Controller
     /**
      * Show the application dashboard.
      *
-     * @return \Illuminate\Contracts\Support\Renderable
+     * @return \Illuminate\Contracts\Support\Renderable|\Illuminate\Http\RedirectResponse
      */
     public function index()
     {
+        // Redirect pegawai to beranda
+        if (auth()->user()->hasRole('Pegawai')) {
+            return redirect()->route('pegawai.beranda');
+        }
+
         $kategori = Kategori::all();
         $transaksi = Transaksi::all();
         $tanggal = date('Y-m-d');
@@ -350,20 +356,21 @@ class HomeController extends Controller
         }
 
         $transaksi = $query->orderBy('tanggal', 'desc')->get();
-        $pdf = PDF::loadView('app.laporan_pdf', ['transaksi' => $transaksi, 'kategori' => $kategori]);
+        $pdf = Pdf::loadView('app.laporan_pdf', ['transaksi' => $transaksi, 'kategori' => $kategori]);
         return $pdf->download('Laporan Keuangan.pdf');
     }
 
 
     public function user()
     {
-        $user = User::all();
+        $user = User::with('roles')->get();
         return view('app.user', ['user' => $user]);
     }
 
     public function user_add()
     {
-        return view('app.user_tambah');
+        $roles = Role::active()->get();
+        return view('app.user_tambah', compact('roles'));
     }
 
     public function user_aksi(Request $request)
@@ -372,7 +379,8 @@ class HomeController extends Controller
             'nama' => 'required',
             'email' => 'required|email',
             'password' => 'required|min:5',
-            'level' => 'required',
+            'roles' => 'array',
+            'roles.*' => 'exists:roles,id',
             'foto' => 'image|mimes:jpeg,png,jpg|max:2048',
         ]);
 
@@ -388,22 +396,27 @@ class HomeController extends Controller
             $nama_file = "";
         }
 
-
-        User::create([
+        $user = User::create([
             'name' => $request->nama,
             'email' => $request->email,
             'password' => bcrypt($request->password),
-            'level' => $request->level,
-            'foto' => $nama_file
+            'level' => "admin",
+            'foto' => $nama_file ?? ''
         ]);
+
+        // Assign roles to user
+        if ($request->has('roles')) {
+            $user->syncRoles($request->roles);
+        }
 
         return redirect(route('user'))->with('success', 'User telah disimpan');
     }
 
     public function user_edit($id)
     {
-        $user = User::find($id);
-        return view('app.user_edit', ['user' => $user]);
+        $user = User::with('roles')->find($id);
+        $roles = Role::active()->get();
+        return view('app.user_edit', ['user' => $user, 'roles' => $roles]);
     }
 
     public function user_update($id, Request $req)
@@ -411,7 +424,8 @@ class HomeController extends Controller
         $this->validate($req, [
             'nama' => 'required',
             'email' => 'required|email',
-            'level' => 'required',
+            'roles' => 'array',
+            'roles.*' => 'exists:roles,id',
             'foto' => 'image|mimes:jpeg,png,jpg|max:2048',
         ]);
 
@@ -419,7 +433,6 @@ class HomeController extends Controller
         $email = $req->input('email');
         $password = $req->input('password');
         $level = $req->input('level');
-
 
         $user = User::find($id);
         $user->name = $name;
@@ -438,14 +451,21 @@ class HomeController extends Controller
             $nama_file = $imageService->processAndStore($file, 'gambar/user', 40); // 40% quality
 
             // hapus file gambar lama
-            if ($user->foto && Storage::disk('public')->exists($user->foto)) {
-                Storage::disk('public')->delete($user->foto);
+            if ($user->foto && file_exists(public_path($user->foto))) {
+                unlink(public_path($user->foto));
             }
 
             $user->foto = $nama_file;
         }
         $user->level = $level;
         $user->save();
+
+        // Update user roles
+        if ($req->has('roles')) {
+            $user->syncRoles($req->roles);
+        } else {
+            $user->roles()->detach();
+        }
 
         return redirect(route('user'))->with("success", "User telah diupdate!");
     }

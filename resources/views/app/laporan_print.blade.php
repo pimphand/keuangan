@@ -13,9 +13,12 @@
             font-family: Arial, sans-serif;
         }
 
-        .header {
-            margin-bottom: 25px;
-            position: relative;
+        .logo {
+            width: 100px;
+            height: auto;
+            max-height: 100px;
+            margin-right: 20px;
+            object-fit: contain;
         }
 
         .logo-section {
@@ -23,14 +26,6 @@
             align-items: center;
             margin-bottom: 20px;
             position: relative;
-        }
-
-        .logo {
-            width: 100px;
-            height: auto;
-            max-height: 100px;
-            margin-right: 20px;
-            object-fit: contain;
         }
 
         .company-info {
@@ -43,12 +38,6 @@
             font-weight: bold;
             color: #2c3e50;
             line-height: 1.2;
-        }
-
-        .company-info p {
-            margin: 3px 0;
-            font-size: 11pt;
-            color: #666;
         }
 
         .report-title {
@@ -75,6 +64,8 @@
         .info-table {
             margin-bottom: 20px;
             font-size: 11pt;
+            width: 100%;
+            border-collapse: collapse;
         }
 
         .info-table td {
@@ -143,22 +134,226 @@
             padding: 8px;
         }
 
+        .totals-table {
+            page-break-inside: avoid;
+            margin-top: 10px;
+        }
+
+        .tfoot {
+            page-break-inside: avoid;
+        }
+
+        .table {
+            page-break-inside: auto;
+        }
+
+        .table tr {
+            page-break-inside: avoid;
+            page-break-after: auto;
+        }
+
+        .table thead {
+            display: table-header-group;
+        }
+
+        .table thead tr {
+            page-break-inside: avoid;
+            page-break-after: avoid;
+        }
+
+        .table thead th {
+            padding-top: 4px;
+            padding-bottom: 4px;
+        }
+
+        /* Default margins untuk halaman pertama */
+        @page {
+            margin-top: 0.5cm;
+            margin-bottom: 1cm;
+            margin-left: 1.5cm;
+            margin-right: 1.5cm;
+        }
+
+        /* Margin khusus untuk halaman pertama */
+        @page :first {
+            margin-top: 0.5cm;
+            margin-bottom: 1cm;
+            margin-left: 1.5cm;
+            margin-right: 1.5cm;
+        }
+
+        /* Margin khusus untuk halaman kedua dan selanjutnya */
+        @page :not(:first) {
+            margin-top: 3cm;
+            margin-bottom: 1cm;
+            margin-left: 1.5cm;
+            margin-right: 1.5cm;
+        }
+
+        .signature-section {
+            margin-top: 50px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            width: 100%;
+        }
+
+        .signature-title {
+            font-size: 11pt;
+            margin-bottom: 30px;
+            color: #2c3e50;
+        }
+
+        .signature-name {
+            font-size: 11pt;
+            font-weight: bold;
+            color: #2c3e50;
+            border-top: 1px solid #333;
+            padding-top: 4px;
+        }
+
+        .signature-table {
+            width: 100%;
+            text-align: center;
+            margin-top: 40px;
+            table-layout: fixed;
+        }
+
+        .signature-table td {
+            vertical-align: bottom;
+            padding: 0 20px;
+        }
+
+        .signature-space {
+            height: 60px;
+        }
+
+        /* Header perusahaan untuk setiap halaman */
+        .header-print {
+            page-break-inside: avoid;
+            page-break-after: avoid;
+        }
+
+        .header-print thead {
+            display: table-header-group;
+        }
+
+        .header-print thead tr {
+            page-break-inside: avoid;
+            page-break-after: avoid;
+        }
+
+        /* Header untuk setiap halaman */
+        .page-header {
+            width: 100%;
+            margin-bottom: 15px;
+            page-break-inside: avoid;
+        }
+
+        /* Header berulang untuk halaman berikutnya */
+        .page-header-repeat {
+            display: none;
+        }
+
+        /* Header running untuk halaman kedua dan selanjutnya */
+        .header-repeat {
+            position: running(header);
+            width: 100%;
+            text-align: center;
+            font-size: 12pt;
+            font-weight: bold;
+            color: #2c3e50;
+            padding: 15px 0;
+            border-bottom: 1px solid #2c3e50;
+            margin-bottom: 20px;
+        }
+
         @media print {
             body {
                 margin: 0;
-                padding: 15px;
+                padding: 10px;
             }
 
             .no-print {
                 display: none;
+            }
+
+            .info-table {
+                margin-bottom: 15px;
+            }
+
+            .table {
+                margin-top: 0;
+            }
+
+            .table thead th {
+                padding: 4px 6px;
+            }
+
+            /* Header perusahaan untuk halaman pertama */
+            .page-header {
+                display: block;
+                page-break-after: avoid;
+            }
+
+            /* Header berulang untuk halaman berikutnya */
+            .page-header-repeat {
+                display: none;
+            }
+
+            /* Margin khusus untuk halaman pertama saat print */
+            @page :first {
+                margin-top: 0.5cm;
+                margin-bottom: 1cm;
+                margin-left: 1.5cm;
+                margin-right: 1.5cm;
+            }
+
+            /* Margin 3cm untuk halaman kedua dan selanjutnya saat print */
+            @page :not(:first) {
+                margin-top: 3cm;
+                margin-bottom: 1cm;
+                margin-left: 1.5cm;
+                margin-right: 1.5cm;
+
+                @top-center {
+                    content: element(header);
+                }
+            }
+
+            /* Header running */
+            .header-repeat {
+                position: running(header);
+                width: 100%;
+                text-align: center;
+                font-size: 12pt;
+                font-weight: bold;
+                color: #2c3e50;
+                padding: 10px 0;
+                border-bottom: 1px solid #2c3e50;
+            }
+
+            /* Pastikan konten tidak tertutup oleh header */
+            .content-container {
+                margin-top: 20px;
+            }
+
+            /* Force page break untuk demonstrasi */
+            .force-page-break {
+                page-break-before: always;
             }
         }
     </style>
 </head>
 
 <body>
+    <!-- HEADER BERULANG UNTUK SETIAP HALAMAN (DICETAK) -->
+    <div class="header-repeat">
+        PT Mataram Digital Teknologi - Laporan Keuangan
+    </div>
 
-    <div class="header">
+    <!-- HEADER PERUSAHAAN UNTUK HALAMAN PERTAMA -->
+    <div class="page-header">
         <div class="logo-section">
             <img src="{{ asset('logo.png') }}" alt="Logo" class="logo">
             <div class="company-info">
@@ -174,107 +369,145 @@
         </div>
     </div>
 
-    <table class="info-table">
-        <tr>
-            <td>DARI TANGGAL</td>
-            <td>:</td>
-            <td>{{ date('d-m-Y', strtotime($_GET['dari'])) }}</td>
-        </tr>
-        <tr>
-            <td>SAMPAI TANGGAL</td>
-            <td>:</td>
-            <td>{{ date('d-m-Y', strtotime($_GET['sampai'])) }}</td>
-        </tr>
-        <tr>
-            <td>KATEGORI</td>
-            <td>:</td>
-            <td>
-                @php
-                    $id_kategori = $_GET['kategori'];
-                @endphp
+    <!-- HEADER BERULANG UNTUK HALAMAN BERIKUTNYA (TIDAK TAMPIL DI LAYAR) -->
+    <div class="page-header-repeat">
+        <div style="text-align: center; margin-bottom: 15px;">
+            <h2 style="margin: 0; font-size: 14pt; font-weight: bold; color: #2c3e50;">
+                PT Mataram Digital Teknologi
+            </h2>
+            <h3 style="margin: 0; font-size: 12pt; font-weight: bold; color: #2c3e50;">
+                LAPORAN KEUANGAN
+            </h3>
+            <div style="border-bottom: 1px solid #2c3e50; margin-top: 5px;"></div>
+        </div>
+    </div>
 
-                @if($id_kategori == "")
+    <!-- Konten utama -->
+    <div class="content-container">
+        <!-- Info Table -->
+        <table class="info-table">
+            <tr>
+                <td>DARI TANGGAL</td>
+                <td>:</td>
+                <td>{{ date('d-m-Y', strtotime($_GET['dari'])) }}</td>
+            </tr>
+            <tr>
+                <td>SAMPAI TANGGAL</td>
+                <td>:</td>
+                <td>{{ date('d-m-Y', strtotime($_GET['sampai'])) }}</td>
+            </tr>
+            <tr>
+                <td>KATEGORI</td>
+                <td>:</td>
+                <td>
                     @php
-                        $kat = "SEMUA KATEGORI";
+                        $id_kategori = $_GET['kategori'];
                     @endphp
-                @else
-                    @php
-                        $katt = DB::table('kategori')->where('id', $id_kategori)->first();
-                        $kat = $katt->kategori;
-                    @endphp
-                @endif
-
-                {{$kat}}
-            </td>
-        </tr>
-    </table>
-    <table class="table">
-        <thead>
-            <tr>
-                <th rowspan="2" class="text-center" width="5%">NO</th>
-                <th rowspan="2" class="text-center" width="12%">TANGGAL</th>
-                <th rowspan="2" class="text-center" width="18%">KATEGORI</th>
-                <th rowspan="2" class="text-center" width="25%">KETERANGAN</th>
-                <th colspan="2" class="text-center" width="40%">JENIS</th>
-            </tr>
-            <tr>
-                <th class="text-center" width="20%">PEMASUKAN</th>
-                <th class="text-center" width="20%">PENGELUARAN</th>
-            </tr>
-        </thead>
-        <tbody>
-            @php
-                $no = 1;
-                $saldo = 0;
-                $total_pemasukan = 0;
-                $total_pengeluaran = 0;
-              @endphp
-            @foreach($transaksi as $t)
-                @php
-                    if ($t->jenis == "Pemasukan") {
-                        $saldo += $t->nominal;
-                    } else {
-                        $saldo -= $t->nominal;
-                    }
-                @endphp
-                <tr>
-                    <td class="text-center">{{ $no++ }}</td>
-                    <td class="text-center">{{ date('d-m-Y', strtotime($t->tanggal)) }}</td>
-                    <td>{{ $t->kategori->kategori }}</td>
-                    <td>{{ $t->keterangan }}</td>
-                    <td class="text-center">
-                        @if($t->jenis == "Pemasukan")
-                            {{ "Rp." . number_format($t->nominal) . ",-" }}
-                            @php $total_pemasukan += $t->nominal; @endphp
-                        @else
-                            {{ "-" }}
-                        @endif
-                    </td>
-                    <td class="text-center">
-                        @if($t->jenis == "Pengeluaran")
-                            {{ "Rp." . number_format($t->nominal) . ",-" }}
-                            @php $total_pengeluaran += $t->nominal; @endphp
-                        @else
-                            {{ "-" }}
-                        @endif
-                    </td>
-                </tr>
-            @endforeach
-        </tbody>
-        <tfoot class="tfoot">
-            <tr>
-                <td colspan="4" class="text-bold text-right">Sub Total</td>
-                <td class="text-center text-bold">{{ "Rp." . number_format($total_pemasukan) . ",-" }}</td>
-                <td class="text-center text-bold">{{ "Rp." . number_format($total_pengeluaran) . ",-" }}</td>
-            </tr>
-            <tr>
-                <td colspan="4" class="text-bold text-right">Total (Pemasukan - Pengeluaran)</td>
-                <td colspan="2" class="text-center text-bold">
-                    {{ "Rp." . number_format($total_pemasukan - $total_pengeluaran) . ",-" }}
+                    @if($id_kategori == "")
+                        @php $kat = "SEMUA KATEGORI"; @endphp
+                    @else
+                        @php
+                            $katt = DB::table('kategori')->where('id', $id_kategori)->first();
+                            $kat = $katt->kategori;
+                        @endphp
+                    @endif
+                    {{ $kat }}
                 </td>
             </tr>
-        </tfoot>
-    </table>
+        </table>
+
+        <!-- Main Table -->
+        <table class="table">
+            <thead>
+                <tr>
+                    <th rowspan="2" class="text-center" width="5%">NO</th>
+                    <th rowspan="2" class="text-center" width="12%">TANGGAL</th>
+                    <th rowspan="2" class="text-center" width="18%">KATEGORI</th>
+                    <th rowspan="2" class="text-center" width="25%">KETERANGAN</th>
+                    <th colspan="2" class="text-center" width="40%">JENIS</th>
+                </tr>
+                <tr>
+                    <th class="text-center" width="20%">PEMASUKAN</th>
+                    <th class="text-center" width="20%">PENGELUARAN</th>
+                </tr>
+            </thead>
+            <tbody>
+                @php
+                    $no = 1;
+                    $saldo = 0;
+                    $total_pemasukan = 0;
+                    $total_pengeluaran = 0;
+                  @endphp
+                @foreach($transaksi as $t)
+                    @php
+                        if ($t->jenis == "Pemasukan") {
+                            $saldo += $t->nominal;
+                        } else {
+                            $saldo -= $t->nominal;
+                        }
+                    @endphp
+                    <tr>
+                        <td class="text-center">{{ $no++ }}</td>
+                        <td class="text-center">{{ date('d-m-Y', strtotime($t->tanggal)) }}</td>
+                        <td>{{ $t->kategori->kategori }}</td>
+                        <td>{{ $t->keterangan }}</td>
+                        <td class="text-center">
+                            @if($t->jenis == "Pemasukan")
+                                {{ "Rp." . number_format($t->nominal) . ",-" }}
+                                @php $total_pemasukan += $t->nominal; @endphp
+                            @else
+                                {{ "-" }}
+                            @endif
+                        </td>
+                        <td class="text-center">
+                            @if($t->jenis == "Pengeluaran")
+                                {{ "Rp." . number_format($t->nominal) . ",-" }}
+                                @php $total_pengeluaran += $t->nominal; @endphp
+                            @else
+                                {{ "-" }}
+                            @endif
+                        </td>
+                    </tr>
+                @endforeach
+            </tbody>
+            <tfoot class="tfoot">
+                <tr>
+                    <td colspan="4" class="text-bold text-right">Sub Total</td>
+                    <td class="text-center text-bold">{{ "Rp." . number_format($total_pemasukan) . ",-" }}</td>
+                    <td class="text-center text-bold">{{ "Rp." . number_format($total_pengeluaran) . ",-" }}</td>
+                </tr>
+                <tr>
+                    <td colspan="4" class="text-bold text-right">Total (Pemasukan - Pengeluaran)</td>
+                    <td colspan="2" class="text-center text-bold">
+                        {{ "Rp." . number_format($total_pemasukan - $total_pengeluaran) . ",-" }}
+                    </td>
+                </tr>
+            </tfoot>
+        </table>
+
+
+        <div class="signature-section">
+            <table class="signature-table">
+                <tr>
+                    <td>
+                        <div class="signature-title">Di buat,</div>
+                        <div class="signature-space"></div>
+                        <div class="signature-name">Admin</div>
+                    </td>
+                    <td>
+                        <div class="signature-title">Di setujui,</div>
+                        <div class="signature-space"></div>
+                        <div class="signature-name">Direktur</div>
+                    </td>
+                    <td>
+                        <div class="signature-title">Di ketahui,</div>
+                        <div class="signature-space"></div>
+                        <div class="signature-name">Komisaris</div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
 
     <script type="text/javascript">
         window.print();

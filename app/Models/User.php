@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class User extends Authenticatable
 {
@@ -29,6 +30,8 @@ class User extends Authenticatable
         'saldo',
         'kasbon',
         'status',
+        'bank',
+        'rekening',
     ];
 
     /**
@@ -50,6 +53,8 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
         'saldo' => 'decimal:2',
         'kasbon' => 'decimal:2',
+        'rekening' => 'string',
+        'bank' => 'string',
     ];
 
     public function kasbons()
@@ -60,5 +65,63 @@ class User extends Authenticatable
     public function approvedKasbons()
     {
         return $this->hasMany(Kasbon::class, 'disetujui_id');
+    }
+
+    /**
+     * The roles that belong to the user.
+     */
+    public function roles(): BelongsToMany
+    {
+        return $this->belongsToMany(Role::class, 'user_role');
+    }
+
+    /**
+     * Check if user has a specific role
+     */
+    public function hasRole(string $role): bool
+    {
+        return $this->roles()->where('name', $role)->exists();
+    }
+
+    /**
+     * Check if user has any of the given roles
+     */
+    public function hasAnyRole(array $roles): bool
+    {
+        return $this->roles()->whereIn('name', $roles)->exists();
+    }
+
+    /**
+     * Check if user has a specific permission
+     */
+    public function hasPermission(string $permission): bool
+    {
+        return $this->roles()->whereHas('permissions', function ($query) use ($permission) {
+            $query->where('name', $permission);
+        })->exists();
+    }
+
+    /**
+     * Assign role to user
+     */
+    public function assignRole(Role $role): void
+    {
+        $this->roles()->syncWithoutDetaching([$role->id]);
+    }
+
+    /**
+     * Remove role from user
+     */
+    public function removeRole(Role $role): void
+    {
+        $this->roles()->detach($role->id);
+    }
+
+    /**
+     * Sync user roles
+     */
+    public function syncRoles(array $roleIds): void
+    {
+        $this->roles()->sync($roleIds);
     }
 }

@@ -162,7 +162,7 @@
         }
 
         function viewPhoto(photoPath) {
-            document.getElementById('modal-photo').src = '/storage/' + photoPath;
+            document.getElementById('modal-photo').src = '/' + photoPath;
             document.getElementById('photoModal').classList.remove('hidden');
         }
 

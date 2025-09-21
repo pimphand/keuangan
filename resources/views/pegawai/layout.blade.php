@@ -28,18 +28,25 @@
             <div class="w-full max-w-2xl">
                 <div class="bg-white rounded-2xl shadow-lg p-6 mb-6">
                     <!-- Header -->
-                    <div class="text-center mb-6">
-                        <h2 class="font-bold text-blue-600 mb-2 text-2xl">
-                            <i class="fas fa-@yield('header-icon', 'user') mr-2"></i>@yield('header-title', 'Pegawai')
-                        </h2>
-                        @if(Auth::check())
-                            <p class="text-gray-600 mb-3">{{ Auth::user()->name }}</p>
-                        @endif
-                        @hasSection('header-subtitle')
-                            <div class="inline-flex items-center px-3 py-1 rounded-full bg-blue-100 text-blue-800 text-sm">
-                                @yield('header-subtitle')
-                            </div>
-                        @endif
+                    <div class="flex justify-between items-start mb-6">
+                        <div class="text-center flex-1">
+
+                            @hasSection('header-subtitle')
+                                <div
+                                    class="inline-flex items-center px-3 py-1 rounded-full bg-blue-100 text-blue-800 text-sm">
+                                    @yield('header-subtitle')
+                                </div>
+                            @endif
+                        </div>
+                        <!-- Date Display -->
+                        <div class="text-right">
+                            <p class="text-sm text-gray-500 font-medium" id="current-date">
+                                {{ \Carbon\Carbon::now()->locale('id')->isoFormat('dddd, DD MMMM YYYY') }}
+                            </p>
+                            <p class="text-xs text-gray-400" id="current-time">
+                                {{ \Carbon\Carbon::now()->locale('id')->isoFormat('HH:mm:ss') }}
+                            </p>
+                        </div>
                     </div>
 
                     <!-- Page Content -->
@@ -110,6 +117,71 @@
     </div>
 
     @stack('scripts')
+
+    <script>
+        // Get timezone from Laravel config
+        const appTimezone = '{{ config("app.timezone") }}';
+
+        // Real-time clock with seconds using configured timezone
+        function updateClock() {
+            const now = new Date();
+
+            // Convert to the configured timezone
+            const options = {
+                timeZone: appTimezone,
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                weekday: 'long',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: false
+            };
+
+            const formatter = new Intl.DateTimeFormat('id-ID', options);
+            const parts = formatter.formatToParts(now);
+
+            // Extract date and time parts
+            let day = '', date = '', month = '', year = '', hours = '', minutes = '', seconds = '';
+
+            parts.forEach(part => {
+                switch (part.type) {
+                    case 'weekday':
+                        day = part.value;
+                        break;
+                    case 'day':
+                        date = part.value;
+                        break;
+                    case 'month':
+                        month = part.value;
+                        break;
+                    case 'year':
+                        year = part.value;
+                        break;
+                    case 'hour':
+                        hours = part.value;
+                        break;
+                    case 'minute':
+                        minutes = part.value;
+                        break;
+                    case 'second':
+                        seconds = part.value;
+                        break;
+                }
+            });
+
+            // Update date display
+            document.getElementById('current-date').textContent = `${day}, ${date} ${month} ${year}`;
+
+            // Update time display
+            document.getElementById('current-time').textContent = `${hours}:${minutes}:${seconds}`;
+        }
+
+        // Update clock immediately and then every second
+        updateClock();
+        setInterval(updateClock, 1000);
+    </script>
 </body>
 
 </html>

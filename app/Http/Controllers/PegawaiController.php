@@ -10,7 +10,6 @@ use Illuminate\Support\Facades\Hash;
 use App\Models\Absensi;
 use App\Models\Kasbon;
 use App\Models\Pengumuman;
-use App\Services\ImageProcessingService;
 use Carbon\Carbon;
 
 class PegawaiController extends Controller
@@ -113,10 +112,40 @@ class PegawaiController extends Controller
         }
 
         try {
-            // Handle photo upload with WebP conversion and compression
+            // Handle photo upload - convert to WebP and store
             $foto = $request->file('foto');
-            $imageService = new ImageProcessingService();
-            $fotoPath = $imageService->processAndStore($foto, 'absensi', 40); // 40% quality
+            $fotoName = time() . '_' . pathinfo($foto->getClientOriginalName(), PATHINFO_FILENAME) . '.webp';
+
+            // Create image resource based on file type
+            $imageType = exif_imagetype($foto->getPathname());
+            switch ($imageType) {
+                case IMAGETYPE_JPEG:
+                    $image = imagecreatefromjpeg($foto->getPathname());
+                    break;
+                case IMAGETYPE_PNG:
+                    $image = imagecreatefrompng($foto->getPathname());
+                    break;
+                case IMAGETYPE_WEBP:
+                    $image = imagecreatefromwebp($foto->getPathname());
+                    break;
+                default:
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Format gambar tidak didukung'
+                    ], 400);
+            }
+
+            // Convert to WebP and save
+            $fotoPath = 'gambar/absensi/' . $fotoName;
+            $fullPath = public_path($fotoPath);
+
+            // Ensure directory exists
+            if (!file_exists(dirname($fullPath))) {
+                mkdir(dirname($fullPath), 0755, true);
+            }
+
+            imagewebp($image, $fullPath, 80); // 80% quality
+            imagedestroy($image);
 
             // Get address from coordinates (you can integrate with Google Maps API)
             $alamat = $this->getAddressFromCoordinates($request->latitude, $request->longitude);
@@ -128,7 +157,7 @@ class PegawaiController extends Controller
             // Check if late arrival (after configured time) for masuk attendance
             if ($jenis === 'masuk') {
                 $workStartTime = config('app.work_hours.start_time');
-                $lateThresholdMinutes = config('app.work_hours.late_threshold_minutes');
+                $lateThresholdMinutes = (int) config('app.work_hours.late_threshold_minutes');
                 $jamMasukKerja = Carbon::today()->setTimeFromTimeString($workStartTime)->addMinutes($lateThresholdMinutes);
                 $terlambat = $waktuAbsen->gt($jamMasukKerja);
             }
@@ -340,6 +369,8 @@ class PegawaiController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
             'phone' => 'nullable|string|max:20',
+            'rekening' => 'nullable|string|max:50',
+            'bank' => 'nullable|string|max:50',
             'address' => 'nullable|string|max:500',
             'current_password' => 'nullable|string',
             'password' => 'nullable|string|min:8|confirmed',
@@ -357,6 +388,8 @@ class PegawaiController extends Controller
         try {
             // Update basic information
             $user->name = $request->name;
+            $user->rekening = $user->rekening ?? $request->rekening;
+            $user->bank = $user->bank ?? $request->bank;
             $user->email = $request->email;
             $user->phone = $request->phone;
             $user->address = $request->address;
@@ -378,13 +411,45 @@ class PegawaiController extends Controller
             // Handle photo upload
             if ($request->hasFile('photo')) {
                 // Delete old photo if exists
-                if ($user->photo && Storage::disk('public')->exists($user->photo)) {
-                    Storage::disk('public')->delete($user->photo);
+                if ($user->photo && file_exists(public_path($user->photo))) {
+                    unlink(public_path($user->photo));
                 }
 
-                // Process and store new photo
-                $imageService = new ImageProcessingService();
-                $photoPath = $imageService->processAndStore($request->file('photo'), 'profile', 60); // 60% quality
+                // Convert and store photo as WebP
+                $photo = $request->file('photo');
+                $photoName = time() . '_' . pathinfo($photo->getClientOriginalName(), PATHINFO_FILENAME) . '.webp';
+
+                // Create image resource based on file type
+                $imageType = exif_imagetype($photo->getPathname());
+                switch ($imageType) {
+                    case IMAGETYPE_JPEG:
+                        $image = imagecreatefromjpeg($photo->getPathname());
+                        break;
+                    case IMAGETYPE_PNG:
+                        $image = imagecreatefrompng($photo->getPathname());
+                        break;
+                    case IMAGETYPE_WEBP:
+                        $image = imagecreatefromwebp($photo->getPathname());
+                        break;
+                    default:
+                        return response()->json([
+                            'success' => false,
+                            'message' => 'Format gambar tidak didukung'
+                        ], 400);
+                }
+
+                // Convert to WebP and save
+                $photoPath = 'gambar/profile/' . $photoName;
+                $fullPath = public_path($photoPath);
+
+                // Ensure directory exists
+                if (!file_exists(dirname($fullPath))) {
+                    mkdir(dirname($fullPath), 0755, true);
+                }
+
+                imagewebp($image, $fullPath, 80); // 80% quality
+                imagedestroy($image);
+
                 $user->photo = $photoPath;
             }
 

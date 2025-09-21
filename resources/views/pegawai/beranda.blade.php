@@ -38,10 +38,6 @@
                                 <p class="text-xs opacity-75">Saldo Tersedia</p>
                                 <p class="text-2xl font-bold">Rp {{ number_format($user->saldo, 0, ',', '.') }}</p>
                             </span>
-                            <span>
-                                <p class="text-xs opacity-75">Kasbon Tersedia</p>
-                                <p class="text-2xl font-bold">Rp {{ number_format($user->kasbon, 0, ',', '.') }}</p>
-                            </span>
                         </div>
 
 

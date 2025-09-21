@@ -136,9 +136,9 @@
                                         <a target="_BLANK"
                                             href="{{ route('laporan_pdf', ['kategori' => isset($_GET['kategori']) ? $_GET['kategori'] : '', 'dari' => isset($_GET['dari']) ? $_GET['dari'] : '', 'sampai' => isset($_GET['sampai']) ? $_GET['sampai'] : '']) }}"
                                             class="btn btn-outline-secondary"><i class="fa fa-file-pdf-o "></i> &nbsp; CETAK PDF</a>
-                                        <a target="_BLANK"
+                                        {{-- <a target="_BLANK"
                                             href="{{ route('laporan_print', ['kategori' => isset($_GET['kategori']) ? $_GET['kategori'] : '', 'dari' => isset($_GET['dari']) ? $_GET['dari'] : '', 'sampai' => isset($_GET['sampai']) ? $_GET['sampai'] : '']) }}"
-                                            class="btn btn-outline-secondary"><i class="fa fa-print "></i> &nbsp; CETAK PRINT</a>
+                                            class="btn btn-outline-secondary"><i class="fa fa-print "></i> &nbsp; CETAK PRINT</a> --}}
                                         <br>
                                         <br>
                                         <br>

@@ -6,6 +6,57 @@
 @section('header-subtitle', 'Kelola informasi pribadi Anda')
 
 @section('content')
+    <style>
+        .signature-section {
+            margin-top: 50px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            width: 100%;
+        }
+
+        .signature-table {
+            width: 100%;
+            text-align: center;
+            margin-top: 40px;
+            table-layout: fixed;
+        }
+
+        .signature-table td {
+            vertical-align: bottom;
+            padding: 0 20px;
+        }
+
+        .signature-title {
+            font-size: 11pt;
+            margin-bottom: 50px;
+            color: #2c3e50;
+        }
+
+        .signature-space {
+            height: 60px;
+        }
+
+        .signature-name {
+            font-size: 11pt;
+            font-weight: bold;
+            color: #2c3e50;
+            border-top: 1px solid #333;
+            padding-top: 5px;
+        }
+
+        @media print {
+            .signature-section {
+                page-break-inside: avoid;
+                margin-top: 50px;
+                display: flex;
+                justify-content: space-between;
+                align-items: flex-end;
+                width: 100%;
+            }
+        }
+    </style>
+
     <div class="space-y-6">
         <!-- Profile Photo Section -->
         <div class="text-center">
@@ -67,6 +118,28 @@
                     <input type="text" id="phone" name="phone" value="{{ $user->phone ?? '' }}"
                         class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
                         placeholder="Masukkan nomor telepon">
+                    <div class="error-message text-red-500 text-sm mt-1 hidden"></div>
+                </div>
+
+                <!-- Rekening Field -->
+                <div>
+                    <label for="rekening" class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fas fa-credit-card mr-2 text-blue-500"></i>Nomor Rekening
+                    </label>
+                    <input type="text" id="rekening" name="rekening" value="{{ $user->rekening ?? '' }}" {{ $user->rekening ? 'readonly' : '' }}
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                        placeholder="Masukkan nomor rekening">
+                    <div class="error-message text-red-500 text-sm mt-1 hidden"></div>
+                </div>
+
+                <!-- Bank Field -->
+                <div>
+                    <label for="bank" class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fas fa-university mr-2 text-blue-500"></i>Nama Bank
+                    </label>
+                    <input type="text" id="bank" name="bank" value="{{ $user->bank ?? '' }}" {{ $user->bank ? 'readonly' : '' }}
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                        placeholder="Masukkan nama bank">
                     <div class="error-message text-red-500 text-sm mt-1 hidden"></div>
                 </div>
 
@@ -137,6 +210,7 @@
                 </div>
             </div>
         </form>
+
     </div>
 
     <!-- Success/Error Messages -->
@@ -155,6 +229,8 @@
                 name: document.getElementById('name').value,
                 email: document.getElementById('email').value,
                 phone: document.getElementById('phone').value,
+                rekening: document.getElementById('rekening').value,
+                bank: document.getElementById('bank').value,
                 address: document.getElementById('address').value
             };
         });
@@ -175,6 +251,8 @@
             document.getElementById('name').value = originalData.name;
             document.getElementById('email').value = originalData.email;
             document.getElementById('phone').value = originalData.phone;
+            document.getElementById('rekening').value = originalData.rekening;
+            document.getElementById('bank').value = originalData.bank;
             document.getElementById('address').value = originalData.address;
             document.getElementById('current_password').value = '';
             document.getElementById('password').value = '';
@@ -254,6 +332,8 @@
                             name: data.data.name,
                             email: data.data.email,
                             phone: data.data.phone || '',
+                            rekening: data.data.rekening || '',
+                            bank: data.data.bank || '',
                             address: data.data.address || ''
                         };
 

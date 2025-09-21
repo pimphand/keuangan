@@ -111,7 +111,7 @@
 
     <script>
         function viewPhoto(photoPath) {
-            document.getElementById('modal-photo').src = '/storage/' + photoPath;
+            document.getElementById('modal-photo').src = '/' + photoPath;
             $('#photoModal').modal('show');
         }
     </script>
