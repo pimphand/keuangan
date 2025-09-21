@@ -48,7 +48,8 @@
                         </h6>
                         <p class="mb-0">
                             <strong>Saldo Kasbon Tersedia:</strong>
-                            <span class="text-primary fw-bold">Rp {{ number_format($user->saldo, 0, ',', '.') }}</span>
+                            <span class="text-primary fw-bold">Rp
+                                {{ number_format($user->saldo - $user->kasbon_tersedia, 0, ',', '.') }}</span>
                         </p>
                         <small class="text-muted">
                             Anda hanya dapat mengajukan kasbon maksimal sesuai dengan saldo yang tersedia.
@@ -72,7 +73,7 @@
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                             <small class="form-text text-muted">
-                                Maksimal: Rp {{ number_format($user->saldo, 0, ',', '.') }}
+                                Maksimal: Rp {{ number_format($user->saldo - $user->kasbon_tersedia, 0, ',', '.') }}
                             </small>
                         </div>
 
@@ -112,7 +113,7 @@
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             const nominalInput = document.getElementById('nominal');
-            const maxNominal = {{ $user->saldo }};
+            const maxNominal = {{ $user->saldo - $user->kasbon_tersedia }};
 
             // Handle input formatting - single event listener
             nominalInput.addEventListener('input', function () {

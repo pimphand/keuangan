@@ -35,8 +35,10 @@
                         <h2 class="text-sm font-medium opacity-90 mb-1">PT MATARAM DIGITAL TEKNOLOGI</h2>
                         <div class="flex justify-content-between">
                             <span>
-                                <p class="text-xs opacity-75">Saldo Tersedia</p>
-                                <p class="text-2xl font-bold">Rp {{ number_format($user->saldo, 0, ',', '.') }}</p>
+                                <p class="text-xs opacity-75">Limit Kasbon</p>
+                                <p class="text-2xl font-bold">Rp
+                                    {{ number_format($user->kasbon - $user->kasbon_terpakai, 0, ',', '.') }}
+                                </p>
                             </span>
                         </div>
 

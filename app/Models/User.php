@@ -29,6 +29,7 @@ class User extends Authenticatable
         'level',
         'saldo',
         'kasbon',
+        'kasbon_terpakai',
         'status',
         'bank',
         'rekening',
@@ -53,6 +54,7 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
         'saldo' => 'decimal:2',
         'kasbon' => 'decimal:2',
+        'kasbon_terpakai' => 'decimal:2',
         'rekening' => 'string',
         'bank' => 'string',
     ];

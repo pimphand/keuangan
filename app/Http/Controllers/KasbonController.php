@@ -52,7 +52,7 @@ class KasbonController extends Controller
     {
         try {
             $user = Auth::user();
-            $saldo = $user->saldo - $request->nominal;
+            $saldo = ($user->kasbon - $user->kasbon_terpakai) - $request->nominal;
 
             if ($saldo < 0) {
                 return redirect()->back()
@@ -68,7 +68,7 @@ class KasbonController extends Controller
                     'status' => Kasbon::STATUS_PENDING,
                 ]);
 
-                Auth::user()->decrement('saldo', $request->nominal);
+                Auth::user()->increment('kasbon_terpakai', $request->nominal);
             });
 
             return redirect()->route('pegawai.kasbon')

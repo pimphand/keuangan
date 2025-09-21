@@ -109,6 +109,34 @@
 
                                 <div class="form-group">
                                     <div class="form-group has-feedback">
+                                        <label class="text-dark">Gaji</label>
+                                        <input id="saldo" type="number" step="0.01" placeholder="Gaji"
+                                            class="form-control @error('saldo') is-invalid @enderror" name="saldo"
+                                            value="{{ old('saldo') }}" autocomplete="off">
+                                        @error('saldo')
+                                            <span class="invalid-feedback" role="alert">
+                                                <strong>{{ $message }}</strong>
+                                            </span>
+                                        @enderror
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <div class="form-group has-feedback">
+                                        <label class="text-dark">Limit Kasbon</label>
+                                        <input id="kasbon" type="number" step="0.01" placeholder="Limit Kasbon"
+                                            class="form-control @error('kasbon') is-invalid @enderror" name="kasbon"
+                                            value="{{ old('kasbon') }}" autocomplete="off">
+                                        @error('kasbon')
+                                            <span class="invalid-feedback" role="alert">
+                                                <strong>{{ $message }}</strong>
+                                            </span>
+                                        @enderror
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <div class="form-group has-feedback">
                                         <label class="text-dark">Foto Profil</label>
                                         <br>
                                         <input id="foto" type="file" placeholder="foto"

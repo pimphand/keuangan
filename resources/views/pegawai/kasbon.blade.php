@@ -24,7 +24,9 @@
             <div class="flex justify-between items-center">
                 <div>
                     <h2 class="text-sm font-medium opacity-90 mb-1">Saldo Kasbon Tersedia</h2>
-                    <p class="text-3xl font-bold">Rp {{ number_format($user->saldo, 0, ',', '.') }}</p>
+                    <p class="text-3xl font-bold">Rp
+                        {{ number_format($user->kasbon - $user->kasbon_terpakai, 0, ',', '.') }}
+                    </p>
                 </div>
                 <div class="text-right">
                     <i class="fas fa-wallet text-4xl opacity-50"></i>
@@ -167,11 +169,11 @@
                                             </h3>
                                             <span
                                                 class="px-2 py-1 rounded-full text-xs font-medium
-                                                                                                                            @if($kasbon->status === 'pending') bg-yellow-100 text-yellow-800
-                                                                                                                            @elseif($kasbon->status === 'disetujui') bg-blue-100 text-blue-800
-                                                                                                                            @elseif($kasbon->status === 'di proses') bg-purple-100 text-purple-800
-                                                                                                                            @elseif($kasbon->status === 'selesai') bg-green-100 text-green-800
-                                                                                                                            @else bg-red-100 text-red-800 @endif">
+                                                                                                                                                            @if($kasbon->status === 'pending') bg-yellow-100 text-yellow-800
+                                                                                                                                                            @elseif($kasbon->status === 'disetujui') bg-blue-100 text-blue-800
+                                                                                                                                                            @elseif($kasbon->status === 'di proses') bg-purple-100 text-purple-800
+                                                                                                                                                            @elseif($kasbon->status === 'selesai') bg-green-100 text-green-800
+                                                                                                                                                            @else bg-red-100 text-red-800 @endif">
                                                 @if($kasbon->status === 'pending') Pending
                                                 @elseif($kasbon->status === 'disetujui') Disetujui
                                                 @elseif($kasbon->status === 'di proses') Di Proses

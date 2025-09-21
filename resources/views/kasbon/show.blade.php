@@ -65,7 +65,7 @@
                                 </tr>
                                 <tr>
                                     <th>Status:</th>
-                                    <td>
+                                    <td style="color: wheat">
                                         @if($kasbon->status === 'pending')
                                             <span class="badge bg-warning fs-6">Pending</span>
                                         @elseif($kasbon->status === 'disetujui')

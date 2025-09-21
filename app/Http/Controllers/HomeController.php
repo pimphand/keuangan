@@ -383,6 +383,8 @@ class HomeController extends Controller
             'roles' => 'array',
             'roles.*' => 'exists:roles,id',
             'foto' => 'image|mimes:jpeg,png,jpg|max:2048',
+            'saldo' => 'nullable|numeric|min:0',
+            'kasbon' => 'nullable|numeric|min:0',
         ]);
 
         // menyimpan data file yang diupload ke variabel $file
@@ -402,7 +404,9 @@ class HomeController extends Controller
             'email' => $request->email,
             'password' => bcrypt($request->password),
             'level' => "admin",
-            'foto' => $nama_file ?? ''
+            'foto' => $nama_file ?? '',
+            'saldo' => $request->saldo ?? 0,
+            'kasbon' => $request->kasbon ?? 0,
         ]);
 
         // Assign roles to user
@@ -428,6 +432,8 @@ class HomeController extends Controller
             'roles' => 'array',
             'roles.*' => 'exists:roles,id',
             'foto' => 'image|mimes:jpeg,png,jpg|max:2048',
+            'saldo' => 'nullable|numeric|min:0',
+            'kasbon' => 'nullable|numeric|min:0',
         ]);
 
         $name = $req->input('nama');
@@ -440,6 +446,10 @@ class HomeController extends Controller
         if ($password != "") {
             $user->password = bcrypt($password);
         }
+
+        // Update saldo and kasbon
+        $user->saldo = $req->saldo ?? $user->saldo;
+        $user->kasbon = $req->kasbon ?? $user->kasbon;
 
         // menyimpan data file yang diupload ke variabel $file
         $file = $req->file('foto');
@@ -532,19 +542,30 @@ class HomeController extends Controller
             return redirect()->back()->with('error', 'User ' . $user->name . ' sudah menerima penambahan saldo untuk bulan ini.');
         }
 
+        // Calculate Gaji Akhir automatically: saldo - kasbon_terpakai
+        $gajiAkhir = $user->saldo - $user->kasbon_terpakai;
+
+        // Ensure gaji akhir is not negative
+        $gajiAkhir = max(0, $gajiAkhir);
+
+        // Validate that the calculated amount matches the frontend calculation
+        if (abs($gajiAkhir - $request->amount) > 0.01) {
+            return redirect()->back()->with('error', 'Terjadi kesalahan dalam perhitungan Gaji Akhir. Silakan refresh halaman dan coba lagi.');
+        }
+
         try {
             DB::beginTransaction();
 
-            // Add saldo to user
-            $user->saldo += $request->amount;
+            // Add saldo to user (using calculated amount)
+            $user->kasbon_terpakai = 0;
             $user->save();
 
             // Record in saldo history
             $saldo = SaldoHistory::create([
                 'user_id' => $user->id,
-                'amount' => $request->amount,
+                'amount' => $gajiAkhir,
                 'month_year' => date('Y-m'),
-                'notes' => $request->notes,
+                'notes' => $request->notes ?: 'Gaji Akhir (Otomatis: Saldo - Kasbon Terpakai)',
                 'admin_id' => Auth::id()
             ]);
 
@@ -553,14 +574,14 @@ class HomeController extends Controller
                 'tanggal' => now()->format('Y-m-d'),
                 'jenis' => 'Pengeluaran',
                 'kategori_id' => 7,
-                'nominal' => $request->amount,
-                'keterangan' => 'Saldo dari ' . $user->name,
+                'nominal' => $gajiAkhir,
+                'keterangan' => 'Gaji Akhir ke ' . $user->name . ' sebesar Rp ' . number_format($gajiAkhir, 2, ',', '.'),
                 'saldo_history_id' => $saldo->id,
             ]);
 
             DB::commit();
 
-            return redirect()->back()->with('success', 'Saldo berhasil ditambahkan ke ' . $user->name . ' sebesar Rp ' . number_format($request->amount, 2, ',', '.'));
+            return redirect()->back()->with('success', 'Gaji Akhir berhasil ditambahkan ke ' . $user->name . ' sebesar Rp ' . number_format($gajiAkhir, 2, ',', '.'));
         } catch (\Exception $e) {
             DB::rollback();
             return redirect()->back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());

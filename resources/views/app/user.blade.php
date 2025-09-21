@@ -64,7 +64,20 @@
                                             @endif
                                         </td>
                                         <td class="text-center">{{ $u->email }}</td>
-                                        <td class="text-center">Rp.{{ number_format($u->saldo, 2, ',', '.') }}</td>
+                                        <td class="text-left">
+                                            <div class="mb-1">
+                                                <small class="text-muted">Gaji:</small><br>
+                                                <strong>Rp.{{ number_format($u->saldo, 2, ',', '.') }}</strong>
+                                            </div>
+                                            <div class="mb-1">
+                                                <small class="text-muted">Kasbon:</small><br>
+                                                <strong>Rp.{{ number_format($u->kasbon, 2, ',', '.') }}</strong>
+                                            </div>
+                                            <div>
+                                                <small class="text-muted">Kasbon Terpakai:</small><br>
+                                                <strong>Rp.{{ number_format($u->kasbon_terpakai, 2, ',', '.') }}</strong>
+                                            </div>
+                                        </td>
                                         <td class="text-center">
                                             @if($u->roles->count() > 0)
                                                 @foreach($u->roles as $role)
@@ -75,7 +88,6 @@
                                             @endif
                                         </td>
                                         <td>
-
                                             <div class="text-center">
                                                 <a href="{{ route('user.edit', ['id' => $u->id]) }}"
                                                     class="btn btn-default btn-sm">
