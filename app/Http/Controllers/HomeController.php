@@ -47,7 +47,7 @@ class HomeController extends Controller
     public function index()
     {
         // Redirect pegawai to beranda
-        if (auth()->user()->hasRole('Pegawai')) {
+        if (auth()->user()->roles()->first()->name == 'Pegawai') {
             return redirect()->route('pegawai.beranda');
         }
 
