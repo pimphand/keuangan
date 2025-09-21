@@ -552,7 +552,7 @@ class HomeController extends Controller
             Transaksi::create([
                 'tanggal' => now()->format('Y-m-d'),
                 'jenis' => 'Pengeluaran',
-                'kategori_id' => 28,
+                'kategori_id' => 7,
                 'nominal' => $request->amount,
                 'keterangan' => 'Saldo dari ' . $user->name,
                 'saldo_history_id' => $saldo->id,

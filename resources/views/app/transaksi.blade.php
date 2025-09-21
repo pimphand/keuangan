@@ -253,17 +253,17 @@
                                     $saldo = 0;
                                 @endphp
                                 @foreach($transaksi as $t)
-                                                            <?php
+                                                           @php
                                             if ($t->jenis == "Pemasukan") {
                                         $saldo += $t->nominal;
                                     } else {
                                         $saldo -= $t->nominal;
                                     }
-                                            ?>
-                                                            <tr>
+                                            @endphp
+                                                            <tr id="{{ $t->id }}">
                                                                 <td class="text-center">{{ $no++ }}</td>
                                                                 <td class="text-center">{{ date('d-m-Y', strtotime($t->tanggal)) }}</td>
-                                                                <td>{{ $t->kategori->kategori }}</td>
+                                                                <td>{{ $t?->kategori?->kategori ?? "Belum Ada Kategori" }}</td>
                                                                 <td>{{ $t->keterangan }}</td>
                                                                 <td class="text-center">
                                                                     @if($t->jenis == "Pemasukan")
@@ -333,7 +333,7 @@
                                                                                                     name="kategori" style="width: 100%">
                                                                                                     <option value="">Pilih</option>
                                                                                                     @foreach($kategori as $k)
-                                                                                                        <option {{ ($t->kategori->id == $k->id ? "selected='selected'" : "") }} value="{{ $k->id }}">
+                                                                                                        <option {{ ($t->kategori && $t->kategori->id == $k->id ? "selected='selected'" : "") }} value="{{ $k->id }}">
                                                                                                             {{ $k->kategori }}</option>
                                                                                                     @endforeach
                                                                                                 </select>
