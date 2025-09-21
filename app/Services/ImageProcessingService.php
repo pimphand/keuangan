@@ -27,7 +27,7 @@ class ImageProcessingService
     public function processAndStore(UploadedFile $file, string $directory = 'images', int $quality = 40): string
     {
         // Generate unique filename with .webp extension
-        $filename = Str::uuid() . '.webp';
+        $filename = Str::random(10) . '-' . Str::random(5) . '.webp';
         $path = $directory . '/' . $filename;
 
         // Process the image

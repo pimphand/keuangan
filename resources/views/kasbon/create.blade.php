@@ -1,91 +1,118 @@
-@extends('layouts.app')
+@extends('app.master')
 
-@section('content')
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-md-8">
-                <div class="card">
-                    <div class="card-header">
-                        <h4 class="mb-0">Ajukan Kasbon</h4>
+@section('konten')
+
+    <div class="content-body">
+
+        <div class="row page-titles mx-0 mt-2">
+
+            <h3 class="col p-md-0">Ajukan Kasbon</h3>
+
+            <div class="col p-md-0">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="javascript:void(0)">Dashboard</a></li>
+                    <li class="breadcrumb-item"><a href="{{ route('kasbon.index') }}">Kasbon</a></li>
+                    <li class="breadcrumb-item active"><a href="javascript:void(0)">Ajukan</a></li>
+                </ol>
+            </div>
+
+        </div>
+
+        <div class="container-fluid">
+            @if(session('error'))
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    {{ session('error') }}
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            @endif
+
+            <div class="card">
+
+                <div class="card-header pt-4">
+                    <div class="float-right">
+                        <a href="{{ route('kasbon.index') }}" class="btn btn-secondary">
+                            <i class="fa fa-arrow-left"></i> &nbsp Kembali
+                        </a>
+                    </div>
+                    <h4>Ajukan Kasbon</h4>
+                </div>
+
+                <div class="card-body pt-0">
+
+                    <!-- Info Saldo Kasbon -->
+                    <div class="alert alert-info">
+                        <h6 class="alert-heading">
+                            <i class="fa fa-info-circle"></i> Informasi Saldo Kasbon
+                        </h6>
+                        <p class="mb-0">
+                            <strong>Saldo Kasbon Tersedia:</strong>
+                            <span class="text-primary fw-bold">Rp {{ number_format($user->saldo, 0, ',', '.') }}</span>
+                        </p>
+                        <small class="text-muted">
+                            Anda hanya dapat mengajukan kasbon maksimal sesuai dengan saldo yang tersedia.
+                        </small>
                     </div>
 
-                    <div class="card-body">
-                        @if(session('error'))
-                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                                {{ session('error') }}
-                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                            </div>
-                        @endif
+                    <form action="{{ route('kasbon.store') }}" method="POST">
+                        @csrf
 
-                        <!-- Info Saldo Kasbon -->
-                        <div class="alert alert-info">
-                            <h6 class="alert-heading">
-                                <i class="fas fa-info-circle"></i> Informasi Saldo Kasbon
-                            </h6>
-                            <p class="mb-0">
-                                <strong>Saldo Kasbon Tersedia:</strong>
-                                <span class="text-primary fw-bold">Rp {{ number_format($user->kasbon, 0, ',', '.') }}</span>
-                            </p>
-                            <small class="text-muted">
-                                Anda hanya dapat mengajukan kasbon maksimal sesuai dengan saldo yang tersedia.
+                        <div class="form-group">
+                            <label for="nominal">
+                                Nominal Kasbon <span class="text-danger">*</span>
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text">Rp</span>
+                                <input type="text" class="form-control @error('nominal') is-invalid @enderror" id="nominal"
+                                    name="nominal" value="{{ old('nominal') }}" placeholder="Masukkan nominal kasbon"
+                                    required>
+                            </div>
+                            @error('nominal')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                            <small class="form-text text-muted">
+                                Maksimal: Rp {{ number_format($user->saldo, 0, ',', '.') }}
                             </small>
                         </div>
 
-                        <form action="{{ route('kasbon.store') }}" method="POST">
-                            @csrf
+                        <div class="form-group">
+                            <label for="keterangan">
+                                Keterangan <span class="text-danger">*</span>
+                            </label>
+                            <textarea class="form-control @error('keterangan') is-invalid @enderror" id="keterangan"
+                                name="keterangan" rows="4" placeholder="Jelaskan alasan pengajuan kasbon"
+                                required>{{ old('keterangan') }}</textarea>
+                            @error('keterangan')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                            <small class="form-text text-muted">
+                                Maksimal 255 karakter
+                            </small>
+                        </div>
 
-                            <div class="mb-3">
-                                <label for="nominal" class="form-label">
-                                    Nominal Kasbon <span class="text-danger">*</span>
-                                </label>
-                                <div class="input-group">
-                                    <span class="input-group-text">Rp</span>
-                                    <input type="text" class="form-control @error('nominal') is-invalid @enderror"
-                                        id="nominal" name="nominal" value="{{ old('nominal') }}"
-                                        placeholder="Masukkan nominal kasbon" required>
-                                </div>
-                                @error('nominal')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                                <div class="form-text">
-                                    Maksimal: Rp {{ number_format($user->kasbon, 0, ',', '.') }}
-                                </div>
-                            </div>
+                        <div class="d-flex justify-content-between">
+                            <a href="{{ route('kasbon.index') }}" class="btn btn-default">
+                                <i class="ti-close m-r-5 f-s-12"></i> Batal
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fa fa-paper-plane m-r-5"></i> Ajukan Kasbon
+                            </button>
+                        </div>
+                    </form>
 
-                            <div class="mb-3">
-                                <label for="keterangan" class="form-label">
-                                    Keterangan <span class="text-danger">*</span>
-                                </label>
-                                <textarea class="form-control @error('keterangan') is-invalid @enderror" id="keterangan"
-                                    name="keterangan" rows="4" placeholder="Jelaskan alasan pengajuan kasbon"
-                                    required>{{ old('keterangan') }}</textarea>
-                                @error('keterangan')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                                <div class="form-text">
-                                    Maksimal 255 karakter
-                                </div>
-                            </div>
-
-                            <div class="d-flex justify-content-between">
-                                <a href="{{ route('kasbon.index') }}" class="btn btn-secondary">
-                                    <i class="fas fa-arrow-left"></i> Kembali
-                                </a>
-                                <button type="submit" class="btn btn-primary">
-                                    <i class="fas fa-paper-plane"></i> Ajukan Kasbon
-                                </button>
-                            </div>
-                        </form>
-                    </div>
                 </div>
+
             </div>
+
         </div>
+        <!-- #/ container -->
     </div>
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             const nominalInput = document.getElementById('nominal');
-            const maxNominal = {{ $user->kasbon }};
+            const maxNominal = {{ $user->saldo }};
 
             // Handle input formatting - single event listener
             nominalInput.addEventListener('input', function () {

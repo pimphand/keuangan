@@ -59,6 +59,10 @@
                                             Pending</option>
                                         <option value="disetujui" {{ request('status') == 'disetujui' ? 'selected' : '' }}>
                                             Disetujui</option>
+                                        <option value="di proses" {{ request('status') == 'di proses' ? 'selected' : '' }}>
+                                            Di Proses</option>
+                                        <option value="selesai" {{ request('status') == 'selesai' ? 'selected' : '' }}>
+                                            Selesai</option>
                                         <option value="ditolak" {{ request('status') == 'ditolak' ? 'selected' : '' }}>
                                             Ditolak</option>
                                     </select>
@@ -114,11 +118,15 @@
                                         @endif
                                         <td class="text-center">Rp {{ number_format($kasbon->nominal, 0, ',', '.') }}</td>
                                         <td>{{ $kasbon->keterangan }}</td>
-                                        <td class="text-center">
+                                        <td class="text-center text-white">
                                             @if($kasbon->status === 'pending')
                                                 <span class="badge bg-warning">Pending</span>
                                             @elseif($kasbon->status === 'disetujui')
-                                                <span class="badge bg-success">Disetujui</span>
+                                                <span class="badge bg-info">Disetujui</span>
+                                            @elseif($kasbon->status === 'di proses')
+                                                <span class="badge bg-primary">Di Proses</span>
+                                            @elseif($kasbon->status === 'selesai')
+                                                <span class="badge bg-success">Selesai</span>
                                             @else
                                                 <span class="badge bg-danger">Ditolak</span>
                                             @endif

@@ -208,6 +208,17 @@
                         <i class="fas fa-save mr-2"></i>Simpan Perubahan
                     </button>
                 </div>
+
+                <!-- Logout Section -->
+                <div class="border-t pt-6 mt-6">
+                    <div class="text-center">
+                        <button type="button" onclick="confirmLogout()"
+                            class="px-8 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium">
+                            <i class="fas fa-sign-out-alt mr-2"></i>Logout
+                        </button>
+                        <p class="text-sm text-gray-500 mt-2">Keluar dari akun Anda</p>
+                    </div>
+                </div>
             </div>
         </form>
 
@@ -299,6 +310,25 @@
             setTimeout(() => {
                 container.classList.add('hidden');
             }, 5000);
+        }
+
+        // Logout confirmation function
+        function confirmLogout() {
+            if (confirm('Apakah Anda yakin ingin logout?')) {
+                // Create and submit logout form
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = '{{ route("logout") }}';
+
+                const csrfToken = document.createElement('input');
+                csrfToken.type = 'hidden';
+                csrfToken.name = '_token';
+                csrfToken.value = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+                form.appendChild(csrfToken);
+                document.body.appendChild(form);
+                form.submit();
+            }
         }
 
         // Form submission

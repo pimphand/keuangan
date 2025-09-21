@@ -24,7 +24,7 @@
             <div class="flex justify-between items-center">
                 <div>
                     <h2 class="text-sm font-medium opacity-90 mb-1">Saldo Kasbon Tersedia</h2>
-                    <p class="text-3xl font-bold">Rp {{ number_format($user->kasbon, 0, ',', '.') }}</p>
+                    <p class="text-3xl font-bold">Rp {{ number_format($user->saldo, 0, ',', '.') }}</p>
                 </div>
                 <div class="text-right">
                     <i class="fas fa-wallet text-4xl opacity-50"></i>
@@ -53,6 +53,16 @@
                             class="filter-tab px-4 py-2 rounded-md text-sm font-medium transition-colors whitespace-nowrap flex-shrink-0 min-w-max"
                             data-status="disetujui">
                             Disetujui
+                        </button>
+                        <button type="button" onclick="filterKasbon('di proses')"
+                            class="filter-tab px-4 py-2 rounded-md text-sm font-medium transition-colors whitespace-nowrap flex-shrink-0 min-w-max"
+                            data-status="di proses">
+                            Di Proses
+                        </button>
+                        <button type="button" onclick="filterKasbon('selesai')"
+                            class="filter-tab px-4 py-2 rounded-md text-sm font-medium transition-colors whitespace-nowrap flex-shrink-0 min-w-max"
+                            data-status="selesai">
+                            Selesai
                         </button>
                         <button type="button" onclick="filterKasbon('ditolak')"
                             class="filter-tab px-4 py-2 rounded-md text-sm font-medium transition-colors whitespace-nowrap flex-shrink-0 min-w-max"
@@ -155,12 +165,17 @@
                                             <h3 class="font-semibold text-gray-800">
                                                 Rp {{ number_format($kasbon->nominal, 0, ',', '.') }}
                                             </h3>
-                                            <span class="px-2 py-1 rounded-full text-xs font-medium
-                                                                            @if($kasbon->status === 'pending') bg-yellow-100 text-yellow-800
-                                                                            @elseif($kasbon->status === 'disetujui') bg-green-100 text-green-800
-                                                                            @else bg-red-100 text-red-800 @endif">
+                                            <span
+                                                class="px-2 py-1 rounded-full text-xs font-medium
+                                                                                                                            @if($kasbon->status === 'pending') bg-yellow-100 text-yellow-800
+                                                                                                                            @elseif($kasbon->status === 'disetujui') bg-blue-100 text-blue-800
+                                                                                                                            @elseif($kasbon->status === 'di proses') bg-purple-100 text-purple-800
+                                                                                                                            @elseif($kasbon->status === 'selesai') bg-green-100 text-green-800
+                                                                                                                            @else bg-red-100 text-red-800 @endif">
                                                 @if($kasbon->status === 'pending') Pending
                                                 @elseif($kasbon->status === 'disetujui') Disetujui
+                                                @elseif($kasbon->status === 'di proses') Di Proses
+                                                @elseif($kasbon->status === 'selesai') Selesai
                                                 @else Ditolak @endif
                                             </span>
                                         </div>
@@ -180,6 +195,24 @@
                                         @if($kasbon->alasan)
                                             <div class="mt-2 p-2 bg-red-50 rounded text-sm text-red-700">
                                                 <strong>Alasan:</strong> {{ $kasbon->alasan }}
+                                            </div>
+                                        @endif
+                                        @if($kasbon->status === 'selesai' && $kasbon->bukti)
+                                            <div class="mt-2 p-2 bg-green-50 rounded text-sm text-green-700">
+                                                <div class="flex items-center space-x-2">
+                                                    <i class="fas fa-file-alt"></i>
+                                                    <span><strong>Bukti tersedia</strong></span>
+                                                    <a href="{{ asset('gambar/kasbon/' . $kasbon->bukti) }}" target="_blank"
+                                                        class="text-green-600 hover:text-green-800 underline">
+                                                        Lihat
+                                                    </a>
+                                                </div>
+                                                @if($kasbon->tanggal_pengiriman)
+                                                    <div class="text-xs mt-1">
+                                                        Dikirim:
+                                                        {{ \Carbon\Carbon::parse($kasbon->tanggal_pengiriman)->format('d M Y') }}
+                                                    </div>
+                                                @endif
                                             </div>
                                         @endif
                                     </div>

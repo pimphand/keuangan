@@ -6,6 +6,8 @@ use App\Http\Requests\StoreKasbonRequest;
 use App\Http\Requests\UpdateKasbonRequest;
 use App\Models\Kasbon;
 use App\Models\User;
+use App\Services\ImageProcessingService;
+use App\Transaksi;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -49,6 +51,15 @@ class KasbonController extends Controller
     public function store(StoreKasbonRequest $request)
     {
         try {
+            $user = Auth::user();
+            $saldo = $user->saldo - $request->nominal;
+
+            if ($saldo < 0) {
+                return redirect()->back()
+                    ->withInput()
+                    ->with('error', 'Saldo tidak cukup.');
+            }
+
             DB::transaction(function () use ($request) {
                 $kasbon = Kasbon::create([
                     'user_id' => auth()->id(),
@@ -57,7 +68,7 @@ class KasbonController extends Controller
                     'status' => Kasbon::STATUS_PENDING,
                 ]);
 
-                Auth::user()->decrement('kasbon', $request->nominal);
+                Auth::user()->decrement('saldo', $request->nominal);
             });
 
             return redirect()->route('pegawai.kasbon')
@@ -229,6 +240,94 @@ class KasbonController extends Controller
         } catch (\Exception $e) {
             return redirect()->back()
                 ->with('error', 'Terjadi kesalahan saat menolak kasbon: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Process kasbon (admin only) - change from approved to processing
+     */
+    public function process(Kasbon $kasbon)
+    {
+        if (auth()->user()->level !== 'admin') {
+            abort(403, 'Unauthorized action.');
+        }
+
+        if (!$kasbon->isApproved()) {
+            return redirect()->back()
+                ->with('error', 'Kasbon harus dalam status disetujui untuk diproses.');
+        }
+
+        try {
+            $kasbon->update([
+                'status' => Kasbon::STATUS_PROCESSING,
+                'disetujui_id' => auth()->id(),
+            ]);
+
+            return redirect()->route('kasbon.index')
+                ->with('success', 'Kasbon berhasil diproses.');
+        } catch (\Exception $e) {
+            return redirect()->back()
+                ->with('error', 'Terjadi kesalahan saat memproses kasbon: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Complete kasbon (admin only) - change from processing to completed with proof upload
+     */
+    public function complete(Request $request, Kasbon $kasbon)
+    {
+        if (auth()->user()->level !== 'admin') {
+            abort(403, 'Unauthorized action.');
+        }
+
+        if (!$kasbon->isProcessing()) {
+            return redirect()->back()
+                ->with('error', 'Kasbon harus dalam status di proses untuk diselesaikan.');
+        }
+
+        $request->validate([
+            'bukti' => 'required|file|mimes:jpeg,png,jpg,pdf,webp|max:2048',
+            'tanggal_pengiriman' => 'required|date'
+        ]);
+
+        try {
+            DB::beginTransaction();
+
+            // Handle file upload with WebP conversion
+            if ($request->hasFile('bukti')) {
+                $imageService = new ImageProcessingService();
+                $file = $request->file('bukti');
+
+                // Convert to WebP and store
+                $webpPath = $imageService->processAndStore($file, 'gambar/kasbon', 40);
+                $filename = basename($webpPath);
+
+                $kasbon->update([
+                    'status' => Kasbon::STATUS_COMPLETED,
+                    'disetujui_id' => auth()->id(),
+                    'bukti' => $filename,
+                    'tanggal_pengiriman' => $request->tanggal_pengiriman,
+                ]);
+
+                // Create transaction record
+                Transaksi::create([
+                    'tanggal' => now()->format('Y-m-d'),
+                    'jenis' => 'Pengeluaran',
+                    'kategori_id' => 28,
+                    'nominal' => $kasbon->nominal,
+                    'keterangan' => 'Kasbon dari ' . $kasbon->user->name,
+                    'kasbon_id' => $kasbon->id,
+                ]);
+            }
+
+            DB::commit();
+
+            return redirect()->route('kasbon.index')
+                ->with('success', 'Kasbon berhasil diselesaikan.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return redirect()->back()
+                ->with('error', 'Terjadi kesalahan saat menyelesaikan kasbon: ' . $e->getMessage());
         }
     }
 }

@@ -48,6 +48,9 @@
                                                     <span
                                                         class="badge badge-{{ $absen->status == 'valid' ? 'success' : ($absen->status == 'invalid' ? 'danger' : 'warning') }}">
                                                         {{ ucfirst($absen->status) }}
+                                                    </span> <br>
+                                                    <span class="badge badge-{{ $absen->terlambat ? 'danger' : 'success' }}">
+                                                        {{ ucfirst($absen->terlambat ? 'Terlambat' : 'Tepat Waktu') }}
                                                     </span>
                                                 </td>
                                                 <td>

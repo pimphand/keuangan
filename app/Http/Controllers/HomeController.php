@@ -432,7 +432,6 @@ class HomeController extends Controller
         $name = $req->input('nama');
         $email = $req->input('email');
         $password = $req->input('password');
-        $level = $req->input('level');
 
         $user = User::find($id);
         $user->name = $name;
@@ -457,7 +456,6 @@ class HomeController extends Controller
 
             $user->foto = $nama_file;
         }
-        $user->level = $level;
         $user->save();
 
         // Update user roles

@@ -86,6 +86,8 @@ Route::middleware(['auth', 'admin.access'])->group(function () {
     Route::resource('kasbon', 'KasbonController');
     Route::post('/kasbon/{kasbon}/approve', 'KasbonController@approve')->name('kasbon.approve');
     Route::post('/kasbon/{kasbon}/reject', 'KasbonController@reject')->name('kasbon.reject');
+    Route::post('/kasbon/{kasbon}/process', 'KasbonController@process')->name('kasbon.process');
+    Route::post('/kasbon/{kasbon}/complete', 'KasbonController@complete')->name('kasbon.complete');
 
     // Pengumuman Admin Routes
     Route::prefix('admin')->name('pengumuman.admin.')->group(function () {
@@ -122,6 +124,7 @@ Route::middleware(['auth'])->prefix('pegawai')->name('pegawai.')->group(function
     Route::post('/absensi', 'PegawaiController@absen')->name('absen');
     Route::get('/riwayat', 'PegawaiController@riwayat')->name('riwayat');
     Route::get('/kasbon', 'PegawaiController@kasbon')->name('kasbon');
+    Route::resource('kasbon/store', 'KasbonController')->only('store');
     Route::get('/kasbon/create', 'PegawaiController@kasbonCreate')->name('kasbon.create');
     Route::get('/kasbon/{kasbon}', 'PegawaiController@kasbonShow')->name('kasbon.show');
     Route::get('/profil', 'PegawaiController@profil')->name('profil');

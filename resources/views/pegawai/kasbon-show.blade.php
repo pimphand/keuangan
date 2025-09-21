@@ -23,11 +23,15 @@
             <div class="flex items-center justify-between mb-4">
                 <h2 class="text-lg font-semibold text-gray-800">Status Pengajuan</h2>
                 <span class="px-3 py-1 rounded-full text-sm font-medium
-                                        @if($kasbon->status === 'pending') bg-yellow-100 text-yellow-800
-                                        @elseif($kasbon->status === 'disetujui') bg-green-100 text-green-800
-                                        @else bg-red-100 text-red-800 @endif">
+                                                        @if($kasbon->status === 'pending') bg-yellow-100 text-yellow-800
+                                                        @elseif($kasbon->status === 'disetujui') bg-blue-100 text-blue-800
+                                                        @elseif($kasbon->status === 'di proses') bg-purple-100 text-purple-800
+                                                        @elseif($kasbon->status === 'selesai') bg-green-100 text-green-800
+                                                        @else bg-red-100 text-red-800 @endif">
                     @if($kasbon->status === 'pending') Pending
                     @elseif($kasbon->status === 'disetujui') Disetujui
+                    @elseif($kasbon->status === 'di proses') Di Proses
+                    @elseif($kasbon->status === 'selesai') Selesai
                     @else Ditolak @endif
                 </span>
             </div>
@@ -38,9 +42,19 @@
                     <span class="text-sm">Menunggu persetujuan admin</span>
                 </div>
             @elseif($kasbon->status === 'disetujui')
-                <div class="flex items-center space-x-2 text-green-600">
+                <div class="flex items-center space-x-2 text-blue-600">
                     <i class="fas fa-check-circle"></i>
-                    <span class="text-sm">Pengajuan telah disetujui</span>
+                    <span class="text-sm">Pengajuan telah disetujui, menunggu proses</span>
+                </div>
+            @elseif($kasbon->status === 'di proses')
+                <div class="flex items-center space-x-2 text-purple-600">
+                    <i class="fas fa-cogs"></i>
+                    <span class="text-sm">Kasbon sedang diproses</span>
+                </div>
+            @elseif($kasbon->status === 'selesai')
+                <div class="flex items-center space-x-2 text-green-600">
+                    <i class="fas fa-check-double"></i>
+                    <span class="text-sm">Kasbon telah selesai diproses</span>
                 </div>
             @else
                 <div class="flex items-center space-x-2 text-red-600">
@@ -90,11 +104,41 @@
 
                 @if($kasbon->alasan)
                     <!-- Alasan Penolakan -->
-                    <div class="py-3">
+                    <div class="py-3 border-b border-gray-100">
                         <span class="text-gray-600 font-medium block mb-2">Alasan Penolakan</span>
                         <div class="bg-red-50 border border-red-200 rounded-lg p-3">
                             <p class="text-red-800 text-sm">{{ $kasbon->alasan }}</p>
                         </div>
+                    </div>
+                @endif
+
+                @if($kasbon->bukti)
+                    <!-- Bukti Pengiriman -->
+                    <div class="py-3 border-b border-gray-100">
+                        <span class="text-gray-600 font-medium block mb-2">Bukti Pengiriman</span>
+                        <div class="flex items-start space-x-4">
+                            <img src="{{ asset('gambar/kasbon/' . $kasbon->bukti) }}" alt="Bukti Pengiriman"
+                                class="rounded-lg shadow-sm cursor-pointer hover:shadow-md transition-shadow"
+                                style="max-width: 200px; max-height: 150px; object-fit: cover;"
+                                onclick="window.open('{{ asset('gambar/kasbon/' . $kasbon->bukti) }}', '_blank')">
+                            <div class="flex flex-col space-y-2">
+                                <a href="{{ asset('gambar/kasbon/' . $kasbon->bukti) }}" target="_blank"
+                                    class="inline-flex items-center px-3 py-2 bg-blue-100 text-blue-800 rounded-lg hover:bg-blue-200 transition-colors">
+                                    <i class="fas fa-download mr-2"></i>
+                                    <span class="text-sm font-medium">Download</span>
+                                </a>
+                                <span class="text-xs text-gray-500">File: {{ $kasbon->bukti }}</span>
+                            </div>
+                        </div>
+                    </div>
+                @endif
+
+                @if($kasbon->tanggal_pengiriman)
+                    <!-- Tanggal Pengiriman -->
+                    <div class="py-3">
+                        <span class="text-gray-600 font-medium block mb-1">Tanggal Pengiriman</span>
+                        <span
+                            class="text-gray-800">{{ \Carbon\Carbon::parse($kasbon->tanggal_pengiriman)->format('d M Y') }}</span>
                     </div>
                 @endif
             </div>
@@ -120,7 +164,15 @@
                             <li>• Admin akan memproses pengajuan dalam waktu 1-2 hari kerja</li>
                         @elseif($kasbon->isApproved())
                             <li>• Pengajuan kasbon Anda telah disetujui</li>
-                            <li>• Dana akan segera diproses sesuai kebijakan perusahaan</li>
+                            <li>• Kasbon akan segera diproses oleh admin</li>
+                            <li>• Hubungi admin jika ada pertanyaan</li>
+                        @elseif($kasbon->isProcessing())
+                            <li>• Kasbon Anda sedang dalam proses</li>
+                            <li>• Admin sedang memproses pengiriman dana</li>
+                            <li>• Anda akan mendapat notifikasi ketika selesai</li>
+                        @elseif($kasbon->isCompleted())
+                            <li>• Kasbon Anda telah selesai diproses</li>
+                            <li>• Bukti pengiriman tersedia di atas</li>
                             <li>• Hubungi admin jika ada pertanyaan</li>
                         @else
                             <li>• Pengajuan kasbon Anda ditolak</li>

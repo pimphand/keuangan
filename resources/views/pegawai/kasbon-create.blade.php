@@ -23,7 +23,7 @@
             <div class="flex justify-between items-center">
                 <div>
                     <h2 class="text-sm font-medium opacity-90 mb-1">Saldo Kasbon Tersedia</h2>
-                    <p class="text-2xl font-bold">Rp {{ number_format($user->kasbon, 0, ',', '.') }}</p>
+                    <p class="text-2xl font-bold">Rp {{ number_format($user->saldo, 0, ',', '.') }}</p>
                 </div>
                 <div class="text-right">
                     <i class="fas fa-wallet text-3xl opacity-50"></i>
@@ -42,7 +42,7 @@
                 </div>
             @endif
 
-            <form action="{{ route('kasbon.store') }}" method="POST" id="kasbonForm">
+            <form action="{{ route('pegawai.store.store') }}" method="POST" id="kasbonForm">
                 @csrf
 
                 <!-- Nominal Input -->
@@ -62,7 +62,7 @@
                         <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                     @enderror
                     <p class="mt-1 text-xs text-gray-500">
-                        Maksimal: Rp {{ number_format($user->kasbon, 0, ',', '.') }}
+                        Maksimal: Rp {{ number_format($user->saldo, 0, ',', '.') }}
                     </p>
                 </div>
 
@@ -116,7 +116,7 @@
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             const nominalInput = document.getElementById('nominal');
-            const maxNominal = {{ $user->kasbon }};
+            const maxNominal = {{ $user->saldo }};
             const form = document.getElementById('kasbonForm');
 
             // Handle input formatting - single event listener

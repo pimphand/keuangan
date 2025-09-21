@@ -46,8 +46,8 @@ class StoreKasbonRequest extends FormRequest
                 'max:999999999.99',
                 function ($attribute, $value, $fail) {
                     $user = auth()->user();
-                    if ($user && $user->kasbon < $value) {
-                        $fail('Saldo kasbon tidak mencukupi. Saldo tersedia: Rp ' . number_format($user->kasbon, 0, ',', '.'));
+                    if ($user && $user->saldo < $value) {
+                        $fail('Saldo  tidak mencukupi. Saldo tersedia: Rp ' . number_format($user->saldo, 0, ',', '.'));
                     }
                 }
             ],

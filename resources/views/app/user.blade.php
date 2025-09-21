@@ -55,7 +55,7 @@
                                             @if($u->foto == "")
                                                 <img src="{{ asset('gambar/sistem/user.png') }}" style="width: 30px" class="mr-2">
                                             @else
-                                                <img src="{{ asset('gambar/user/' . $u->foto) }}" style="width: 30px" class="mr-2">
+                                                <img src="{{ asset($u->foto) }}" style="width: 30px" class="mr-2">
                                             @endif
 
                                             {{ $u->name }}

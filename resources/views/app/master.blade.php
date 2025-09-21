@@ -20,6 +20,7 @@
         href="{{ asset('asset_admin/bower_components/bootstrap-datepicker/dist/css/bootstrap-datepicker.min.css') }}">
     <link rel="stylesheet"
         href="{{ asset('asset_admin/bower_components/bootstrap-daterangepicker/daterangepicker.css') }}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 
     <style>
         .balance-info {
@@ -86,6 +87,37 @@
 
             .balance-card i {
                 font-size: 14px;
+            }
+        }
+
+        /* Notification badge styling */
+        .badge-danger {
+            background-color: #dc3545 !important;
+            color: white !important;
+            border-radius: 50% !important;
+            padding: 4px 8px !important;
+            font-size: 11px !important;
+            font-weight: bold !important;
+            min-width: 20px !important;
+            height: 20px !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            line-height: 1 !important;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.7);
+            }
+
+            70% {
+                box-shadow: 0 0 0 10px rgba(220, 53, 69, 0);
+            }
+
+            100% {
+                box-shadow: 0 0 0 0 rgba(220, 53, 69, 0);
             }
         }
     </style>
@@ -156,7 +188,7 @@
                                 @if(Auth::user()->foto == "")
                                     <img src="{{ asset('gambar/sistem/user.png')}}" height="40" width="40" alt="">
                                 @else
-                                    <img src="{{ asset('gambar/user/' . Auth::user()->foto) }}" height="40" width="40">
+                                    <img src="{{ asset(Auth::user()->foto) }}" height="40" width="40">
                                 @endif
                             </div>
                         </li>
@@ -207,7 +239,7 @@
                     @if(Auth::user()->foto == "")
                         <img class="mr-2" src="{{ asset('gambar/sistem/user.png')}}" height="60" width="60" alt="">
                     @else
-                        <img class="mr-2" src="{{ asset('gambar/user/' . Auth::user()->foto) }}" height="60" width="60">
+                        <img class="mr-2" src="{{ asset(Auth::user()->foto) }}" height="60" width="60">
                     @endif
                     <div class="media-body">
                         <h5 class="mb-0">{{ Auth::user()->name }}</h5>
@@ -266,6 +298,12 @@
                     <li>
                         <a href="{{ route('kasbon.index') }}" aria-expanded="false">
                             <i class="icon-credit-card menu-icon mr-3"></i><span class="nav-text">Kasbon</span>
+                            @php
+                                $pendingKasbonCount = \App\Models\Kasbon::where('status', \App\Models\Kasbon::STATUS_PENDING)->count();
+                            @endphp
+                            @if($pendingKasbonCount > 0)
+                                <span class="badge badge-danger badge-sm ml-2">{{ $pendingKasbonCount }}</span>
+                            @endif
                         </a>
                     </li>
 
