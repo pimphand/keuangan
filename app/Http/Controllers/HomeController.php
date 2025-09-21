@@ -11,6 +11,7 @@ use App\Transaksi;
 use App\Models\User;
 use App\Models\Absensi;
 use App\Models\Role;
+use App\Models\SaldoHistory;
 use App\Services\ImageProcessingService;
 
 use Illuminate\Support\Facades\Hash;
@@ -494,5 +495,98 @@ class HomeController extends Controller
         $absensi->save();
 
         return redirect()->back()->with('success', 'Status absensi berhasil diupdate!');
+    }
+
+    /**
+     * Display saldo management page
+     */
+    public function saldo_management()
+    {
+        $users = User::with('roles')->get();
+        $currentMonth = date('Y-m');
+        $isDateAllowed = $this->isDateAllowed();
+
+        return view('app.saldo_management', compact('users', 'currentMonth', 'isDateAllowed'));
+    }
+
+    /**
+     * Add saldo to user
+     */
+    public function add_saldo(Request $request)
+    {
+        // Check if current date is within allowed range
+        if (!$this->isDateAllowed()) {
+            return redirect()->back()->with('error', 'Penambahan saldo hanya dapat dilakukan pada tanggal ' . env('SALDO_ALLOWED_START_DATE', '1') . '-' . env('SALDO_ALLOWED_END_DATE', '10') . ' setiap bulannya.');
+        }
+
+        $this->validate($request, [
+            'user_id' => 'required|exists:users,id',
+            'amount' => 'required|numeric|min:0.01',
+            'notes' => 'nullable|string|max:255'
+        ]);
+
+        $user = User::find($request->user_id);
+
+        // Check if user already received saldo this month
+        if (!$user->canReceiveSaldoThisMonth()) {
+            return redirect()->back()->with('error', 'User ' . $user->name . ' sudah menerima penambahan saldo untuk bulan ini.');
+        }
+
+        try {
+            DB::beginTransaction();
+
+            // Add saldo to user
+            $user->saldo += $request->amount;
+            $user->save();
+
+            // Record in saldo history
+            $saldo = SaldoHistory::create([
+                'user_id' => $user->id,
+                'amount' => $request->amount,
+                'month_year' => date('Y-m'),
+                'notes' => $request->notes,
+                'admin_id' => Auth::id()
+            ]);
+
+            // Create transaction record
+            Transaksi::create([
+                'tanggal' => now()->format('Y-m-d'),
+                'jenis' => 'Pengeluaran',
+                'kategori_id' => 28,
+                'nominal' => $request->amount,
+                'keterangan' => 'Saldo dari ' . $user->name,
+                'saldo_history_id' => $saldo->id,
+            ]);
+
+            DB::commit();
+
+            return redirect()->back()->with('success', 'Saldo berhasil ditambahkan ke ' . $user->name . ' sebesar Rp ' . number_format($request->amount, 2, ',', '.'));
+        } catch (\Exception $e) {
+            DB::rollback();
+            return redirect()->back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Get saldo history for a user
+     */
+    public function saldo_history($userId)
+    {
+        $user = User::findOrFail($userId);
+        $history = $user->saldoHistory()->with('admin')->orderBy('created_at', 'desc')->get();
+
+        return view('app.saldo_history', compact('user', 'history'));
+    }
+
+    /**
+     * Check if current date is within allowed range for saldo addition
+     */
+    private function isDateAllowed()
+    {
+        $currentDay = (int) date('d');
+        $allowedStart = (int) env('SALDO_ALLOWED_START_DATE', 1);
+        $allowedEnd = (int) env('SALDO_ALLOWED_END_DATE', 10);
+
+        return $currentDay >= $allowedStart && $currentDay <= $allowedEnd;
     }
 }

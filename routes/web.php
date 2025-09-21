@@ -98,6 +98,11 @@ Route::middleware(['auth', 'admin.access'])->group(function () {
         Route::put('/pengumuman/{id}', 'PengumumanController@update')->name('update');
         Route::delete('/pengumuman/{id}', 'PengumumanController@destroy')->name('destroy');
     });
+
+    // Saldo Management Routes
+    Route::get('/saldo-management', 'HomeController@saldo_management')->name('saldo.management');
+    Route::post('/saldo/add', 'HomeController@add_saldo')->name('saldo.add');
+    Route::get('/saldo/history/{userId}', 'HomeController@saldo_history')->name('saldo.history');
 });
 
 // Storage file access route

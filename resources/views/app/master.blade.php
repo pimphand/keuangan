@@ -324,6 +324,7 @@
                             <ul aria-expanded="false">
                                 <li><a href="{{ route('user') }}">Data Pengguna</a></li>
                                 <li><a href="{{ route('user.tambah') }}">Tambah Pengguna Baru</a></li>
+                                <li><a href="{{ route('saldo.management') }}">Manajemen Saldo</a></li>
                             </ul>
                         </li>
 

@@ -8,6 +8,7 @@ use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Maatwebsite\Excel\Concerns\WithValidation;
 use Maatwebsite\Excel\Concerns\WithChunkReading;
+use PhpOffice\PhpSpreadsheet\Shared\Date;
 use Carbon\Carbon;
 
 class TransaksiImport implements ToModel, WithHeadingRow, WithValidation, WithChunkReading
@@ -38,7 +39,7 @@ class TransaksiImport implements ToModel, WithHeadingRow, WithValidation, WithCh
 
         // Use firstOrCreate to avoid duplicate entries based on tanggal and keterangan
         return Transaksi::firstOrCreate([
-            'tanggal' => $tanggal,
+            'tanggal' => $this->transformDate($row['tanggal']),
             'keterangan' => $row['keterangan'] ?? '',
         ], [
             'jenis' => $row['jenis'],
@@ -50,7 +51,7 @@ class TransaksiImport implements ToModel, WithHeadingRow, WithValidation, WithCh
     public function rules(): array
     {
         return [
-            '*.tanggal' => 'required|date',
+            '*.tanggal' => 'required',
             '*.jenis' => 'required|in:Pemasukan,Pengeluaran',
             '*.kategori' => 'required|string|max:255',
             '*.nominal' => 'required|numeric|min:0',
@@ -61,5 +62,18 @@ class TransaksiImport implements ToModel, WithHeadingRow, WithValidation, WithCh
     public function chunkSize(): int
     {
         return 1000;
+    }
+
+    private function transformDate($value)
+    {
+        try {
+            if (is_numeric($value)) {
+                return Date::excelToDateTimeObject($value)->format('Y-m-d');
+            } else {
+                return \Carbon\Carbon::parse($value)->format('Y-m-d');
+            }
+        } catch (\Exception $e) {
+            return null;
+        }
     }
 }

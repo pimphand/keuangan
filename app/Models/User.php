@@ -124,4 +124,29 @@ class User extends Authenticatable
     {
         $this->roles()->sync($roleIds);
     }
+
+    /**
+     * Get the saldo history for the user.
+     */
+    public function saldoHistory()
+    {
+        return $this->hasMany(SaldoHistory::class);
+    }
+
+    /**
+     * Check if user can receive saldo addition this month
+     */
+    public function canReceiveSaldoThisMonth(): bool
+    {
+        return !SaldoHistory::hasAddedThisMonth($this->id);
+    }
+
+    /**
+     * Get saldo history for current month
+     */
+    public function getCurrentMonthSaldoHistory()
+    {
+        $currentMonth = date('Y-m');
+        return $this->saldoHistory()->where('month_year', $currentMonth)->first();
+    }
 }
