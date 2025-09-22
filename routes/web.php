@@ -143,5 +143,9 @@ Route::middleware(['auth'])->prefix('pegawai')->name('pegawai.')->group(function
     Route::get("/slip-gaji", "PegawaiController@slipGaji")->name("slip-gaji");
     Route::get("/slip-gaji/{gajian}", "PegawaiController@slipGajiShow")->name("slip-gaji.show");
     Route::get("/slip-gaji/{gajian}/print", "PegawaiController@slipGajiPrint")->name("slip-gaji.print");
+
+    // Kunjungan Kerja
+    Route::get('/kunjungan', 'PegawaiController@kunjungan')->name('kunjungan');
+    Route::post('/kunjungan', 'PegawaiController@kunjunganStore')->name('kunjungan.store');
 });
 //End Pegawai

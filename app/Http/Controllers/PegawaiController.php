@@ -12,6 +12,7 @@ use App\Models\Kasbon;
 use App\Models\Pengumuman;
 use App\Models\Gajian;
 use Carbon\Carbon;
+use App\Models\KunjunganKerja;
 
 class PegawaiController extends Controller
 {
@@ -32,7 +33,13 @@ class PegawaiController extends Controller
             ->limit(3)
             ->get();
 
-        return view('pegawai.beranda', compact('user', 'transaksiTerkini', 'pengumumanTerkini'));
+        // Get last 3 kunjungan for this user
+        $kunjunganTerakhir = KunjunganKerja::where('user_id', $user->id)
+            ->orderBy('tanggal_kunjungan', 'desc')
+            ->limit(3)
+            ->get();
+
+        return view('pegawai.beranda', compact('user', 'transaksiTerkini', 'pengumumanTerkini', 'kunjunganTerakhir'));
     }
 
     public function index()
@@ -522,5 +529,94 @@ class PegawaiController extends Controller
 
         $gajian->load(['user']);
         return view('pegawai.slip-gaji-print', compact('gajian'));
+    }
+
+    public function kunjungan(Request $request)
+    {
+        $user = Auth::user();
+
+        $query = KunjunganKerja::where('user_id', $user->id);
+
+        // Prefer single input date range if provided: format "YYYY-MM-DD - YYYY-MM-DD"
+        if ($request->filled('date_range')) {
+            $range = $request->input('date_range');
+            if (preg_match('/^\s*(\d{4}-\d{2}-\d{2})\s*[-–]\s*(\d{4}-\d{2}-\d{2})\s*$/', $range, $m)) {
+                $from = $m[1];
+                $to = $m[2];
+                $query->whereBetween('tanggal_kunjungan', [$from, $to]);
+            }
+        } else {
+            if ($request->has('date_from') && $request->date_from) {
+                $query->whereDate('tanggal_kunjungan', '>=', $request->date_from);
+            }
+            if ($request->has('date_to') && $request->date_to) {
+                $query->whereDate('tanggal_kunjungan', '<=', $request->date_to);
+            }
+        }
+        if ($request->has('client') && $request->client) {
+            $query->where('client', 'like', '%' . $request->client . '%');
+        }
+
+        $kunjungans = $query->orderBy('tanggal_kunjungan', 'desc')->paginate(10);
+
+        return view('pegawai.kunjungan', compact('kunjungans', 'user'));
+    }
+
+    public function kunjunganStore(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'tanggal_kunjungan' => 'required|date',
+            'client' => 'required|string|max:255',
+            'ringkasan' => 'required|string',
+            'lokasi' => 'required|string|max:255',
+            'foto' => 'required|image|mimes:jpeg,png,jpg,webp|max:5048',
+        ]);
+
+        if ($validator->fails()) {
+            return back()->withErrors($validator)->withInput();
+        }
+
+        // Handle photo upload - convert to WebP and store
+        $foto = $request->file('foto');
+        $fotoName = time() . '_' . pathinfo($foto->getClientOriginalName(), PATHINFO_FILENAME) . '.webp';
+
+        // Create image resource based on file type
+        $imageType = exif_imagetype($foto->getPathname());
+        switch ($imageType) {
+            case IMAGETYPE_JPEG:
+                $image = imagecreatefromjpeg($foto->getPathname());
+                break;
+            case IMAGETYPE_PNG:
+                $image = imagecreatefrompng($foto->getPathname());
+                // Preserve transparency for PNG
+                imagepalettetotruecolor($image);
+                imagealphablending($image, true);
+                imagesavealpha($image, true);
+                break;
+            case IMAGETYPE_WEBP:
+                $image = imagecreatefromwebp($foto->getPathname());
+                break;
+            default:
+                return back()->withErrors(['foto' => 'Format gambar tidak didukung'])->withInput();
+        }
+
+        $fotoPath = 'gambar/kunjungan/' . $fotoName;
+        $fullPath = public_path($fotoPath);
+        if (!file_exists(dirname($fullPath))) {
+            mkdir(dirname($fullPath), 0755, true);
+        }
+        imagewebp($image, $fullPath, 80); // 80% quality
+        imagedestroy($image);
+
+        KunjunganKerja::create([
+            'user_id' => Auth::id(),
+            'tanggal_kunjungan' => $request->tanggal_kunjungan,
+            'client' => $request->client,
+            'ringkasan' => $request->ringkasan,
+            'lokasi' => $request->lokasi,
+            'foto' => $fotoPath,
+        ]);
+
+        return redirect()->route('pegawai.kunjungan')->with('success', 'Kunjungan berhasil ditambahkan');
     }
 }
