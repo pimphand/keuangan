@@ -502,7 +502,7 @@ class PegawaiController extends Controller
     public function slipGajiShow(Gajian $gajian)
     {
         // Ensure user can only view their own salary slip
-        if ($gajian->user_id !== Auth::id()) {
+        if ($gajian->user_id != Auth::id()) {
             abort(403, 'Unauthorized action.');
         }
 
@@ -516,7 +516,7 @@ class PegawaiController extends Controller
     public function slipGajiPrint(Gajian $gajian)
     {
         // Ensure user can only print their own salary slip
-        if ($gajian->user_id !== Auth::id()) {
+        if ($gajian->user_id != Auth::id()) {
             abort(403, 'Unauthorized action.');
         }
 
