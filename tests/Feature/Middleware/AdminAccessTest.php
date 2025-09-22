@@ -44,8 +44,8 @@ class AdminAccessTest extends TestCase
         ]);
 
         $this->pegawaiRole = Role::create([
-            'name' => 'Pegawai',
-            'display_name' => 'Pegawai',
+            'name' => 'Karyawan',
+            'display_name' => 'Karyawan',
             'description' => 'Employee access',
             'is_active' => true
         ]);

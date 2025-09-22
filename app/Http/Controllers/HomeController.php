@@ -49,7 +49,7 @@ class HomeController extends Controller
     public function index()
     {
         // Redirect pegawai to beranda
-        if (auth()->user()->roles()->first()->name == 'Pegawai') {
+        if (auth()->user()->roles()->first()->name == 'Karyawan') {
             return redirect()->route('pegawai.beranda');
         }
 
@@ -408,6 +408,7 @@ class HomeController extends Controller
             'foto' => $nama_file ?? '',
             'saldo' => $request->saldo ?? 0,
             'kasbon' => $request->kasbon ?? 0,
+            'tunjangan' => $request->tunjangan ?? 0,
         ]);
 
         // Assign roles to user
@@ -451,6 +452,7 @@ class HomeController extends Controller
         // Update saldo and kasbon
         $user->saldo = $req->saldo ?? $user->saldo;
         $user->kasbon = $req->kasbon ?? $user->kasbon;
+        $user->tunjangan = $req->tunjangan ?? $user->tunjangan;
 
         // menyimpan data file yang diupload ke variabel $file
         $file = $req->file('foto');
@@ -581,7 +583,7 @@ class HomeController extends Controller
             Gajian::create([
                 'user_id' => $user->id,
                 'nama' => $user->name,
-                'jabatan' => $user->roles()->first()->name ?? 'Pegawai',
+                'jabatan' => $user->roles()->first()->name ?? 'Karyawan',
                 'gaji_pokok' => $user->saldo,           // User's base salary
                 'tunjangan' => $request->tunjangan ?? 0, // Allowance from request
                 'potongan' => $user->kasbon_terpakai,    // Deductions (used kasbon)

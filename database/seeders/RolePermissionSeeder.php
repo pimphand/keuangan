@@ -164,9 +164,9 @@ class RolePermissionSeeder extends Seeder
         );
 
         $employeeRole = Role::firstOrCreate(
-            ['name' => 'Pegawai'],
+            ['name' => 'Karyawan'],
             [
-                'display_name' => 'Pegawai',
+                'display_name' => 'Karyawan',
                 'description' => 'Regular employee with basic access',
                 'is_active' => true
             ]

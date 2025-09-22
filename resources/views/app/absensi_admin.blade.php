@@ -33,7 +33,7 @@
                                                 <td>
                                                     <span
                                                         class="badge badge-{{ $absen->jenis == 'masuk' ? 'success' : ($absen->jenis == 'keluar' ? 'danger' : 'warning') }}">
-                                                        {{ ucwords(str_replace('_', ' ', $absen->jenis)) }}
+                                                        {{ ucwords(str_replace('_', ' ', str_replace('keluar', 'Pulang', $absen->jenis))) }}
                                                     </span>
                                                 </td>
                                                 <td>{{ $absen->waktu_absen->format('d M Y H:i:s') }}</td>

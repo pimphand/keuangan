@@ -18,7 +18,7 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     if (auth()->check()) {
         $user = auth()->user();
-        if ($user->hasRole('Pegawai')) {
+        if ($user->hasRole('Karyawan')) {
             return redirect()->route('pegawai.beranda');
         } else {
             return redirect()->route('home');
@@ -33,7 +33,7 @@ Auth::routes([
     'verify' => false, // disable verifikasi email saat pendaftaran
 ]);
 
-Auth::loginUsingId(5);
+// Auth::loginUsingId(1);
 
 
 // Admin routes - hanya bisa diakses oleh Admin, Manager, Bendahara

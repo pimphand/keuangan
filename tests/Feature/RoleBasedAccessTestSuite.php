@@ -40,7 +40,7 @@ class RoleBasedAccessTestSuite extends TestCase
         $admin->assignRole(\App\Models\Role::where('name', 'Admin')->first());
         $manager->assignRole(\App\Models\Role::where('name', 'Manager')->first());
         $bendahara->assignRole(\App\Models\Role::where('name', 'Bendahara')->first());
-        $pegawai->assignRole(\App\Models\Role::where('name', 'Pegawai')->first());
+        $pegawai->assignRole(\App\Models\Role::where('name', 'Karyawan')->first());
 
         // 2. Test root route redirects (only works for unauthenticated users due to guest middleware)
         // For authenticated users, we test the home route instead
@@ -90,7 +90,7 @@ class RoleBasedAccessTestSuite extends TestCase
         $this->assertTrue($admin->hasRole('Admin'));
         $this->assertTrue($manager->hasRole('Manager'));
         $this->assertTrue($bendahara->hasRole('Bendahara'));
-        $this->assertTrue($pegawai->hasRole('Pegawai'));
+        $this->assertTrue($pegawai->hasRole('Karyawan'));
 
         $this->assertTrue($admin->hasAnyRole(['Admin', 'Manager']));
         $this->assertFalse($pegawai->hasAnyRole(['Admin', 'Manager']));
@@ -100,7 +100,7 @@ class RoleBasedAccessTestSuite extends TestCase
     public function middleware_blocks_unauthorized_access_properly()
     {
         $pegawai = \App\Models\User::factory()->create();
-        $pegawai->assignRole(\App\Models\Role::where('name', 'Pegawai')->first());
+        $pegawai->assignRole(\App\Models\Role::where('name', 'Karyawan')->first());
 
         // Test that pegawai is blocked from admin routes
         $response = $this->actingAs($pegawai)->get('/kategori');
@@ -129,7 +129,7 @@ class RoleBasedAccessTestSuite extends TestCase
         $this->get('/home')->assertStatus(200);
 
         // Change to pegawai role
-        $user->syncRoles([\App\Models\Role::where('name', 'Pegawai')->first()->id]);
+        $user->syncRoles([\App\Models\Role::where('name', 'Karyawan')->first()->id]);
         $this->get('/kategori')->assertRedirect(route('pegawai.beranda'));
         $this->get('/home')->assertRedirect(route('pegawai.beranda'));
     }

@@ -25,7 +25,7 @@ class AdminAccess
         // Check if user has admin, manager, or bendahara role
         if (!$user->hasAnyRole(['Admin', 'Manager', 'Bendahara'])) {
             // If user is pegawai, redirect to beranda
-            if ($user->hasRole('Pegawai')) {
+            if ($user->hasRole('Karyawan')) {
                 return redirect()->route('pegawai.beranda');
             }
 

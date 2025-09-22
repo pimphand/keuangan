@@ -39,8 +39,8 @@ class RolePermissionTest extends TestCase
         ]);
 
         $this->pegawaiRole = Role::create([
-            'name' => 'Pegawai',
-            'display_name' => 'Pegawai',
+            'name' => 'Karyawan',
+            'display_name' => 'Karyawan',
             'description' => 'Employee access',
             'is_active' => true
         ]);
@@ -115,7 +115,7 @@ class RolePermissionTest extends TestCase
 
         $this->assertFalse($user->hasRole('Admin'));
         $this->assertTrue($user->hasRole('Manager'));
-        $this->assertTrue($user->hasRole('Pegawai'));
+        $this->assertTrue($user->hasRole('Karyawan'));
     }
 
     /** @test */
@@ -178,7 +178,7 @@ class RolePermissionTest extends TestCase
         $user->assignRole($this->managerRole);
 
         $this->assertTrue($user->hasAnyRole(['Admin', 'Manager']));
-        $this->assertFalse($user->hasAnyRole(['Admin', 'Pegawai']));
+        $this->assertFalse($user->hasAnyRole(['Admin', 'Karyawan']));
     }
 
     /** @test */

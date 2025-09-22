@@ -14,8 +14,8 @@ class GajianSeeder extends Seeder
      */
     public function run(): void
     {
-        // Get all users with role 'Pegawai'
-        $pegawais = User::where('role', 'Pegawai')->get();
+        // Get all users with role 'Karyawan'
+        $pegawais = User::where('role', 'Karyawan')->get();
 
         foreach ($pegawais as $pegawai) {
             // Create salary slips for the last 6 months
@@ -29,7 +29,7 @@ class GajianSeeder extends Seeder
                 Gajian::create([
                     'user_id' => $pegawai->id,
                     'nama' => $pegawai->name,
-                    'jabatan' => $pegawai->jabatan ?? 'Pegawai',
+                    'jabatan' => $pegawai->jabatan ?? 'Karyawan',
                     'gaji_pokok' => $gajiPokok,
                     'tunjangan' => $tunjangan,
                     'potongan' => $potongan,

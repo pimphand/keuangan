@@ -17,7 +17,7 @@ class RolePermissionSeederTest extends TestCase
     {
         $this->seed(RolePermissionSeeder::class);
 
-        $expectedRoles = ['Admin', 'Manager', 'Bendahara', 'Pegawai'];
+        $expectedRoles = ['Admin', 'Manager', 'Bendahara', 'Karyawan'];
 
         foreach ($expectedRoles as $roleName) {
             $this->assertDatabaseHas('roles', [
@@ -165,7 +165,7 @@ class RolePermissionSeederTest extends TestCase
     {
         $this->seed(RolePermissionSeeder::class);
 
-        $pegawaiRole = Role::where('name', 'Pegawai')->first();
+        $pegawaiRole = Role::where('name', 'Karyawan')->first();
 
         $expectedPermissions = [
             'pengumuman.view',

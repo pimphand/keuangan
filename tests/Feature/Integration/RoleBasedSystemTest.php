@@ -34,7 +34,7 @@ class RoleBasedSystemTest extends TestCase
         $admin->assignRole(Role::where('name', 'Admin')->first());
         $manager->assignRole(Role::where('name', 'Manager')->first());
         $bendahara->assignRole(Role::where('name', 'Bendahara')->first());
-        $pegawai->assignRole(Role::where('name', 'Pegawai')->first());
+        $pegawai->assignRole(Role::where('name', 'Karyawan')->first());
 
         // Test admin access
         $this->actingAs($admin);
@@ -70,7 +70,7 @@ class RoleBasedSystemTest extends TestCase
         $adminRole = Role::where('name', 'Admin')->first();
         $managerRole = Role::where('name', 'Manager')->first();
         $bendaharaRole = Role::where('name', 'Bendahara')->first();
-        $pegawaiRole = Role::where('name', 'Pegawai')->first();
+        $pegawaiRole = Role::where('name', 'Karyawan')->first();
 
         // Admin should have all permissions
         $this->assertTrue($adminRole->permissions->count() > 0);
@@ -97,7 +97,7 @@ class RoleBasedSystemTest extends TestCase
         $pegawai = User::factory()->create();
 
         $admin->assignRole(Role::where('name', 'Admin')->first());
-        $pegawai->assignRole(Role::where('name', 'Pegawai')->first());
+        $pegawai->assignRole(Role::where('name', 'Karyawan')->first());
 
         // Admin should have admin permissions
         $this->assertTrue($admin->hasPermission('user.view'));
@@ -114,7 +114,7 @@ class RoleBasedSystemTest extends TestCase
     public function middleware_blocks_unauthorized_access()
     {
         $pegawai = User::factory()->create();
-        $pegawai->assignRole(Role::where('name', 'Pegawai')->first());
+        $pegawai->assignRole(Role::where('name', 'Karyawan')->first());
 
         // Pegawai should be blocked from admin routes
         $adminRoutes = [
@@ -152,7 +152,7 @@ class RoleBasedSystemTest extends TestCase
         $this->get('/home')->assertStatus(200);
 
         // Change to pegawai role
-        $user->syncRoles([Role::where('name', 'Pegawai')->first()->id]);
+        $user->syncRoles([Role::where('name', 'Karyawan')->first()->id]);
 
         // Should be redirected to beranda
         $this->get('/kategori')->assertRedirect(route('pegawai.beranda'));
@@ -164,7 +164,7 @@ class RoleBasedSystemTest extends TestCase
     {
         $user = User::factory()->create();
         $user->assignRole(Role::where('name', 'Admin')->first());
-        $user->assignRole(Role::where('name', 'Pegawai')->first());
+        $user->assignRole(Role::where('name', 'Karyawan')->first());
 
         // Should have admin access (admin role takes precedence)
         $this->actingAs($user);
@@ -173,7 +173,7 @@ class RoleBasedSystemTest extends TestCase
 
         // Should have both role permissions
         $this->assertTrue($user->hasRole('Admin'));
-        $this->assertTrue($user->hasRole('Pegawai'));
-        $this->assertTrue($user->hasAnyRole(['Admin', 'Pegawai']));
+        $this->assertTrue($user->hasRole('Karyawan'));
+        $this->assertTrue($user->hasAnyRole(['Admin', 'Karyawan']));
     }
 }

@@ -21,9 +21,8 @@ class PegawaiRedirect
         }
 
         $user = auth()->user();
-
         // If user is pegawai, redirect to beranda
-        if ($user->hasRole('Pegawai')) {
+        if ($user->hasRole('Karyawan')) {
             return redirect()->route('pegawai.beranda');
         }
 
