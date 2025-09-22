@@ -290,6 +290,12 @@
                     </li>
 
                     <li>
+                        <a href="{{ route('kunjungan.admin') }}" aria-expanded="false">
+                            <i class="icon-briefcase menu-icon mr-3"></i><span class="nav-text">Kunjungan</span>
+                        </a>
+                    </li>
+
+                    <li>
                         <a href="{{ route('pegawai.index') }}" aria-expanded="false">
                             <i class="icon-clock menu-icon mr-3"></i><span class="nav-text">Absensi Pegawai</span>
                         </a>

@@ -28,6 +28,7 @@ use Maatwebsite\Excel\Facades\Excel;
 use App\Http\Controllers\Controller;
 use App\Models\Gajian;
 use Maatwebsite\Excel\Concerns\FromView;
+use App\Models\KunjunganKerja;
 
 class HomeController extends Controller
 {
@@ -625,5 +626,28 @@ class HomeController extends Controller
         $allowedEnd = (int) env('SALDO_ALLOWED_END_DATE', 10);
 
         return $currentDay >= $allowedStart && $currentDay <= $allowedEnd;
+    }
+
+    public function kunjungan_admin(Request $request)
+    {
+        $query = KunjunganKerja::query()->with('user');
+
+        if ($request->filled('user_id')) {
+            $query->where('user_id', $request->user_id);
+        }
+        if ($request->filled('date_from')) {
+            $query->whereDate('tanggal_kunjungan', '>=', $request->date_from);
+        }
+        if ($request->filled('date_to')) {
+            $query->whereDate('tanggal_kunjungan', '<=', $request->date_to);
+        }
+        if ($request->filled('client')) {
+            $query->where('client', 'like', '%' . $request->client . '%');
+        }
+
+        $kunjungans = $query->orderBy('tanggal_kunjungan', 'desc')->paginate(15);
+        $users = User::orderBy('name')->get(['id', 'name']);
+
+        return view('app.kunjungan_admin', compact('kunjungans', 'users'));
     }
 }

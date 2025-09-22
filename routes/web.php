@@ -33,7 +33,7 @@ Auth::routes([
     'verify' => false, // disable verifikasi email saat pendaftaran
 ]);
 
-// Auth::loginUsingId(1);
+Auth::loginUsingId(1);
 
 
 // Admin routes - hanya bisa diakses oleh Admin, Manager, Bendahara
@@ -77,6 +77,9 @@ Route::middleware(['auth', 'admin.access'])->group(function () {
     Route::get('/laporan/pdf', 'HomeController@laporan_pdf')->name('laporan_pdf');
     // Route::get('/laporan/excel', 'HomeController@laporan_excel')->name('laporan_excel');
     Route::get('/laporan/print', 'HomeController@laporan_print')->name('laporan_print');
+
+    // Admin Kunjungan List
+    Route::get('/kunjungan', 'HomeController@kunjungan_admin')->name('kunjungan.admin');
 
     // Admin Attendance Management
     Route::get('/absensi-admin', 'HomeController@absensi_admin')->name('absensi.admin');
