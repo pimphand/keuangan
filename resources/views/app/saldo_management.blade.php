@@ -87,6 +87,7 @@
                             <div class="card-body">
                                 <form action="{{ route('saldo.add') }}" method="POST">
                                     @csrf
+                                    <input type="hidden" name="tunjangan" id="tunjangan_hidden" value="">
                                     <div class="form-group">
                                         <label>Pilih User</label>
                                         <select name="user_id" id="user_select" class="form-control" required>
@@ -111,10 +112,15 @@
                                         </div>
                                     </div>
                                     <div class="form-group">
+                                        <label>Tunjangan (Otomatis)</label>
+                                        <input type="number" name="amount" id="tunjangan" class="form-control" step="0.01" min="0.01" required
+                                            placeholder="Tunjangan di input otomatis" readonly>
+                                    </div>
+                                    <div class="form-group">
                                         <label>Gaji Akhir (Otomatis)</label>
                                         <input type="number" name="amount" id="gaji_akhir" class="form-control" step="0.01" min="0.01" required
                                             placeholder="Gaji Akhir akan dihitung otomatis" readonly>
-                                        <small class="text-muted">Gaji Akhir = Saldo - Kasbon Terpakai</small>
+                                        <small class="text-muted">Gaji Akhir = (Gaji + Tunjangan) - Kasbon Terpakai</small>
                                     </div>
                                     <div class="form-group">
                                         <label>Catatan (Opsional)</label>
@@ -170,8 +176,11 @@
                                                     data-user-rekening="{{ $user->rekening }}"
                                                     data-user-email="{{ $user->email }}"
                                                     data-user-saldo="{{ $user->saldo }}"
+                                                    data-user-tunjangan="{{ $user->tunjangan }}"
                                                     data-user-kasbon="{{ $user->kasbon }}"
                                                     data-user-kasbon-terpakai="{{ $user->kasbon_terpakai }}"
+                                                    
+                                                    
                                                     @if(!$user->canReceiveSaldoThisMonth()) data-disabled="true" @endif
                                                     style="cursor: pointer; transition: background-color 0.2s ease;">
                                                     <td>{{ $no++ }}</td>
@@ -293,8 +302,14 @@
 
             // Calculate and set Gaji Akhir automatically
             var userSaldo = parseFloat($row.data('user-saldo')) || 0;
+            var userTunjangan = parseFloat($row.data('user-tunjangan')) || 0;
+            
+            // Set tunjangan field
+            $('#tunjangan').val(userTunjangan.toFixed(2));
+                $('#tunjangan_hidden').val(userTunjangan.toFixed(2));
+            $('#tunjangan_hidden').val(userTunjangan.toFixed(2));
             var userKasbonTerpakai = parseFloat($row.data('user-kasbon-terpakai')) || 0;
-            var gajiAkhir = userSaldo - userKasbonTerpakai;
+            var gajiAkhir = (userSaldo + userTunjangan) - userKasbonTerpakai;
 
             // Ensure gaji akhir is not negative
             gajiAkhir = Math.max(0, gajiAkhir);
@@ -317,19 +332,25 @@
                     </div>
                 </div>
                 <div class="row mt-3">
-                    <div class="col-md-4">
+                    <div class="col-md-3">
                         <div class="text-center">
                             <strong class="d-block text-muted">Gaji</strong> <br>
                             <span class="badge badge-success badge-xl">Rp ${new Intl.NumberFormat('id-ID', {minimumFractionDigits: 2}).format(userSaldo)}</span>
                         </div>
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-3">
+                        <div class="text-center">
+                            <strong class="d-block text-muted">Tunjangan</strong> <br>
+                            <span class="badge badge-primary badge-xl">Rp ${new Intl.NumberFormat('id-ID', {minimumFractionDigits: 2}).format(userTunjangan)}</span>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
                         <div class="text-center">
                             <strong class="d-block text-muted">Kasbon Tersedia</strong>
                             <span class="badge badge-info badge-xl">Rp ${new Intl.NumberFormat('id-ID', { minimumFractionDigits: 2 }).format(userKasbon)}</span>
                         </div>
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-3">
                         <div class="text-center">
                             <strong class="d-block text-muted">Kasbon Terpakai</strong>
                             <span class="badge badge-warning badge-xl">Rp ${new Intl.NumberFormat('id-ID', { minimumFractionDigits: 2 }).format(userKasbonTerpakai)}</span>
@@ -372,8 +393,14 @@
 
                 // Calculate and set Gaji Akhir automatically
                 var userSaldo = parseFloat($targetRow.data('user-saldo')) || 0;
+                var userTunjangan = parseFloat($targetRow.data('user-tunjangan')) || 0;
+                
+                // Set tunjangan field
+                $('#tunjangan').val(userTunjangan.toFixed(2));
+                $('#tunjangan_hidden').val(userTunjangan.toFixed(2));
+            $('#tunjangan_hidden').val(userTunjangan.toFixed(2));
                 var userKasbonTerpakai = parseFloat($targetRow.data('user-kasbon-terpakai')) || 0;
-                var gajiAkhir = userSaldo - userKasbonTerpakai;
+                var gajiAkhir = (userSaldo + userTunjangan) - userKasbonTerpakai;
 
                 // Ensure gaji akhir is not negative
                 gajiAkhir = Math.max(0, gajiAkhir);
@@ -401,6 +428,12 @@
                             <div class="text-center">
                                 <strong class="d-block text-muted">Saldo Saat Ini</strong>
                                 <span class="badge badge-success badge-lg">Rp ${new Intl.NumberFormat('id-ID', {minimumFractionDigits: 2}).format($targetRow.data('user-saldo'))}</span>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="text-center">
+                                <strong class="d-block text-muted">Tunjangan</strong>
+                                <span class="badge badge-primary badge-lg">Rp ${new Intl.NumberFormat('id-ID', { minimumFractionDigits: 2 }).format(userTunjangan)}</span>
                             </div>
                         </div>
                         <div class="col-md-3">

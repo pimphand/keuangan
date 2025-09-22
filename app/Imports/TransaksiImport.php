@@ -4,6 +4,7 @@ namespace App\Imports;
 
 use App\Transaksi;
 use App\Kategori;
+use Illuminate\Support\Str;
 use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Maatwebsite\Excel\Concerns\WithValidation;
@@ -42,7 +43,7 @@ class TransaksiImport implements ToModel, WithHeadingRow, WithValidation, WithCh
             'tanggal' => $this->transformDate($row['tanggal']),
             'keterangan' => $row['keterangan'] ?? '',
         ], [
-            'jenis' => $row['jenis'],
+            'jenis' => Str::title($row['jenis']),
             'kategori_id' => $kategori->id,
             'nominal' => $row['nominal'],
         ]);

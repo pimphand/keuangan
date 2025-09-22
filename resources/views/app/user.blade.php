@@ -69,6 +69,10 @@
                                                 <small class="text-muted">Gaji:</small><br>
                                                 <strong>Rp.{{ number_format($u->saldo, 2, ',', '.') }}</strong>
                                             </div>
+                                            <div>
+                                                <small class="text-muted">Tunjangan:</small><br>
+                                                <strong>Rp.{{ number_format($u->tunjangan, 2, ',', '.') }}</strong>
+                                            </div>
                                             <div class="mb-1">
                                                 <small class="text-muted">Kasbon:</small><br>
                                                 <strong>Rp.{{ number_format($u->kasbon, 2, ',', '.') }}</strong>

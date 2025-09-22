@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Hash;
 use App\Models\Absensi;
 use App\Models\Kasbon;
 use App\Models\Pengumuman;
+use App\Models\Gajian;
 use Carbon\Carbon;
 
 class PegawaiController extends Controller
@@ -466,5 +467,60 @@ class PegawaiController extends Controller
                 'message' => 'Terjadi kesalahan: ' . $e->getMessage()
             ], 500);
         }
+    }
+
+    /**
+     * Display salary slip list for employee
+     */
+    public function slipGaji(Request $request)
+    {
+        $user = Auth::user();
+
+        $query = Gajian::where('user_id', $user->id);
+
+        // Filter berdasarkan status
+        if ($request->status && $request->status != "all") {
+            $query->where('status', $request->status);
+        }
+
+        // Filter berdasarkan periode gaji
+        if ($request->has('periode_from') && $request->periode_from) {
+            $query->where('periode_gaji', '>=', $request->periode_from);
+        }
+        if ($request->has('periode_to') && $request->periode_to) {
+            $query->where('periode_gaji', '<=', $request->periode_to);
+        }
+
+        $slipGajis = $query->orderBy('periode_gaji', 'desc')->paginate(10);
+
+        return view('pegawai.slip-gaji', compact('slipGajis', 'user'));
+    }
+
+    /**
+     * Show detailed salary slip for employee
+     */
+    public function slipGajiShow(Gajian $gajian)
+    {
+        // Ensure user can only view their own salary slip
+        if ($gajian->user_id !== Auth::id()) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        $gajian->load(['user']);
+        return view('pegawai.slip-gaji-detail', compact('gajian'));
+    }
+
+    /**
+     * Print salary slip for employee
+     */
+    public function slipGajiPrint(Gajian $gajian)
+    {
+        // Ensure user can only print their own salary slip
+        if ($gajian->user_id !== Auth::id()) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        $gajian->load(['user']);
+        return view('pegawai.slip-gaji-print', compact('gajian'));
     }
 }

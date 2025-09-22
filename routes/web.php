@@ -33,7 +33,7 @@ Auth::routes([
     'verify' => false, // disable verifikasi email saat pendaftaran
 ]);
 
-// Auth::loginUsingId(1);
+Auth::loginUsingId(5);
 
 
 // Admin routes - hanya bisa diakses oleh Admin, Manager, Bendahara
@@ -139,5 +139,9 @@ Route::middleware(['auth'])->prefix('pegawai')->name('pegawai.')->group(function
     Route::get('/geolocation-help', function () {
         return view('pegawai.geolocation-help');
     })->name('geolocation-help');
+    // Salary Slip Routes
+    Route::get("/slip-gaji", "PegawaiController@slipGaji")->name("slip-gaji");
+    Route::get("/slip-gaji/{gajian}", "PegawaiController@slipGajiShow")->name("slip-gaji.show");
+    Route::get("/slip-gaji/{gajian}/print", "PegawaiController@slipGajiPrint")->name("slip-gaji.print");
 });
 //End Pegawai

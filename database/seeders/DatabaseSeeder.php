@@ -23,6 +23,7 @@ class DatabaseSeeder extends Seeder
         $this->call([
             ComprehensivePermissionSeeder::class,
             RolePermissionSeeder::class,
+            GajianSeeder::class,
         ]);
     }
 }

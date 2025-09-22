@@ -9,11 +9,11 @@
         <!-- Header Section -->
         <div class="flex justify-between items-center">
             <div>
-                <h1 class="text-2xl font-bold text-gray-800">Halo, {{ $user->name }}!</h1>
+                <h4 class="text font-bold text-gray-800">Halo, {{ $user->name }}!</h4>
             </div>
-            <div class="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center shadow-sm">
+            {{-- <div class="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center shadow-sm">
                 <i class="fas fa-user text-gray-600"></i>
-            </div>
+            </div> --}}
         </div>
 
         <!-- Main Card with Purple Background -->
@@ -46,7 +46,7 @@
                     </div>
                     <div class="text-right">
                         <h3 class="text-lg font-bold">MDTPay</h3>
-                        <p class="text-xs opacity-75">12/25</p>
+                        <p class="text-xs opacity-75">12/27</p>
                     </div>
                 </div>
 
@@ -60,7 +60,7 @@
         <!-- Action Buttons -->
         <div class="grid grid-cols-4 gap-4">
             <a href="{{ route('pegawai.pengumuman') }}"
-                class="flex flex-col items-center space-y-2 cursor-pointer hover:opacity-80 transition-opacity">
+                class="nav-item flex flex-col items-center space-y-2 cursor-pointer hover:opacity-80 transition-opacity">
                 <div
                     class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center border-2 border-purple-300 hover:bg-purple-200 transition-colors">
                     <i class="fas fa-bell text-purple-600"></i>
@@ -68,7 +68,7 @@
                 <span class="text-xs font-medium text-gray-700">Pengumuman</span>
             </a>
 
-            <div class="flex flex-col items-center space-y-2 cursor-pointer hover:opacity-80 transition-opacity">
+            <div class="nav-item flex flex-col items-center space-y-2 cursor-pointer hover:opacity-80 transition-opacity">
                 <div
                     class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center border-2 border-purple-300 hover:bg-purple-200 transition-colors">
                     <i class="fas fa-calendar text-purple-600"></i>
@@ -76,8 +76,17 @@
                 <span class="text-xs font-medium text-gray-700">Absen</span>
             </div>
 
+            <a href="{{ route('pegawai.slip-gaji') }}"
+                class="nav-item flex flex-col items-center space-y-2 cursor-pointer hover:opacity-80 transition-opacity">
+                <div
+                    class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center border-2 border-green-300 hover:bg-green-200 transition-colors">
+                    <i class="fas fa-file-invoice-dollar text-green-600"></i>
+                </div>
+                <span class="text-xs font-medium text-gray-700">Slip Gaji</span>
+            </a>
+
             <a href="{{ route('pegawai.kasbon') }}"
-                class="flex flex-col items-center space-y-2 cursor-pointer hover:opacity-80 transition-opacity">
+                class="nav-item flex flex-col items-center space-y-2 cursor-pointer hover:opacity-80 transition-opacity">
                 <div
                     class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center border-2 border-purple-300 hover:bg-purple-200 transition-colors">
                     <i class="fas fa-money-bill text-purple-600"></i>
@@ -85,13 +94,14 @@
                 <span class="text-xs font-medium text-gray-700">Kasbon</span>
             </a>
 
-            <div class="flex flex-col items-center space-y-2 cursor-pointer hover:opacity-80 transition-opacity">
+            {{-- <div
+                class="nav-item flex flex-col items-center space-y-2 cursor-pointer hover:opacity-80 transition-opacity">
                 <div
                     class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center border-2 border-purple-300 hover:bg-purple-200 transition-colors">
                     <i class="fas fa-arrow-down text-purple-600"></i>
                 </div>
                 <span class="text-xs font-medium text-gray-700">Withdraw</span>
-            </div>
+            </div> --}}
         </div>
 
         <!-- Transaction History Section -->

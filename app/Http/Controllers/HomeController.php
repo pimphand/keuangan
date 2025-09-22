@@ -26,6 +26,7 @@ use App\Imports\KategoriImport;
 use App\Imports\TransaksiImport;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Http\Controllers\Controller;
+use App\Models\Gajian;
 use Maatwebsite\Excel\Concerns\FromView;
 
 class HomeController extends Controller
@@ -532,7 +533,8 @@ class HomeController extends Controller
         $this->validate($request, [
             'user_id' => 'required|exists:users,id',
             'amount' => 'required|numeric|min:0.01',
-            'notes' => 'nullable|string|max:255'
+            'notes' => 'nullable|string|max:255',
+            'tunjangan' => 'nullable|numeric|min:0',
         ]);
 
         $user = User::find($request->user_id);
@@ -543,7 +545,8 @@ class HomeController extends Controller
         }
 
         // Calculate Gaji Akhir automatically: saldo - kasbon_terpakai
-        $gajiAkhir = $user->saldo - $user->kasbon_terpakai;
+        $tunjangan = $request->tunjangan ?? 0;
+        $gajiAkhir = ($user->saldo + $tunjangan) - $user->kasbon_terpakai;
 
         // Ensure gaji akhir is not negative
         $gajiAkhir = max(0, $gajiAkhir);
@@ -555,10 +558,6 @@ class HomeController extends Controller
 
         try {
             DB::beginTransaction();
-
-            // Add saldo to user (using calculated amount)
-            $user->kasbon_terpakai = 0;
-            $user->save();
 
             // Record in saldo history
             $saldo = SaldoHistory::create([
@@ -579,6 +578,21 @@ class HomeController extends Controller
                 'saldo_history_id' => $saldo->id,
             ]);
 
+            Gajian::create([
+                'user_id' => $user->id,
+                'nama' => $user->name,
+                'jabatan' => $user->roles()->first()->name ?? 'Pegawai',
+                'gaji_pokok' => $user->saldo,           // User's base salary
+                'tunjangan' => $request->tunjangan ?? 0, // Allowance from request
+                'potongan' => $user->kasbon_terpakai,    // Deductions (used kasbon)
+                'gaji_bersih' => $gajiAkhir,            // Final salary after calculations
+                'periode_gaji' => now()->format('Y-m-d'), // Payroll period
+                'tanggal_pembayaran' => now()->format('Y-m-d'), // Payment date
+                'status' => 'Dibayar',                   // Payment status
+            ]);
+            // Add saldo to user (using calculated amount)
+            $user->kasbon_terpakai = 0;
+            $user->save();
             DB::commit();
 
             return redirect()->back()->with('success', 'Gaji Akhir berhasil ditambahkan ke ' . $user->name . ' sebesar Rp ' . number_format($gajiAkhir, 2, ',', '.'));

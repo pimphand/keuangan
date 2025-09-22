@@ -33,6 +33,8 @@ class User extends Authenticatable
         'status',
         'bank',
         'rekening',
+        'tanggal_gajian',
+        'tunjangan',
     ];
 
     /**
@@ -55,6 +57,7 @@ class User extends Authenticatable
         'saldo' => 'decimal:2',
         'kasbon' => 'decimal:2',
         'kasbon_terpakai' => 'decimal:2',
+        'tunjangan' => 'decimal:2',
         'rekening' => 'string',
         'bank' => 'string',
     ];

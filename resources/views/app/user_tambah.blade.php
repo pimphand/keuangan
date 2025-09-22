@@ -120,7 +120,19 @@
                                         @enderror
                                     </div>
                                 </div>
-
+                                <div class="form-group">
+                                    <div class="form-group has-feedback">
+                                        <label class="text-dark">Tunjangan</label>
+                                        <input id="tunjangan" type="number" step="0.01" placeholder="Tunjangan"
+                                            class="form-control @error('tunjangan') is-invalid @enderror" name="tunjangan"
+                                            value="{{ old('tunjangan') }}" autocomplete="off">
+                                        @error('tunjangan')
+                                            <span class="invalid-feedback" role="alert">
+                                                <strong>{{ $message }}</strong>
+                                            </span>
+                                        @enderror
+                                    </div>
+                                </div>
                                 <div class="form-group">
                                     <div class="form-group has-feedback">
                                         <label class="text-dark">Limit Kasbon</label>
