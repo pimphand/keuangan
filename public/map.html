@@ -20,9 +20,6 @@
     <title>geojson.io | powered by Mapbox</title>
 
     <style>
-        /*
-   * http://seclab.stanford.edu/websec/framebusting/framebust.pdf
-   */
         body {
             display: none;
         }
@@ -301,7 +298,7 @@
     <div class="geojsonio flex flex-col h-full">
         <div class="text-white bg-mb-gray-dark font-sans px-3 flex">
             <div class="font-extrabold flex items-center tracking-wide text-base">
-                geojson.io
+
             </div>
             <div class="flex-grow flex justify-end">
                 <div style="height: 42px"></div>
@@ -309,10 +306,11 @@
         </div>
         <!-- Toolbar and App container -->
         <div class="toolbar" id="draw-toolbar">
-            <button id="btn-draw" title="Gambar Polygon">Polygon</button>
+            <button id="btn-draw" title="Gambar Polygon">Tambah Data</button>
             <button id="btn-select" title="Pilih/geser fitur" class="active">Select</button>
             <button id="btn-trash" title="Hapus fitur">Trash</button>
-            <button id="btn-save" title="Simpan fitur ke desa_batukuta.geojson">Save</button>
+            <button id="btn-list" title="Tampilkan daftar fitur dari desa_batukuta.geojson">List
+                desa_batukuta.geojson</button>
         </div>
         <div class="basemaps" id="basemaps">
             <span>Standard</span>
@@ -326,11 +324,6 @@
         <div class="app-shell">
             <div id="map"></div>
             <aside class="sidebar">
-                <div class="sidebar-header">
-                    <button id="tab-json" class="tab active">JSON</button>
-                    <button id="tab-table" class="tab">Table</button>
-                    <button id="tab-help" class="tab">Help</button>
-                </div>
                 <div class="sidebar-body">
                     <textarea id="json-area" class="json-area" spellcheck="false"></textarea>
                 </div>
@@ -351,6 +344,9 @@
     </script>
 
     <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            document.getElementById("btn-list").click();
+        });
         (function () {
             const qs = new URLSearchParams(window.location.search);
             const token = qs.get('token') || window.MAPBOX_TOKEN || 'pk.eyJ1IjoicGltcGhhbmQyIiwiYSI6ImNtZnZ4b3RlMzBjcWkyb3B0YWx2emRnajEifQ.HvMA6_dYbzb8MyMkVWUl-w';
@@ -688,6 +684,7 @@
             const btnDraw = document.getElementById('btn-draw');
             const btnSelect = document.getElementById('btn-select');
             const btnTrash = document.getElementById('btn-trash');
+            const btnList = document.getElementById('btn-list');
             const btnSave = document.getElementById('btn-save');
 
             function setActive(button) {
@@ -722,8 +719,85 @@
                 }
             });
 
-            // Save selected (or last created) feature(s) to backend
-            btnSave.addEventListener('click', function () {
+            // When a polygon is selected, auto-open the properties popup
+            map.on('draw.selectionchange', function (e) {
+                if (!e || !e.features || !e.features.length) { return; }
+                const f = e.features[0];
+                if (!f || !f.geometry) { return; }
+                const c = getFeatureCentroid(f);
+                if (c) {
+                    openPopupForFeature(f, [c.lng, c.lat]);
+                }
+            });
+
+            // Show list of features from desa_batukuta.geojson in sidebar
+            btnList.addEventListener('click', function () {
+                fetch('data-map/desa_batukuta.geojson?_=' + Date.now())
+                    .then(r => r.json())
+                    .then(d => {
+                        desaData = d;
+                        // Update source on map
+                        if (map.getSource('desa-batukuta')) {
+                            map.getSource('desa-batukuta').setData(desaData);
+                        } else {
+                            addDesaLayer();
+                        }
+                        // Build an interactive list of features; clicking an item zooms to it
+                        const feats = (d && d.features) || [];
+                        const jsonArea = document.getElementById('json-area');
+                        const body = jsonArea && jsonArea.parentElement;
+                        if (body) {
+                            const container = document.createElement('div');
+                            container.style.padding = '10px';
+                            container.style.overflow = 'auto';
+                            container.style.height = '100%';
+                            const title = document.createElement('div');
+                            title.textContent = `Daftar fitur: ${feats.length} item`;
+                            title.style.fontWeight = '600';
+                            title.style.marginBottom = '8px';
+                            container.appendChild(title);
+                            const list = document.createElement('div');
+                            list.style.display = 'flex';
+                            list.style.flexDirection = 'column';
+                            list.style.gap = '6px';
+                            feats.forEach((f, i) => {
+                                const props = f.properties || {};
+                                const name = props.Nama || props.name || props.Pemilik || `Feature ${i + 1}`;
+                                const item = document.createElement('button');
+                                item.textContent = `#${i + 1} - ${name}`;
+                                item.style.textAlign = 'left';
+                                item.style.padding = '6px 8px';
+                                item.style.border = '1px solid #d1d5db';
+                                item.style.background = '#fff';
+                                item.style.borderRadius = '4px';
+                                item.style.cursor = 'pointer';
+                                item.addEventListener('click', function () {
+                                    const bbox = computeBbox(f);
+                                    if (bbox) map.fitBounds(bbox, { padding: 30 });
+                                    const c = getFeatureCentroid(f);
+                                    if (c) {
+                                        if (currentPopup) currentPopup.remove();
+                                        currentPopup = new mapboxgl.Popup({ closeOnClick: true, maxWidth: '320px' })
+                                            .setLngLat([c.lng, c.lat])
+                                            .setDOMContent(buildPropsOnlyContent(props))
+                                            .addTo(map);
+                                    }
+                                });
+                                list.appendChild(item);
+                            });
+                            body.innerHTML = '';
+                            body.appendChild(container);
+                            container.appendChild(list);
+                        }
+                        // Zoom to dataset initially
+                        const bbox = computeBbox(d);
+                        if (bbox) map.fitBounds(bbox, { padding: 30 });
+                    })
+                    .catch(() => { alert('Gagal memuat desa_batukuta.geojson'); });
+            });
+
+            // Save selected (or last created) feature(s) to backend (if toolbar Save exists)
+            if (btnSave) btnSave.addEventListener('click', function () {
                 try {
                     let featureIds = draw.getSelectedIds();
                     if (!featureIds || featureIds.length === 0) {
@@ -764,7 +838,7 @@
                         headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
                         body: JSON.stringify(payload)
                     })
-                        .then(r => r.json().then(j => ({ ok: r.ok, status: r.status, body: j })))
+                        .then(r => r.text().then(t => { try { return { ok: r.ok, status: r.status, body: JSON.parse(t || '{}') }; } catch (_) { return { ok: r.ok, status: r.status, body: { raw: t } }; } }))
                         .then(({ ok, status, body }) => {
                             if (!ok) { console.error('Failed to save feature(s)', status, body); alert('Gagal menyimpan ke server'); return; }
                             // Refresh desa layer
@@ -784,6 +858,15 @@
                         .catch(err => { console.error(err); alert('Tidak dapat terhubung ke server'); });
                 } catch (e) { console.error(e); }
             });
+
+            // Auto-trigger list on first load so user sees data immediately
+            try {
+                map.once('idle', function () {
+                    if (btnList) {
+                        btnList.click();
+                    }
+                });
+            } catch (_) { /* ignore */ }
 
             // JSON sidebar sync
             const jsonArea = document.getElementById('json-area');
@@ -999,7 +1082,7 @@
                                 headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
                                 body: JSON.stringify(payload)
                             })
-                                .then(r => r.json().then(j => ({ ok: r.ok, status: r.status, body: j })))
+                                .then(r => r.text().then(t => { try { return { ok: r.ok, status: r.status, body: JSON.parse(t || '{}') }; } catch (_) { return { ok: r.ok, status: r.status, body: { raw: t } }; } }))
                                 .then(({ ok, status, body }) => {
                                     if (!ok) { console.error('Failed to save feature', status, body); alert('Gagal menyimpan ke server'); return; }
                                     // On success, reload desa layer source data so map reflects the new feature
@@ -1012,6 +1095,7 @@
                                             } else {
                                                 addDesaLayer();
                                             }
+                                            alert('Berhasil disimpan.');
                                         })
                                         .catch(() => { /* ignore */ });
                                 })
