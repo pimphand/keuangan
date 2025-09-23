@@ -30,16 +30,22 @@
                             @csrf
                             <div class="row">
 
-                                <div class="col-lg-offset-1 col-lg-3">
+                                <div class="col-lg-offset-1 col-lg-2">
                                     <div class="form-group">
-                                        <label>Rentang Tanggal</label>
-                                        <input class="form-control" placeholder="Pilih Rentang Tanggal" type="text"
-                                            id="daterange" name="daterange"
-                                            value="@php if (isset($_GET['daterange'])) {
-        echo $_GET['daterange'];
+                                        <label>Tanggal Mulai</label>
+                                        <input class="form-control" type="date" id="tanggal_dari" name="dari"
+                                            value="@php if (isset($_GET['dari'])) {
+        echo $_GET['dari'];
     } @endphp">
-                                        <input type="hidden" name="dari" id="dari">
-                                        <input type="hidden" name="sampai" id="sampai">
+                                    </div>
+                                </div>
+                                <div class="col-lg-2">
+                                    <div class="form-group">
+                                        <label>Tanggal Selesai</label>
+                                        <input class="form-control" type="date" id="tanggal_sampai" name="sampai"
+                                            value="@php if (isset($_GET['sampai'])) {
+        echo $_GET['sampai'];
+    } @endphp">
                                     </div>
                                 </div>
                                 <div class="col-lg-3">
@@ -225,5 +231,43 @@
             </div>
             <!-- #/ container -->
         </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const tanggalDari = document.getElementById('tanggal_dari');
+    const tanggalSampai = document.getElementById('tanggal_sampai');
+    const filterForm = document.getElementById('filterForm');
+
+    // Set minimum date for tanggal_sampai when tanggal_dari changes
+    tanggalDari.addEventListener('change', function() {
+        if (this.value) {
+            tanggalSampai.min = this.value;
+            // If tanggal_sampai is earlier than tanggal_dari, clear it
+            if (tanggalSampai.value && tanggalSampai.value < this.value) {
+                tanggalSampai.value = '';
+            }
+        } else {
+            tanggalSampai.min = '';
+        }
+    });
+
+    // Validate on form submission
+    filterForm.addEventListener('submit', function(e) {
+        if (tanggalDari.value && tanggalSampai.value) {
+            if (tanggalSampai.value < tanggalDari.value) {
+                e.preventDefault();
+                alert('Tanggal selesai tidak boleh kurang dari tanggal mulai!');
+                tanggalSampai.focus();
+                return false;
+            }
+        }
+    });
+
+    // Set initial minimum date if tanggal_dari already has value
+    if (tanggalDari.value) {
+        tanggalSampai.min = tanggalDari.value;
+    }
+});
+</script>
 
 @endsection
