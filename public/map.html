@@ -4,10 +4,14 @@
 <head>
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;700;800&display=swap" rel="stylesheet" />
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
     <!-- Mapbox GL JS -->
     <link href="https://api.mapbox.com/mapbox-gl-js/v3.15.0/mapbox-gl.css" rel="stylesheet" />
     <script src="https://api.mapbox.com/mapbox-gl-js/v3.15.0/mapbox-gl.js"></script>
@@ -305,32 +309,33 @@
             </div>
         </div>
         <!-- Toolbar and App container -->
-        <div class="toolbar" id="draw-toolbar">
-            <button id="btn-draw" title="Gambar Polygon">Tambah Data</button>
-            <button id="btn-select" title="Pilih/geser fitur" class="active">Select</button>
-            <button id="btn-trash" title="Hapus fitur">Trash</button>
-            <button id="btn-list" title="Tampilkan daftar fitur dari desa_batukuta.geojson">List
-                desa_batukuta.geojson</button>
+        <div class="toolbar flex flex-wrap gap-2 p-1.5 rounded shadow top-2 left-2" id="draw-toolbar">
+            <button id="btn-draw" title="Gambar Polygon" class="text-xs px-3 py-1">Tambah Data</button>
+            <button id="btn-select" title="Pilih/geser fitur" class="active text-xs px-3 py-1">Select</button>
+            <button id="btn-trash" title="Hapus fitur" class="text-xs px-3 py-1">Trash</button>
+            <button id="btn-list" title="Tampilkan daftar fitur dari desa_batukuta.geojson"
+                class="text-xs px-3 py-1">List desa_batukuta.geojson</button>
         </div>
-        <div class="basemaps" id="basemaps">
+        <div class="basemaps flex flex-wrap items-center gap-1 text-xs p-1.5 rounded shadow left-2 bottom-2 max-w-full overflow-x-auto"
+            id="basemaps">
             <span>Standard</span>
-            <button data-style="mapbox://styles/mapbox/streets-v12" class="active">Standard</button>
-            <button data-style="mapbox://styles/mapbox/satellite-streets-v12">Standard Satellite</button>
-            <button data-style="mapbox://styles/mapbox/light-v11">Standard Light</button>
-            <button data-style="mapbox://styles/mapbox/dark-v11">Standard Dark</button>
-            <button data-style="mapbox://styles/mapbox/outdoors-v12">Outdoors</button>
-            <button data-style="osm">OSM</button>
+            <button data-style="mapbox://styles/mapbox/streets-v12" class="active px-1">Standard</button>
+            <button data-style="mapbox://styles/mapbox/satellite-streets-v12" class="px-1">Standard Satellite</button>
+            <button data-style="mapbox://styles/mapbox/light-v11" class="px-1">Standard Light</button>
+            <button data-style="mapbox://styles/mapbox/dark-v11" class="px-1">Standard Dark</button>
+            <button data-style="mapbox://styles/mapbox/outdoors-v12" class="px-1">Outdoors</button>
+            <button data-style="osm" class="px-1">OSM</button>
         </div>
-        <div class="app-shell">
-            <div id="map"></div>
-            <aside class="sidebar">
-                <div class="sidebar-body">
-                    <textarea id="json-area" class="json-area" spellcheck="false"></textarea>
+        <div class="app-shell flex flex-col lg:flex-row">
+            <div id="map" class="flex-1 lg:h-auto h-[55vh]"></div>
+            <aside class="sidebar w-full lg:w-[380px] max-w-[50vw]">
+                <div class="sidebar-body h-[45vh] lg:h-auto">
+                    <textarea id="json-area" class="json-area text-xs" spellcheck="false"></textarea>
                 </div>
                 <div class="sidebar-footer">
-                    <button id="btn-copy">Copy JSON</button>
-                    <button id="btn-apply">Apply to Map</button>
-                    <button id="btn-download">Download .geojson</button>
+                    <button id="btn-copy" class="text-xs px-3 py-1">Copy JSON</button>
+                    <button id="btn-apply" class="text-xs px-3 py-1">Apply to Map</button>
+                    <button id="btn-download" class="text-xs px-3 py-1">Download .geojson</button>
                 </div>
             </aside>
         </div>
@@ -360,6 +365,11 @@
                 style: 'mapbox://styles/mapbox/streets-v12',
                 center: [116.1951, -8.5539],
                 zoom: 12
+            });
+
+            // Ensure map resizes correctly on mobile orientation/viewport changes
+            window.addEventListener('resize', () => {
+                try { map.resize(); } catch (_) { }
             });
 
             const draw = new MapboxDraw({
@@ -559,10 +569,25 @@
                     });
                 }
 
+                // Keep Narmada below Desa layers when both exist
+                try {
+                    if (map.getLayer('desa-batukuta-outline')) {
+                        map.moveLayer(lineId, 'desa-batukuta-outline');
+                    }
+                    if (map.getLayer('desa-batukuta-fill')) {
+                        map.moveLayer(fillId, 'desa-batukuta-fill');
+                    }
+                } catch (_) { }
+
                 // Bind property popup on click once
                 if (!narmadaClickBound) {
                     map.on('click', fillId, function (e) {
                         if (isDrawMode) return; // disable popup while drawing
+                        // If a Desa feature is under the pointer, prefer its handler
+                        try {
+                            const desaHits = map.queryRenderedFeatures(e.point, { layers: ['desa-batukuta-fill'] });
+                            if (desaHits && desaHits.length) return;
+                        } catch (_) { }
                         // Prevent the global map click handler from opening another popup
                         suppressNextMapClick = true;
                         const feature = e.features && e.features[0];
@@ -628,6 +653,16 @@
                     });
                 }
 
+                // Ensure Desa layers render above Narmada layers so clicks hit Desa first
+                try {
+                    if (map.getLayer('narmada-outline')) {
+                        map.moveLayer(lineId);
+                    }
+                    if (map.getLayer('narmada-fill')) {
+                        map.moveLayer(fillId, lineId);
+                    }
+                } catch (_) { }
+
                 if (!desaClickBound) {
                     map.on('click', fillId, function (e) {
                         if (isDrawMode) return;
@@ -635,6 +670,10 @@
                         suppressNextMapClick = true;
                         const feature = e.features && e.features[0];
                         const props = feature && feature.properties ? feature.properties : {};
+                        // De-select any previously selected Narmada feature for clarity
+                        if (selectedNarmadaId != null) {
+                            try { map.setFeatureState({ source: 'narmada', id: selectedNarmadaId }, { selected: false }); } catch (_) { }
+                        }
                         if (selectedDesaId != null) {
                             try { map.setFeatureState({ source: 'desa-batukuta', id: selectedDesaId }, { selected: false }); } catch (_) { }
                         }
