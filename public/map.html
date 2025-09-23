@@ -1,0 +1,1056 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;700;800&display=swap" rel="stylesheet" />
+    <!-- Mapbox GL JS -->
+    <link href="https://api.mapbox.com/mapbox-gl-js/v3.15.0/mapbox-gl.css" rel="stylesheet" />
+    <script src="https://api.mapbox.com/mapbox-gl-js/v3.15.0/mapbox-gl.js"></script>
+
+    <!-- Mapbox GL Draw -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/mapbox-gl-draw/1.5.0/mapbox-gl-draw.min.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mapbox-gl-draw/1.5.0/mapbox-gl-draw.min.js"></script>
+
+
+    <title>geojson.io | powered by Mapbox</title>
+
+    <style>
+        /*
+   * http://seclab.stanford.edu/websec/framebusting/framebust.pdf
+   */
+        body {
+            display: none;
+        }
+
+        /* Layout similar to geojson.io */
+        html,
+        body,
+        .geojsonio {
+            height: 100%;
+        }
+
+        .app-shell {
+            display: flex;
+            height: calc(100vh - 42px);
+            width: 100%;
+            position: relative;
+        }
+
+        #map {
+            flex: 1 1 auto;
+        }
+
+        .sidebar {
+            width: 380px;
+            max-width: 50vw;
+            border-left: 1px solid #e5e7eb;
+            background: #fafafa;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar-header {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 10px;
+            border-bottom: 1px solid #e5e7eb;
+            background: #fff;
+        }
+
+        .tab {
+            font-family: inherit;
+            font-size: 12px;
+            padding: 4px 8px;
+            border: 1px solid #d1d5db;
+            background: #fff;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+
+        .tab.active {
+            background: #1e90ff;
+            color: #fff;
+            border-color: #1e90ff;
+        }
+
+        .sidebar-body {
+            padding: 0;
+            flex: 1 1 auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .json-area {
+            width: 100%;
+            height: 100%;
+            border: none;
+            outline: none;
+            padding: 10px;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+            font-size: 12px;
+            background: #fafafa;
+            resize: none;
+            line-height: 1.4;
+        }
+
+        .sidebar-footer {
+            padding: 8px 10px;
+            border-top: 1px solid #e5e7eb;
+            background: #fff;
+            display: flex;
+            gap: 6px;
+        }
+
+        .sidebar-footer button {
+            font-size: 12px;
+            padding: 6px 10px;
+            border: 1px solid #d1d5db;
+            background: #fff;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+
+        /* Simple toolbar */
+        .toolbar {
+            z-index: 2;
+            position: absolute;
+            top: 50px;
+            left: 10px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 4px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+            padding: 6px;
+            display: flex;
+            gap: 6px;
+        }
+
+        .toolbar button {
+            font-family: inherit;
+            font-size: 13px;
+            padding: 6px 10px;
+            border: 1px solid #ccc;
+            background: #fff;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+
+        .toolbar button.active {
+            background: #1e90ff;
+            color: #fff;
+            border-color: #1e90ff;
+        }
+
+        /* Basemap switcher (bottom-left) */
+        .basemaps {
+            position: absolute;
+            left: 6px;
+            bottom: 6px;
+            display: flex;
+            gap: 4px;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 4px 6px;
+            border-radius: 3px;
+            border: 1px solid #e5e7eb;
+            font-size: 11px;
+            z-index: 2;
+        }
+
+        .basemaps button {
+            border: none;
+            background: transparent;
+            padding: 2px 4px;
+            cursor: pointer;
+            color: #374151;
+        }
+
+        .basemaps button.active {
+            color: #111827;
+            font-weight: 600;
+            text-decoration: underline;
+        }
+
+        /* Popup form table */
+        .prop-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .prop-table th,
+        .prop-table td {
+            border: 1px solid #e5e7eb;
+            padding: 6px;
+            font-size: 12px;
+        }
+
+        .popup-actions {
+            margin-top: 8px;
+            display: flex;
+            gap: 6px;
+            justify-content: flex-start;
+        }
+
+        .popup-actions button {
+            font-size: 12px;
+            padding: 6px 10px;
+            border: 1px solid #d1d5db;
+            background: #fff;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+
+        /* Pretty popup form styles */
+        .prop-table {
+            background: #fff;
+        }
+
+        .prop-table th {
+            background: #f3f4f6;
+            color: #374151;
+            font-weight: 600;
+        }
+
+        .prop-table td {
+            background: #fff;
+        }
+
+        .prop-key,
+        .prop-input {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 6px 8px;
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+            background: #fff;
+            color: #111827;
+            outline: none;
+            transition: border-color .15s ease, box-shadow .15s ease;
+        }
+
+        .prop-key:focus,
+        .prop-input:focus {
+            border-color: #60a5fa;
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, .15);
+        }
+
+        .prop-remove-btn {
+            border: 1px solid #e5e7eb;
+            background: #f9fafb;
+            color: #6b7280;
+            border-radius: 4px;
+            padding: 2px 6px;
+            line-height: 1;
+        }
+
+        .prop-remove-btn:hover {
+            background: #f3f4f6;
+            color: #374151;
+        }
+
+        .popup-actions {
+            margin-top: 10px;
+        }
+
+        .popup-actions button {
+            border-radius: 4px;
+        }
+
+        .popup-actions button:first-child {
+            /* Save */
+            background: #1e90ff;
+            color: #fff;
+            border-color: #1e90ff;
+        }
+
+        .popup-actions button:first-child:hover {
+            filter: brightness(0.95);
+        }
+
+        .popup-actions .text-danger {
+            color: #dc2626;
+        }
+
+        .link {
+            color: #1e90ff;
+        }
+
+        .link+.link {
+            margin-left: 10px;
+        }
+
+        .text-danger {
+            color: #dc2626;
+        }
+
+        .link {
+            color: #2563eb;
+            cursor: pointer;
+            text-decoration: underline;
+            font-size: 12px;
+        }
+    </style>
+</head>
+
+<body id="geojsonio-body" class="h-full">
+    <div class="geojsonio flex flex-col h-full">
+        <div class="text-white bg-mb-gray-dark font-sans px-3 flex">
+            <div class="font-extrabold flex items-center tracking-wide text-base">
+                geojson.io
+            </div>
+            <div class="flex-grow flex justify-end">
+                <div style="height: 42px"></div>
+            </div>
+        </div>
+        <!-- Toolbar and App container -->
+        <div class="toolbar" id="draw-toolbar">
+            <button id="btn-draw" title="Gambar Polygon">Polygon</button>
+            <button id="btn-select" title="Pilih/geser fitur" class="active">Select</button>
+            <button id="btn-trash" title="Hapus fitur">Trash</button>
+        </div>
+        <div class="basemaps" id="basemaps">
+            <span>Standard</span>
+            <button data-style="mapbox://styles/mapbox/streets-v12" class="active">Standard</button>
+            <button data-style="mapbox://styles/mapbox/satellite-streets-v12">Standard Satellite</button>
+            <button data-style="mapbox://styles/mapbox/light-v11">Standard Light</button>
+            <button data-style="mapbox://styles/mapbox/dark-v11">Standard Dark</button>
+            <button data-style="mapbox://styles/mapbox/outdoors-v12">Outdoors</button>
+            <button data-style="osm">OSM</button>
+        </div>
+        <div class="app-shell">
+            <div id="map"></div>
+            <aside class="sidebar">
+                <div class="sidebar-header">
+                    <button id="tab-json" class="tab active">JSON</button>
+                    <button id="tab-table" class="tab">Table</button>
+                    <button id="tab-help" class="tab">Help</button>
+                </div>
+                <div class="sidebar-body">
+                    <textarea id="json-area" class="json-area" spellcheck="false"></textarea>
+                </div>
+                <div class="sidebar-footer">
+                    <button id="btn-copy">Copy JSON</button>
+                    <button id="btn-apply">Apply to Map</button>
+                    <button id="btn-download">Download .geojson</button>
+                </div>
+            </aside>
+        </div>
+    </div>
+    <script>
+        if (self == top) {
+            document.getElementsByTagName("body")[0].style.display = "block";
+        } else {
+            top.location = self.location;
+        }
+    </script>
+
+    <script>
+        (function () {
+            const qs = new URLSearchParams(window.location.search);
+            const token = qs.get('token') || window.MAPBOX_TOKEN || 'pk.eyJ1IjoicGltcGhhbmQyIiwiYSI6ImNtZnZ4b3RlMzBjcWkyb3B0YWx2emRnajEifQ.HvMA6_dYbzb8MyMkVWUl-w';
+            if (!token || token === 'pk.eyJ1IjoicGltcGhhbmQyIiwiYSI6ImNtZnZ4b3RlMzBjcWkyb3B0YWx2emRnajEifQ.HvMA6_dYbzb8MyMkVWUl-w') {
+                console.warn('Mapbox token is missing. Pass ?token=YOUR_TOKEN in URL or set window.MAPBOX_TOKEN.');
+            }
+            mapboxgl.accessToken = token;
+
+            const map = new mapboxgl.Map({
+                container: 'map',
+                style: 'mapbox://styles/mapbox/streets-v12',
+                center: [116.1951, -8.5539],
+                zoom: 12
+            });
+
+            const draw = new MapboxDraw({
+                displayControlsDefault: false,
+                controls: { polygon: false, trash: false },
+                defaultMode: 'simple_select'
+            });
+
+            map.addControl(new mapboxgl.NavigationControl(), 'top-right');
+            map.addControl(draw, 'top-right');
+
+            // OSM raster layer support when style "osm" selected
+            let osmAdded = false;
+            function ensureOsmLayer() {
+                if (osmAdded) return;
+                if (!map.getSource('osm')) {
+                    map.addSource('osm', {
+                        type: 'raster',
+                        tiles: ['https://tile.openstreetmap.org/{z}/{x}/{y}.png'],
+                        tileSize: 256,
+                        attribution: '© OpenStreetMap contributors'
+                    });
+                }
+                if (!map.getLayer('osm')) {
+                    map.addLayer({ id: 'osm', type: 'raster', source: 'osm' });
+                }
+                osmAdded = true;
+            }
+
+            // Load and render Narmada GeoJSON
+            let narmadaData = null;
+            let narmadaFitted = false;
+            let narmadaClickBound = false;
+            let selectedNarmadaId = null;
+            let selectedDrawId = null;
+            let isDrawMode = false;
+            let measureFeatureId = null;
+            let lastCreatedFeatureId = null;
+            // Desa Batukuta data state
+            let desaData = null;
+            let desaFitted = false;
+            let desaClickBound = false;
+            let selectedDesaId = null;
+            function applyDrawOpacityOverrides() {
+                const layerIds = [
+                    'gl-draw-polygon-fill-inactive.cold',
+                    'gl-draw-polygon-fill-inactive.hot',
+                    'gl-draw-polygon-fill-active'
+                ];
+                const expr = [
+                    'case',
+                    ['boolean', ['feature-state', 'selected'], false], 0.05,
+                    0.3
+                ];
+                layerIds.forEach(id => { if (map.getLayer(id)) { try { map.setPaintProperty(id, 'fill-opacity', expr); } catch (_) { } } });
+            }
+            // --- Measurement helpers ---
+            function toRadians(deg) { return deg * Math.PI / 180; }
+            function haversineMeters(a, b) {
+                if (!a || !b) return 0;
+                const R = 6371008.8; // meters
+                const lat1 = toRadians(a[1]);
+                const lat2 = toRadians(b[1]);
+                const dLat = lat2 - lat1;
+                const dLon = toRadians(b[0] - a[0]);
+                const sinDLat = Math.sin(dLat / 2);
+                const sinDLon = Math.sin(dLon / 2);
+                const h = sinDLat * sinDLat + Math.cos(lat1) * Math.cos(lat2) * sinDLon * sinDLon;
+                return 2 * R * Math.asin(Math.sqrt(h));
+            }
+            function formatMeters(m) {
+                if (m >= 1000) return (m / 1000).toFixed(m < 10000 ? 2 : 1) + ' km';
+                return Math.round(m) + ' m';
+            }
+            function computePerimeterMeters(ring) {
+                if (!Array.isArray(ring) || ring.length < 2) return 0;
+                let total = 0;
+                for (let i = 1; i < ring.length; i++) total += haversineMeters(ring[i - 1], ring[i]);
+                return total;
+            }
+            function ensureMeasureLayers() {
+                if (!map.getSource('measure-line')) {
+                    map.addSource('measure-line', { type: 'geojson', data: { type: 'FeatureCollection', features: [] } });
+                }
+                if (!map.getLayer('measure-line')) {
+                    map.addLayer({ id: 'measure-line', type: 'line', source: 'measure-line', paint: { 'line-color': '#ff7e00', 'line-width': 2, 'line-dasharray': [2, 2] } });
+                }
+                if (!map.getSource('measure-label')) {
+                    map.addSource('measure-label', { type: 'geojson', data: { type: 'FeatureCollection', features: [] } });
+                }
+                if (!map.getLayer('measure-label')) {
+                    map.addLayer({ id: 'measure-label', type: 'symbol', source: 'measure-label', layout: { 'text-field': ['get', 'text'], 'text-size': 12, 'text-allow-overlap': true, 'symbol-placement': 'point' }, paint: { 'text-color': '#111827', 'text-halo-color': '#ffffff', 'text-halo-width': 1 } });
+                }
+            }
+            function clearMeasureLayers() {
+                const lineSrc = map.getSource('measure-line');
+                const labelSrc = map.getSource('measure-label');
+                if (lineSrc) lineSrc.setData({ type: 'FeatureCollection', features: [] });
+                if (labelSrc) labelSrc.setData({ type: 'FeatureCollection', features: [] });
+            }
+            function updateMeasureForFeature(feature) {
+                if (!feature || !feature.geometry || feature.geometry.type !== 'Polygon') return;
+                const ring = feature.geometry.coordinates && feature.geometry.coordinates[0];
+                if (!ring || ring.length < 3) { clearMeasureLayers(); return; }
+                ensureMeasureLayers();
+                const perimeter = computePerimeterMeters(ring);
+                const centroid = getFeatureCentroid(feature) || { lng: ring[0][0], lat: ring[0][1] };
+                const lineFeature = { type: 'Feature', properties: {}, geometry: { type: 'LineString', coordinates: ring } };
+                const labelFeature = { type: 'Feature', properties: { text: 'Perimeter: ' + formatMeters(perimeter) }, geometry: { type: 'Point', coordinates: [centroid.lng, centroid.lat] } };
+                map.getSource('measure-line').setData({ type: 'FeatureCollection', features: [lineFeature] });
+                map.getSource('measure-label').setData({ type: 'FeatureCollection', features: [labelFeature] });
+            }
+            function forEachCoord(geometry, callback) {
+                if (!geometry) return;
+                const type = geometry.type;
+                const coords = geometry.coordinates;
+                if (type === 'Point') callback(coords);
+                else if (type === 'MultiPoint' || type === 'LineString') coords.forEach(callback);
+                else if (type === 'MultiLineString' || type === 'Polygon') coords.flat().forEach(callback);
+                else if (type === 'MultiPolygon') coords.flat(2).forEach(callback);
+                else if (type === 'GeometryCollection' && geometry.geometries) geometry.geometries.forEach(g => forEachCoord(g, callback));
+            }
+            function computeBbox(geojson) {
+                let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+                const push = (c) => { if (!Array.isArray(c)) return; const x = c[0], y = c[1]; if (x < minX) minX = x; if (y < minY) minY = y; if (x > maxX) maxX = x; if (y > maxY) maxY = y; };
+                if (!geojson) return null;
+                if (geojson.type === 'FeatureCollection' && geojson.features) geojson.features.forEach(f => forEachCoord(f.geometry, push));
+                else if (geojson.type === 'Feature') forEachCoord(geojson.geometry, push);
+                else forEachCoord(geojson, push);
+                if (!isFinite(minX) || !isFinite(minY) || !isFinite(maxX) || !isFinite(maxY)) return null;
+                return [[minX, minY], [maxX, maxY]];
+            }
+            function buildPropsOnlyContent(props) {
+                const container = document.createElement('div');
+                const table = document.createElement('table');
+                table.className = 'prop-table';
+                const thead = document.createElement('thead');
+                thead.innerHTML = '<tr><th>Key</th><th>Value</th></tr>';
+                const tbody = document.createElement('tbody');
+                const keys = Object.keys(props || {});
+                if (keys.length === 0) {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = '<td colspan="2"><em>No properties</em></td>';
+                    tbody.appendChild(tr);
+                } else {
+                    keys.forEach(k => {
+                        const tr = document.createElement('tr');
+                        const tdK = document.createElement('td');
+                        const tdV = document.createElement('td');
+                        tdK.textContent = k;
+                        tdV.textContent = props[k] == null ? '' : String(props[k]);
+                        tr.appendChild(tdK);
+                        tr.appendChild(tdV);
+                        tbody.appendChild(tr);
+                    });
+                }
+                table.appendChild(thead);
+                table.appendChild(tbody);
+                container.appendChild(table);
+                return container;
+            }
+            function addNarmadaLayer() {
+                if (!narmadaData) return;
+                const sourceId = 'narmada';
+                const fillId = 'narmada-fill';
+                const lineId = 'narmada-outline';
+                if (!map.getSource(sourceId)) {
+                    map.addSource(sourceId, { type: 'geojson', data: narmadaData, generateId: true });
+                } else {
+                    map.getSource(sourceId).setData(narmadaData);
+                }
+                if (!map.getLayer(fillId)) {
+                    map.addLayer({
+                        id: fillId,
+                        type: 'fill',
+                        source: sourceId,
+                        paint: {
+                            'fill-color': '#1e90ff',
+                            'fill-opacity': [
+                                'case',
+                                ['boolean', ['feature-state', 'selected'], false], 0.05,
+                                0.25
+                            ]
+                        }
+                    });
+                }
+                if (!map.getLayer(lineId)) {
+                    map.addLayer({
+                        id: lineId,
+                        type: 'line',
+                        source: sourceId,
+                        paint: { 'line-color': '#1e90ff', 'line-width': 2 }
+                    });
+                }
+
+                // Bind property popup on click once
+                if (!narmadaClickBound) {
+                    map.on('click', fillId, function (e) {
+                        if (isDrawMode) return; // disable popup while drawing
+                        const feature = e.features && e.features[0];
+                        const props = feature && feature.properties ? feature.properties : {};
+                        // Manage selection state for transparency
+                        if (selectedNarmadaId != null) {
+                            try { map.setFeatureState({ source: 'narmada', id: selectedNarmadaId }, { selected: false }); } catch (_) { }
+                        }
+                        if (feature && typeof feature.id !== 'undefined') {
+                            try { map.setFeatureState({ source: 'narmada', id: feature.id }, { selected: true }); selectedNarmadaId = feature.id; } catch (_) { }
+                        }
+                        new mapboxgl.Popup({ closeOnClick: true, maxWidth: '320px' })
+                            .setLngLat(e.lngLat)
+                            .setDOMContent(buildPropsOnlyContent(props))
+                            .addTo(map);
+                        // Zoom to clicked polygon
+                        if (feature) {
+                            const bbox = computeBbox(feature);
+                            if (bbox) map.fitBounds(bbox, { padding: 30 });
+                        }
+                    });
+                    map.on('mouseenter', fillId, function () {
+                        map.getCanvas().style.cursor = 'pointer';
+                    });
+                    map.on('mouseleave', fillId, function () {
+                        map.getCanvas().style.cursor = '';
+                    });
+                    narmadaClickBound = true;
+                }
+            }
+            function addDesaLayer() {
+                if (!desaData) return;
+                const sourceId = 'desa-batukuta';
+                const fillId = 'desa-batukuta-fill';
+                const lineId = 'desa-batukuta-outline';
+                if (!map.getSource(sourceId)) {
+                    map.addSource(sourceId, { type: 'geojson', data: desaData, generateId: true });
+                } else {
+                    map.getSource(sourceId).setData(desaData);
+                }
+                if (!map.getLayer(fillId)) {
+                    map.addLayer({
+                        id: fillId,
+                        type: 'fill',
+                        source: sourceId,
+                        paint: {
+                            'fill-color': '#22c55e',
+                            'fill-opacity': [
+                                'case',
+                                ['boolean', ['feature-state', 'selected'], false], 0.05,
+                                0.3
+                            ]
+                        }
+                    });
+                }
+                if (!map.getLayer(lineId)) {
+                    map.addLayer({
+                        id: lineId,
+                        type: 'line',
+                        source: sourceId,
+                        paint: { 'line-color': '#16a34a', 'line-width': 2 }
+                    });
+                }
+
+                if (!desaClickBound) {
+                    map.on('click', fillId, function (e) {
+                        if (isDrawMode) return;
+                        const feature = e.features && e.features[0];
+                        const props = feature && feature.properties ? feature.properties : {};
+                        if (selectedDesaId != null) {
+                            try { map.setFeatureState({ source: 'desa-batukuta', id: selectedDesaId }, { selected: false }); } catch (_) { }
+                        }
+                        if (feature && typeof feature.id !== 'undefined') {
+                            try { map.setFeatureState({ source: 'desa-batukuta', id: feature.id }, { selected: true }); selectedDesaId = feature.id; } catch (_) { }
+                        }
+                        new mapboxgl.Popup({ closeOnClick: true, maxWidth: '320px' })
+                            .setLngLat(e.lngLat)
+                            .setDOMContent(buildPropsOnlyContent(props))
+                            .addTo(map);
+                        if (feature) {
+                            const bbox = computeBbox(feature);
+                            if (bbox) map.fitBounds(bbox, { padding: 30 });
+                        }
+                    });
+                    map.on('mouseenter', fillId, function () { map.getCanvas().style.cursor = 'pointer'; });
+                    map.on('mouseleave', fillId, function () { map.getCanvas().style.cursor = ''; });
+                    desaClickBound = true;
+                }
+            }
+            map.on('load', function () {
+                fetch('data-map/narmada.geojson')
+                    .then(r => r.json())
+                    .then(d => {
+                        narmadaData = d;
+                        addNarmadaLayer();
+                        applyDrawOpacityOverrides();
+                        if (!narmadaFitted) {
+                            const bbox = computeBbox(narmadaData);
+                            if (bbox) {
+                                map.fitBounds(bbox, { padding: 30, duration: 0 });
+                                narmadaFitted = true;
+                            }
+                        }
+                    })
+                    .catch(() => { /* ignore if not found */ });
+                // Load and render Desa Batukuta GeoJSON
+                fetch('data-map/desa_batukuta.geojson')
+                    .then(r => r.json())
+                    .then(d => {
+                        desaData = d;
+                        addDesaLayer();
+                        applyDrawOpacityOverrides();
+                        if (!desaFitted) {
+                            const bbox = computeBbox(desaData);
+                            if (bbox) {
+                                map.fitBounds(bbox, { padding: 30, duration: 0 });
+                                desaFitted = true;
+                            }
+                        }
+                    })
+                    .catch(() => { /* ignore if not found */ });
+            });
+
+            // Toolbar actions
+            const btnDraw = document.getElementById('btn-draw');
+            const btnSelect = document.getElementById('btn-select');
+            const btnTrash = document.getElementById('btn-trash');
+
+            function setActive(button) {
+                [btnDraw, btnSelect].forEach(b => b.classList.remove('active'));
+                if (button) button.classList.add('active');
+            }
+
+            btnDraw.addEventListener('click', function () {
+                draw.changeMode('draw_polygon');
+                setActive(btnDraw);
+                isDrawMode = true;
+                clearMeasureLayers();
+                measureFeatureId = null;
+            });
+
+            btnSelect.addEventListener('click', function () {
+                draw.changeMode('simple_select');
+                setActive(btnSelect);
+                isDrawMode = false;
+                // keep last measurement visible or clear? We'll keep it.
+            });
+
+            btnTrash.addEventListener('click', function () {
+                const selected = draw.getSelectedIds();
+                if (selected && selected.length) {
+                    draw.trash();
+                } else {
+                    const all = draw.getAll();
+                    if (all && all.features && all.features.length) {
+                        all.features.forEach(f => draw.delete(f.id));
+                    }
+                }
+            });
+
+            // JSON sidebar sync
+            const jsonArea = document.getElementById('json-area');
+            function refreshJson() {
+                const data = draw.getAll();
+                jsonArea.value = JSON.stringify(data, null, 2);
+            }
+            map.on('load', refreshJson);
+            map.on('draw.create', refreshJson);
+            map.on('draw.delete', refreshJson);
+            map.on('draw.update', refreshJson);
+            map.on('draw.combine', refreshJson);
+            map.on('draw.uncombine', refreshJson);
+            // Apply JSON back to map
+            document.getElementById('btn-apply').addEventListener('click', function () {
+                try {
+                    const data = JSON.parse(jsonArea.value || '{}');
+                    if (!data || !data.type) return;
+                    // clear current
+                    const all = draw.getAll();
+                    if (all && all.features) { all.features.forEach(f => draw.delete(f.id)); }
+                    // add
+                    if (data.type === 'FeatureCollection') {
+                        data.features.forEach(f => draw.add(f));
+                    } else if (data.type === 'Feature') {
+                        draw.add(data);
+                    } else if (data.type === 'GeometryCollection' || data.type === 'Polygon' || data.type === 'MultiPolygon') {
+                        draw.add({ type: 'Feature', properties: {}, geometry: data });
+                    }
+                } catch (e) {
+                    alert('JSON tidak valid');
+                }
+            });
+            // Copy / Download
+            document.getElementById('btn-copy').addEventListener('click', function () {
+                navigator.clipboard.writeText(jsonArea.value || '');
+            });
+            document.getElementById('btn-download').addEventListener('click', function () {
+                const blob = new Blob([jsonArea.value || ''], { type: 'application/geo+json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'data.geojson';
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                URL.revokeObjectURL(url);
+            });
+
+            // Basemap switcher
+            const switcher = document.getElementById('basemaps');
+            const buttons = Array.from(switcher.querySelectorAll('button'));
+            function activate(btn) {
+                buttons.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+            }
+            buttons.forEach(btn => {
+                btn.addEventListener('click', function () {
+                    const style = this.getAttribute('data-style');
+                    activate(this);
+                    if (style === 'osm') {
+                        // switch to blank style and add OSM raster
+                        map.setStyle('mapbox://styles/mapbox/empty-v1');
+                        map.once('styledata', () => { osmAdded = false; ensureOsmLayer(); addNarmadaLayer(); addDesaLayer(); applyDrawOpacityOverrides(); });
+                    } else {
+                        map.setStyle(style);
+                        // remove OSM layer flag so it can be re-added on demand later
+                        osmAdded = false;
+                        map.once('styledata', () => { addNarmadaLayer(); addDesaLayer(); applyDrawOpacityOverrides(); });
+                    }
+                });
+            });
+
+            // Feature click -> property popup
+            let currentPopup = null;
+            function buildPopupContent(feature) {
+                const container = document.createElement('div');
+                const props = Object.assign({}, feature.properties || {});
+
+                const topRow = document.createElement('div');
+                topRow.style.display = 'flex';
+                topRow.style.gap = '6px';
+                topRow.style.marginBottom = '6px';
+                const addRowLink = document.createElement('span');
+                addRowLink.className = 'link';
+                addRowLink.textContent = '+ Add row';
+                const addCommonLink = document.createElement('span');
+                addCommonLink.className = 'link';
+                addCommonLink.textContent = 'Add common fields';
+                topRow.appendChild(addRowLink);
+                topRow.appendChild(addCommonLink);
+                container.appendChild(topRow);
+
+                // suggestions for keys via datalist
+                const datalistId = 'key-suggest-' + (feature.id || Math.random().toString(36).slice(2));
+                const dl = document.createElement('datalist');
+                dl.id = datalistId;
+                ['Nama', 'name', 'jumlah_penduduk', 'luas_wilayah', 'kepadatan_penduduk', 'kategori', 'deskripsi'].forEach(k => {
+                    const o = document.createElement('option'); o.value = k; dl.appendChild(o);
+                });
+                container.appendChild(dl);
+
+                const table = document.createElement('table');
+                table.className = 'prop-table';
+                const thead = document.createElement('thead');
+                thead.innerHTML = '<tr><th>Key</th><th>Value</th></tr>';
+                const tbody = document.createElement('tbody');
+                table.appendChild(thead);
+                table.appendChild(tbody);
+                container.appendChild(table);
+
+                function isNumericString(s) { return s !== '' && !isNaN(Number(s)); }
+                function addRow(key = '', value = '') {
+                    const tr = document.createElement('tr');
+                    const tdK = document.createElement('td');
+                    const tdV = document.createElement('td');
+                    const inputK = document.createElement('input');
+                    inputK.type = 'text';
+                    inputK.setAttribute('list', datalistId);
+                    inputK.placeholder = 'key';
+                    inputK.value = key;
+                    inputK.style.width = '140px';
+                    inputK.className = 'prop-key';
+                    const inputV = document.createElement('input');
+                    inputV.type = 'text';
+                    inputV.placeholder = 'value';
+                    inputV.value = value;
+                    inputV.style.width = '180px';
+                    inputV.className = 'prop-input';
+                    const removeBtn = document.createElement('button');
+                    removeBtn.textContent = '×';
+                    removeBtn.title = 'Remove';
+                    removeBtn.style.marginLeft = '6px';
+                    removeBtn.className = 'prop-remove-btn';
+                    removeBtn.addEventListener('click', function (ev) { ev.preventDefault(); tr.remove(); });
+                    inputV.addEventListener('keydown', function (ev) { if (ev.key === 'Enter') { ev.preventDefault(); addRow('', ''); } });
+                    tdK.appendChild(inputK);
+                    tdV.appendChild(inputV);
+                    tdV.appendChild(removeBtn);
+                    tr.appendChild(tdK);
+                    tr.appendChild(tdV);
+                    tbody.appendChild(tr);
+                }
+
+                // seed rows
+                const keys = Object.keys(props);
+                if (keys.length === 0) {
+                    addRow('Nama', '');
+                } else {
+                    keys.forEach(k => addRow(k, props[k] == null ? '' : String(props[k])));
+                }
+
+                addRowLink.addEventListener('click', () => addRow('', ''));
+                addCommonLink.addEventListener('click', () => {
+                    ['Nama', 'jumlah_penduduk', 'luas_wilayah', 'kepadatan_penduduk', 'kategori'].forEach(k => addRow(k, ''));
+                    // Also add a quick numeric pair as requested
+                    addRow('1', '1');
+                });
+
+                const actions = document.createElement('div');
+                actions.className = 'popup-actions';
+                const saveBtn = document.createElement('button');
+                saveBtn.textContent = 'Save';
+                const cancelBtn = document.createElement('button');
+                cancelBtn.textContent = 'Cancel';
+                const delBtn = document.createElement('button');
+                delBtn.innerHTML = '<span class="text-danger">Delete feature</span>';
+                actions.appendChild(saveBtn);
+                actions.appendChild(cancelBtn);
+                actions.appendChild(delBtn);
+                container.appendChild(actions);
+
+                saveBtn.addEventListener('click', function () {
+                    const rows = Array.from(tbody.querySelectorAll('tr'));
+                    const newProps = {};
+                    let duplicate = false;
+                    rows.forEach(r => {
+                        const k = r.children[0].querySelector('input').value.trim();
+                        const v = r.children[1].querySelector('input').value;
+                        if (!k) return;
+                        if (Object.prototype.hasOwnProperty.call(newProps, k)) { duplicate = true; }
+                        else newProps[k] = v;
+                    });
+                    if (duplicate) { alert('Kunci duplikat ditemukan. Pastikan setiap key unik.'); return; }
+                    // write back props
+                    const curr = draw.get(feature.id);
+                    if (curr) {
+                        // remove old keys first by recreating feature
+                        const updated = JSON.parse(JSON.stringify(curr));
+                        updated.properties = newProps;
+                        draw.delete(feature.id);
+                        const newId = draw.add(updated);
+                        if (Array.isArray(newId) && newId.length) {
+                            // keep selection
+                            draw.changeMode('simple_select', { featureIds: newId });
+                        }
+                        refreshJson();
+                    }
+                    if (currentPopup) currentPopup.remove();
+                });
+                cancelBtn.addEventListener('click', function () { if (currentPopup) currentPopup.remove(); });
+                delBtn.addEventListener('click', function () { draw.delete(feature.id); refreshJson(); if (currentPopup) currentPopup.remove(); });
+
+                return container;
+            }
+
+            function openPopupForFeature(feature, lngLat) {
+                if (currentPopup) currentPopup.remove();
+                currentPopup = new mapboxgl.Popup({ closeOnClick: true, maxWidth: '320px' })
+                    .setLngLat(lngLat)
+                    .setDOMContent(buildPopupContent(feature))
+                    .addTo(map);
+            }
+
+            function findDrawFeatureAt(point) {
+                const layers = [
+                    'gl-draw-polygon-fill-inactive.cold',
+                    'gl-draw-polygon-fill-inactive.hot',
+                    'gl-draw-polygon-fill-active'
+                ];
+                const features = map.queryRenderedFeatures(point, { layers });
+                // Mapbox GL Draw stores original feature id in properties.id
+                if (features && features.length) {
+                    const f = features[0];
+                    const id = f.properties && (f.properties.id || f.id);
+                    try {
+                        const feature = draw.get(id);
+                        if (feature) return feature;
+                    } catch (_) { }
+                }
+                return null;
+            }
+
+            // Simple centroid (avg of ring) for Polygon/MultiPolygon
+            function getFeatureCentroid(feature) {
+                if (!feature || !feature.geometry) return null;
+                const g = feature.geometry;
+                const avg = (coords) => {
+                    let sx = 0, sy = 0, n = coords.length;
+                    for (let i = 0; i < n; i++) { sx += coords[i][0]; sy += coords[i][1]; }
+                    return { lng: sx / n, lat: sy / n };
+                };
+                if (g.type === 'Polygon') {
+                    const ring = g.coordinates && g.coordinates[0];
+                    if (ring && ring.length) return avg(ring);
+                } else if (g.type === 'MultiPolygon') {
+                    const first = g.coordinates && g.coordinates[0] && g.coordinates[0][0];
+                    if (first && first.length) return avg(first);
+                }
+                return null;
+            }
+
+            // Cursor feedback when hovering features
+            map.on('mousemove', function (e) {
+                const f = findDrawFeatureAt(e.point);
+                map.getCanvas().style.cursor = f ? 'pointer' : '';
+            });
+
+            map.on('click', function (e) {
+                if (isDrawMode) return; // disable map click actions while drawing
+                const f = findDrawFeatureAt(e.point);
+                if (f) {
+                    openPopupForFeature(f, e.lngLat);
+                    // Zoom to clicked drawn polygon
+                    const bbox = computeBbox(f);
+                    if (bbox) map.fitBounds(bbox, { padding: 30 });
+                    // Manage feature-state selection for draw sources to make it transparent
+                    if (selectedDrawId != null) {
+                        try { map.setFeatureState({ source: 'mapbox-gl-draw-cold', id: selectedDrawId }, { selected: false }); } catch (_) { }
+                        try { map.setFeatureState({ source: 'mapbox-gl-draw-hot', id: selectedDrawId }, { selected: false }); } catch (_) { }
+                    }
+                    try { map.setFeatureState({ source: 'mapbox-gl-draw-cold', id: f.id }, { selected: true }); } catch (_) { }
+                    try { map.setFeatureState({ source: 'mapbox-gl-draw-hot', id: f.id }, { selected: true }); } catch (_) { }
+                    selectedDrawId = f.id;
+                    // Update measurement for clicked feature as well
+                    updateMeasureForFeature(f);
+                }
+            });
+
+            // Auto-open popup after drawing a polygon
+            map.on('draw.create', function (e) {
+                const f = e && e.features && e.features[0];
+                if (!f) return;
+                const c = getFeatureCentroid(f);
+                // switch to select mode so user can edit properties without drawing more vertices
+                try { draw.changeMode('simple_select', { featureIds: [f.id] }); } catch (_) { }
+                isDrawMode = false;
+                lastCreatedFeatureId = f.id;
+                // Defer to the next frame to avoid race with mode change
+                setTimeout(function () {
+                    const feat = draw.get(lastCreatedFeatureId) || f;
+                    const center = getFeatureCentroid(feat) || c;
+                    if (center) openPopupForFeature(feat, center);
+                }, 0);
+                measureFeatureId = f.id;
+                updateMeasureForFeature(f);
+            });
+
+            // Track draw mode changes to avoid conflicts when adding new data
+            map.on('draw.modechange', function (e) {
+                isDrawMode = e && e.mode === 'draw_polygon';
+                // Fallback: if we just created a feature and are now in select, ensure popup opens
+                if (!isDrawMode && lastCreatedFeatureId) {
+                    const feat = draw.get(lastCreatedFeatureId);
+                    if (feat) {
+                        const c = getFeatureCentroid(feat);
+                        if (c) openPopupForFeature(feat, c);
+                    }
+                    lastCreatedFeatureId = null;
+                }
+            });
+
+            // Update measurement when geometry is edited
+            map.on('draw.update', function (e) {
+                if (!e || !e.features || !e.features.length) return;
+                const f = e.features[0];
+                if (measureFeatureId && f.id !== measureFeatureId) return;
+                measureFeatureId = f.id;
+                updateMeasureForFeature(f);
+            });
+
+            // Clear measurement when feature deleted
+            map.on('draw.delete', function (e) {
+                if (!e || !e.features) return;
+                const any = e.features.find(x => x && x.id === measureFeatureId);
+                if (any) { clearMeasureLayers(); measureFeatureId = null; }
+            });
+
+            // Expose for debugging
+            window.app = { map, draw };
+        })();
+    </script>
+</body>
+
+</html>
