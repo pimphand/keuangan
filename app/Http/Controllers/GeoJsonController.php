@@ -86,10 +86,12 @@ class GeoJsonController extends Controller
             $slug = isset($geojson['properties']['name']) && is_string($geojson['properties']['name'])
                 ? Str::slug($geojson['properties']['name'])
                 : 'feature';
-            $filename = $slug . '-' . now()->format('Ymd-His') . '.json';
+            $filename = $slug . '-' . now()->format('Ymd-His') . '.geojson';
         } else {
-            if (!Str::endsWith($filename, '.json')) {
-                $filename .= '.json';
+            $lower = Str::lower($filename);
+            // Keep if already ends with .json or .geojson, otherwise default to .geojson
+            if (!Str::endsWith($lower, '.json') && !Str::endsWith($lower, '.geojson')) {
+                $filename .= '.geojson';
             }
         }
 
@@ -98,8 +100,10 @@ class GeoJsonController extends Controller
         File::ensureDirectoryExists($directory);
         $absolutePath = $directory . DIRECTORY_SEPARATOR . $filename;
 
-        // If target is desa_batukuta.geojson, append Feature(s) to existing FeatureCollection
-        if (Str::lower($filename) === 'desa_batukuta.geojson') {
+        // If target is desa_batukuta (any supported extension), append Feature(s) to existing FeatureCollection
+        $lowerName = Str::lower($filename);
+        $baseName = pathinfo($lowerName, PATHINFO_FILENAME);
+        if ($baseName === 'desa_batukuta') {
             try {
                 $existing = [];
                 if (File::exists($absolutePath)) {

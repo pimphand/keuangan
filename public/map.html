@@ -312,6 +312,7 @@
             <button id="btn-draw" title="Gambar Polygon">Polygon</button>
             <button id="btn-select" title="Pilih/geser fitur" class="active">Select</button>
             <button id="btn-trash" title="Hapus fitur">Trash</button>
+            <button id="btn-save" title="Simpan fitur ke desa_batukuta.geojson">Save</button>
         </div>
         <div class="basemaps" id="basemaps">
             <span>Standard</span>
@@ -687,6 +688,7 @@
             const btnDraw = document.getElementById('btn-draw');
             const btnSelect = document.getElementById('btn-select');
             const btnTrash = document.getElementById('btn-trash');
+            const btnSave = document.getElementById('btn-save');
 
             function setActive(button) {
                 [btnDraw, btnSelect].forEach(b => b.classList.remove('active'));
@@ -718,6 +720,69 @@
                         all.features.forEach(f => draw.delete(f.id));
                     }
                 }
+            });
+
+            // Save selected (or last created) feature(s) to backend
+            btnSave.addEventListener('click', function () {
+                try {
+                    let featureIds = draw.getSelectedIds();
+                    if (!featureIds || featureIds.length === 0) {
+                        // Fall back to last created feature
+                        if (lastCreatedFeatureId) featureIds = [lastCreatedFeatureId];
+                    }
+                    if (!featureIds || featureIds.length === 0) {
+                        alert('Pilih polygon terlebih dahulu.');
+                        return;
+                    }
+                    const features = featureIds
+                        .map(id => draw.get(id))
+                        .filter(Boolean);
+                    if (!features.length) { alert('Tidak ada fitur yang bisa disimpan.'); return; }
+
+                    // If single polygon, send compact payload; else send FeatureCollection
+                    let payload;
+                    if (features.length === 1) {
+                        const f = features[0];
+                        if (f.geometry && f.geometry.type === 'Polygon') {
+                            payload = {
+                                polygon: (f.geometry.coordinates && f.geometry.coordinates[0]) || [],
+                                properties: f.properties || {},
+                                filename: 'desa_batukuta.geojson'
+                            };
+                        } else {
+                            payload = { geojson: f, filename: 'desa_batukuta.geojson' };
+                        }
+                    } else {
+                        payload = {
+                            geojson: { type: 'FeatureCollection', features: features },
+                            filename: 'desa_batukuta.geojson'
+                        };
+                    }
+
+                    fetch('/api/geojson', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+                        body: JSON.stringify(payload)
+                    })
+                        .then(r => r.json().then(j => ({ ok: r.ok, status: r.status, body: j })))
+                        .then(({ ok, status, body }) => {
+                            if (!ok) { console.error('Failed to save feature(s)', status, body); alert('Gagal menyimpan ke server'); return; }
+                            // Refresh desa layer
+                            fetch('data-map/desa_batukuta.geojson?_=' + Date.now())
+                                .then(r => r.json())
+                                .then(d => {
+                                    desaData = d;
+                                    if (map.getSource('desa-batukuta')) {
+                                        map.getSource('desa-batukuta').setData(desaData);
+                                    } else {
+                                        addDesaLayer();
+                                    }
+                                    alert('Berhasil disimpan.');
+                                })
+                                .catch(() => { /* ignore */ });
+                        })
+                        .catch(err => { console.error(err); alert('Tidak dapat terhubung ke server'); });
+                } catch (e) { console.error(e); }
             });
 
             // JSON sidebar sync
