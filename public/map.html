@@ -406,6 +406,10 @@
             let desaFitted = false;
             let desaClickBound = false;
             let selectedDesaId = null;
+            // When a layer-specific click fires, suppress the global map click once
+            let suppressNextMapClick = false;
+            // Single popup instance shared across all handlers
+            let currentPopup = null;
             function applyDrawOpacityOverrides() {
                 const layerIds = [
                     'gl-draw-polygon-fill-inactive.cold',
@@ -562,6 +566,8 @@
                 if (!narmadaClickBound) {
                     map.on('click', fillId, function (e) {
                         if (isDrawMode) return; // disable popup while drawing
+                        // Prevent the global map click handler from opening another popup
+                        suppressNextMapClick = true;
                         const feature = e.features && e.features[0];
                         const props = feature && feature.properties ? feature.properties : {};
                         // Manage selection state for transparency
@@ -571,7 +577,8 @@
                         if (feature && typeof feature.id !== 'undefined') {
                             try { map.setFeatureState({ source: 'narmada', id: feature.id }, { selected: true }); selectedNarmadaId = feature.id; } catch (_) { }
                         }
-                        new mapboxgl.Popup({ closeOnClick: true, maxWidth: '320px' })
+                        if (currentPopup) currentPopup.remove();
+                        currentPopup = new mapboxgl.Popup({ closeOnClick: true, maxWidth: '320px' })
                             .setLngLat(e.lngLat)
                             .setDOMContent(buildPropsOnlyContent(props))
                             .addTo(map);
@@ -627,6 +634,8 @@
                 if (!desaClickBound) {
                     map.on('click', fillId, function (e) {
                         if (isDrawMode) return;
+                        // Prevent the global map click handler from opening another popup
+                        suppressNextMapClick = true;
                         const feature = e.features && e.features[0];
                         const props = feature && feature.properties ? feature.properties : {};
                         if (selectedDesaId != null) {
@@ -635,7 +644,8 @@
                         if (feature && typeof feature.id !== 'undefined') {
                             try { map.setFeatureState({ source: 'desa-batukuta', id: feature.id }, { selected: true }); selectedDesaId = feature.id; } catch (_) { }
                         }
-                        new mapboxgl.Popup({ closeOnClick: true, maxWidth: '320px' })
+                        if (currentPopup) currentPopup.remove();
+                        currentPopup = new mapboxgl.Popup({ closeOnClick: true, maxWidth: '320px' })
                             .setLngLat(e.lngLat)
                             .setDOMContent(buildPropsOnlyContent(props))
                             .addTo(map);
@@ -656,13 +666,8 @@
                         narmadaData = d;
                         addNarmadaLayer();
                         applyDrawOpacityOverrides();
-                        if (!narmadaFitted) {
-                            const bbox = computeBbox(narmadaData);
-                            if (bbox) {
-                                map.fitBounds(bbox, { padding: 30, duration: 0 });
-                                narmadaFitted = true;
-                            }
-                        }
+                        // Keep initial zoom level (12) on first load; do not auto-fit
+                        narmadaFitted = true;
                     })
                     .catch(() => { /* ignore if not found */ });
                 // Load and render Desa Batukuta GeoJSON
@@ -672,13 +677,8 @@
                         desaData = d;
                         addDesaLayer();
                         applyDrawOpacityOverrides();
-                        if (!desaFitted) {
-                            const bbox = computeBbox(desaData);
-                            if (bbox) {
-                                map.fitBounds(bbox, { padding: 30, duration: 0 });
-                                desaFitted = true;
-                            }
-                        }
+                        // Keep initial zoom level (12) on first load; do not auto-fit
+                        desaFitted = true;
                     })
                     .catch(() => { /* ignore if not found */ });
             });
@@ -792,8 +792,7 @@
                 });
             });
 
-            // Feature click -> property popup
-            let currentPopup = null;
+            // Feature click -> property popup (reuse existing currentPopup declared above)
             function buildPopupContent(feature) {
                 const container = document.createElement('div');
                 const props = Object.assign({}, feature.properties || {});
@@ -978,6 +977,7 @@
             });
 
             map.on('click', function (e) {
+                if (suppressNextMapClick) { suppressNextMapClick = false; return; }
                 if (isDrawMode) return; // disable map click actions while drawing
                 const f = findDrawFeatureAt(e.point);
                 if (f) {
