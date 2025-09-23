@@ -915,6 +915,43 @@
                             draw.changeMode('simple_select', { featureIds: newId });
                         }
                         refreshJson();
+                        // Persist to backend and append into desa_batukuta.geojson
+                        try {
+                            const payload = {
+                                polygon: (updated.geometry && updated.geometry.type === 'Polygon') ? (updated.geometry.coordinates[0] || []) : null,
+                                properties: updated.properties || {},
+                                filename: 'desa_batukuta.geojson'
+                            };
+                            // Fallback to posting full geojson if polygon is not directly available
+                            if (!payload.polygon || payload.polygon.length === 0) {
+                                payload.geojson = updated;
+                                delete payload.polygon;
+                            } else {
+                                // Ensure polygon is in [ [lng,lat], ... ] format (already is)
+                            }
+                            fetch('/api/geojson', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+                                body: JSON.stringify(payload)
+                            })
+                                .then(r => r.json().then(j => ({ ok: r.ok, status: r.status, body: j })))
+                                .then(({ ok, status, body }) => {
+                                    if (!ok) { console.error('Failed to save feature', status, body); alert('Gagal menyimpan ke server'); return; }
+                                    // On success, reload desa layer source data so map reflects the new feature
+                                    fetch('data-map/desa_batukuta.geojson?_=' + Date.now())
+                                        .then(r => r.json())
+                                        .then(d => {
+                                            desaData = d;
+                                            if (map.getSource('desa-batukuta')) {
+                                                map.getSource('desa-batukuta').setData(desaData);
+                                            } else {
+                                                addDesaLayer();
+                                            }
+                                        })
+                                        .catch(() => { /* ignore */ });
+                                })
+                                .catch(err => { console.error(err); alert('Tidak dapat terhubung ke server'); });
+                        } catch (e) { /* ignore */ }
                     }
                     if (currentPopup) currentPopup.remove();
                 });
