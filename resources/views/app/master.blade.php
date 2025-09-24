@@ -302,6 +302,12 @@
                     </li>
 
                     <li>
+                        <a href="{{ route('pengumuman.index') }}" aria-expanded="false">
+                            <i class="icon-bell menu-icon mr-3"></i><span class="nav-text">Pengumuman</span>
+                        </a>
+                    </li>
+
+                    <li>
                         <a href="{{ route('kasbon.index') }}" aria-expanded="false">
                             <i class="icon-credit-card menu-icon mr-3"></i><span class="nav-text">Kasbon</span>
                             @php

@@ -109,6 +109,7 @@
                                                                 <select name="prioritas" class="form-control" required>
                                                                     <option value="sedang" {{ $p->prioritas == 'sedang' ? 'selected' : '' }}>Sedang</option>
                                                                     <option value="tinggi" {{ $p->prioritas == 'tinggi' ? 'selected' : '' }}>Tinggi</option>
+                                                                    <option value="rendah" {{ $p->prioritas == 'rendah' ? 'selected' : '' }}>Rendah</option>
                                                                 </select>
                                                             </div>
                                                             <div class="form-group col-md-6">
@@ -173,10 +174,14 @@
                             </div>
                             <div class="form-row">
                                 <div class="form-group col-md-6">
-                                    <label>Status</label>
-                                    <select name="status" class="form-control" required>
-                                        <option value="aktif">Aktif</option>
-                                        <option value="nonaktif">Nonaktif</option>
+                                    <label>Prioritas</label>
+                                    <select name="prioritas" class="form-control" required>
+                                        <option value="sedang">Sedang
+                                        </option>
+                                        <option value="tinggi">Tinggi
+                                        </option>
+                                        <option value="rendah">Rendah
+                                        </option>
                                     </select>
                                 </div>
                                 <div class="form-group col-md-6">
