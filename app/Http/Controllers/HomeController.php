@@ -358,7 +358,7 @@ class HomeController extends Controller
             $query->where('kategori_id', $_GET['kategori']);
         }
 
-        $transaksi = $query->orderBy('tanggal', 'desc')->get();
+        $transaksi = $query->orderBy('tanggal', 'asc')->get();
         $pdf = Pdf::loadView('app.laporan_pdf', ['transaksi' => $transaksi, 'kategori' => $kategori]);
         return $pdf->download('Laporan Keuangan.pdf');
     }

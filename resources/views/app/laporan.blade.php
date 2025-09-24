@@ -35,8 +35,8 @@
                                         <label>Tanggal Mulai</label>
                                         <input class="form-control" type="date" id="tanggal_dari" name="dari"
                                             value="@php if (isset($_GET['dari'])) {
-        echo $_GET['dari'];
-    } @endphp">
+                                                echo $_GET['dari'];
+                                            } @endphp">
                                     </div>
                                 </div>
                                 <div class="col-lg-2">
@@ -182,7 +182,7 @@
                                                             <tr>
                                                                 <td class="text-center">{{ $no++ }}</td>
                                                                 <td class="text-center">{{ date('d-m-Y', strtotime($t->tanggal)) }}</td>
-                                                                <td>{{ $t->kategori->kategori }}</td>
+                                                                <td>{{ $t?->kategori?->kategori ?? "-" }}</td>
                                                                 <td>{{ $t->keterangan }}</td>
                                                                 <td class="text-center">
                                                                     @if($t->jenis == "Pemasukan")
@@ -204,7 +204,6 @@
                                                     @endforeach
                                                 </tbody>
                                                 <tfoot class="bg-info text-white font-weight-bold">
-                                <tfoot>
                                     <tr>
                                         <td colspan="4" class="text-bold text-right">Sub Total</td>
                                         <td class="text-center">{{ "Rp." . number_format($total_pemasukan) . ",-" }}</td>
@@ -217,7 +216,6 @@
                                         </td>
                                     </tr>
                                 </tfoot>
-                                                </tfoot>
                                             </table>
                                         </div>
 
@@ -237,6 +235,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const tanggalDari = document.getElementById('tanggal_dari');
     const tanggalSampai = document.getElementById('tanggal_sampai');
     const filterForm = document.getElementById('filterForm');
+    const laporanAkhirBtn = document.getElementById('laporanAkhir');
 
     // Set minimum date for tanggal_sampai when tanggal_dari changes
     tanggalDari.addEventListener('change', function() {
@@ -262,6 +261,23 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
     });
+
+    // Handle Laporan Akhir button click
+    if (laporanAkhirBtn) {
+        laporanAkhirBtn.addEventListener('click', function() {
+            let hiddenInput = document.querySelector('#filterForm input[name="laporan_akhir"]');
+            if (!hiddenInput) {
+                hiddenInput = document.createElement('input');
+                hiddenInput.type = 'hidden';
+                hiddenInput.name = 'laporan_akhir';
+                hiddenInput.value = '1';
+                filterForm.appendChild(hiddenInput);
+            } else {
+                hiddenInput.value = '1';
+            }
+            filterForm.submit();
+        });
+    }
 
     // Set initial minimum date if tanggal_dari already has value
     if (tanggalDari.value) {

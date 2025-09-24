@@ -332,7 +332,7 @@
                 <div class="sidebar-body h-[45vh] lg:h-auto">
                     <textarea id="json-area" class="json-area text-xs" spellcheck="false"></textarea>
                 </div>
-                <div class="sidebar-footer">
+                <div class="sidebar-footer" style="display: none;">
                     <button id="btn-copy" class="text-xs px-3 py-1">Copy JSON</button>
                     <button id="btn-apply" class="text-xs px-3 py-1">Apply to Map</button>
                     <button id="btn-download" class="text-xs px-3 py-1">Download .geojson</button>
@@ -352,11 +352,10 @@
         document.addEventListener("DOMContentLoaded", function () {
             document.getElementById("btn-list").click();
         });
-        (function () {
+        document.addEventListener("DOMContentLoaded", function () {
             const qs = new URLSearchParams(window.location.search);
             const token = qs.get('token') || window.MAPBOX_TOKEN || 'pk.eyJ1IjoicGltcGhhbmQyIiwiYSI6ImNtZnZ4b3RlMzBjcWkyb3B0YWx2emRnajEifQ.HvMA6_dYbzb8MyMkVWUl-w';
             if (!token || token === 'pk.eyJ1IjoicGltcGhhbmQyIiwiYSI6ImNtZnZ4b3RlMzBjcWkyb3B0YWx2emRnajEifQ.HvMA6_dYbzb8MyMkVWUl-w') {
-                console.warn('Mapbox token is missing. Pass ?token=YOUR_TOKEN in URL or set window.MAPBOX_TOKEN.');
             }
             mapboxgl.accessToken = token;
 
@@ -791,7 +790,7 @@
                             container.style.overflow = 'auto';
                             container.style.height = '100%';
                             const title = document.createElement('div');
-                            title.textContent = `Daftar fitur: ${feats.length} item`;
+                            title.textContent = `List Map yang ditandai: ${feats.length} item`;
                             title.style.fontWeight = '600';
                             title.style.marginBottom = '8px';
                             container.appendChild(title);
@@ -1159,23 +1158,40 @@
 
             function findDrawFeatureAt(point) {
                 const layers = [
-                    'gl-draw-polygon-fill-inactive.cold',
-                    'gl-draw-polygon-fill-inactive.hot',
-                    'gl-draw-polygon-fill-active'
+                    "gl-draw-polygon-fill-inactive.cold",
+                    "gl-draw-polygon-fill-inactive.hot",
+                    "gl-draw-polygon-fill-active"
                 ];
-                const features = map.queryRenderedFeatures(point, { layers });
-                // Mapbox GL Draw stores original feature id in properties.id
-                if (features && features.length) {
-                    const f = features[0];
-                    const id = f.properties && (f.properties.id || f.id);
+
+                // Check if any of the draw layers exist before querying
+                const existingLayers = layers.filter(layerId => {
                     try {
-                        const feature = draw.get(id);
-                        if (feature) return feature;
-                    } catch (_) { }
+                        return map.getLayer(layerId);
+                    } catch (_) {
+                        return false;
+                    }
+                });
+
+                if (existingLayers.length === 0) {
+                    return null;
+                }
+
+                try {
+                    const features = map.queryRenderedFeatures(point, { layers: existingLayers });
+                    // Mapbox GL Draw stores original feature id in properties.id
+                    if (features && features.length) {
+                        const f = features[0];
+                        const id = f.properties && (f.properties.id || f.id);
+                        try {
+                            const feature = draw.get(id);
+                            if (feature) return feature;
+                        } catch (_) { }
+                    }
+                } catch (_) {
+                    // If querying fails, return null
                 }
                 return null;
             }
-
             // Simple centroid (avg of ring) for Polygon/MultiPolygon
             function getFeatureCentroid(feature) {
                 if (!feature || !feature.geometry) return null;
@@ -1274,7 +1290,7 @@
 
             // Expose for debugging
             window.app = { map, draw };
-        })();
+        });
     </script>
 </body>
 

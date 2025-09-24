@@ -130,7 +130,7 @@
                                         <label class="text-dark">Tunjangan</label>
                                         <input id="tunjangan" type="number" step="0.01" placeholder="Tunjangan"
                                             class="form-control @error('tunjangan') is-invalid @enderror" name="tunjangan"
-                                            value="{{ old('saldo', (int) $user->tunjangan) }} autocomplete=" off">
+                                            value="{{ old('saldo', (int) $user->tunjangan) }}" autocomplete="off">
                                         @error('tunjangan')
                                             <span class="invalid-feedback" role="alert">
                                                 <strong>{{ $message }}</strong>

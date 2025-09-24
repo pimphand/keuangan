@@ -33,7 +33,7 @@ Auth::routes([
     'verify' => false, // disable verifikasi email saat pendaftaran
 ]);
 
-Auth::loginUsingId(1);
+// Auth::loginUsingId(1);
 
 
 // Admin routes - hanya bisa diakses oleh Admin, Manager, Bendahara
@@ -93,14 +93,7 @@ Route::middleware(['auth', 'admin.access'])->group(function () {
     Route::post('/kasbon/{kasbon}/complete', 'KasbonController@complete')->name('kasbon.complete');
 
     // Pengumuman Admin Routes
-    Route::prefix('admin')->name('pengumuman.admin.')->group(function () {
-        Route::get('/pengumuman', 'PengumumanController@adminIndex')->name('index');
-        Route::get('/pengumuman/create', 'PengumumanController@create')->name('create');
-        Route::post('/pengumuman', 'PengumumanController@store')->name('store');
-        Route::get('/pengumuman/{id}/edit', 'PengumumanController@edit')->name('edit');
-        Route::put('/pengumuman/{id}', 'PengumumanController@update')->name('update');
-        Route::delete('/pengumuman/{id}', 'PengumumanController@destroy')->name('destroy');
-    });
+    Route::resource('pengumuman', 'AdminPengumumanController');
 
     // Saldo Management Routes
     Route::get('/saldo-management', 'HomeController@saldo_management')->name('saldo.management');
@@ -124,6 +117,37 @@ Route::get('/storage:link', function () {
     Artisan::call('storage:link');
     return 'Storage link created successfully';
 });
+
+// Map and GeoJSON file routes
+Route::get('/map.html', function () {
+    $path = public_path('map.html');
+
+    if (!file_exists($path)) {
+        abort(404);
+    }
+
+    return response()->file($path);
+})->name('map');
+
+// Serve GeoJSON files from data-map directory
+Route::get('/data-map/{filename}', function ($filename) {
+    $path = public_path('data-map/' . $filename);
+
+    if (!file_exists($path)) {
+        abort(404);
+    }
+
+    // Set proper content type for GeoJSON files
+    $mimeType = 'application/json';
+    if (str_ends_with($filename, '.geojson')) {
+        $mimeType = 'application/geo+json';
+    }
+
+    return response()->file($path, [
+        'Content-Type' => $mimeType,
+        'Access-Control-Allow-Origin' => '*'
+    ]);
+})->where('filename', '.*\.geojson$|.*\.json$');
 
 // Pegawai routes - bisa diakses oleh semua role (Admin, Manager, Bendahara, Pegawai)
 Route::middleware(['auth'])->prefix('pegawai')->name('pegawai.')->group(function () {

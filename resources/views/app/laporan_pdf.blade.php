@@ -349,7 +349,7 @@
                     <tr>
                         <td class="text-center">{{ $no++ }}</td>
                         <td class="text-center">{{ date('d-m-Y', strtotime($t->tanggal)) }}</td>
-                        <td>{{ $t->kategori->kategori }}</td>
+                        <td>{{ $t?->kategori?->kategori ?? "-" }}</td>
                         <td>{{ $t->keterangan }}</td>
                         <td class="text-center">
                             @if($t->jenis == "Pemasukan")

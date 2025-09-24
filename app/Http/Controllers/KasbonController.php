@@ -129,16 +129,11 @@ class KasbonController extends Controller
                 'alasan' => $request->alasan,
             ]);
 
-            // Jika disetujui, kurangi saldo kasbon user
-            if ($request->status === Kasbon::STATUS_APPROVED) {
-                $user = $kasbon->user;
-                $user->decrement('kasbon', $kasbon->nominal);
-            }
 
             DB::commit();
 
             $statusText = $request->status === Kasbon::STATUS_APPROVED ? 'disetujui' : 'ditolak';
-            return redirect()->route('kasbon.index')
+            return redirect()->route('kasbon.show', $kasbon->id)
                 ->with('success', "Kasbon berhasil {$statusText}.");
         } catch (\Exception $e) {
             DB::rollBack();
@@ -201,7 +196,7 @@ class KasbonController extends Controller
 
             DB::commit();
 
-            return redirect()->route('kasbon.index')
+            return redirect()->route('kasbon.show', $kasbon->id)
                 ->with('success', 'Kasbon berhasil disetujui.');
         } catch (\Exception $e) {
             DB::rollBack();
@@ -235,7 +230,7 @@ class KasbonController extends Controller
                 'alasan' => $request->alasan,
             ]);
 
-            return redirect()->route('kasbon.index')
+            return redirect()->route('kasbon.show', $kasbon->id)
                 ->with('success', 'Kasbon berhasil ditolak.');
         } catch (\Exception $e) {
             return redirect()->back()
@@ -263,7 +258,7 @@ class KasbonController extends Controller
                 'disetujui_id' => auth()->id(),
             ]);
 
-            return redirect()->route('kasbon.index')
+            return redirect()->route('kasbon.show', $kasbon->id)
                 ->with('success', 'Kasbon berhasil diproses.');
         } catch (\Exception $e) {
             return redirect()->back()
@@ -313,7 +308,7 @@ class KasbonController extends Controller
                 Transaksi::create([
                     'tanggal' => now()->format('Y-m-d'),
                     'jenis' => 'Pengeluaran',
-                    'kategori_id' => 28,
+                    'kategori_id' => 44,
                     'nominal' => $kasbon->nominal,
                     'keterangan' => 'Kasbon dari ' . $kasbon->user->name,
                     'kasbon_id' => $kasbon->id,
@@ -322,7 +317,7 @@ class KasbonController extends Controller
 
             DB::commit();
 
-            return redirect()->route('kasbon.index')
+            return redirect()->route('kasbon.show', $kasbon->id)
                 ->with('success', 'Kasbon berhasil diselesaikan.');
         } catch (\Exception $e) {
             DB::rollBack();
