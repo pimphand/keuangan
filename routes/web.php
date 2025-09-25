@@ -103,6 +103,9 @@ Route::middleware(['auth', 'admin.access'])->group(function () {
 
     // Brosur Management Routes
     Route::resource('brosur', 'BrosurController');
+
+    // Client Management Routes
+    Route::resource('client', 'ClientController');
 });
 
 // Storage file access route

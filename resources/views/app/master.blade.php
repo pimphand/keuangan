@@ -325,6 +325,12 @@
                         </a>
                     </li>
 
+                    <li>
+                        <a href="{{ route('client.index') }}" aria-expanded="false">
+                            <i class="icon-briefcase menu-icon mr-3"></i><span class="nav-text">Client</span>
+                        </a>
+                    </li>
+
                     @if(Auth::user()->level == "admin")
                         <li>
                             <a href="{{ route('absensi.admin') }}" aria-expanded="false">
