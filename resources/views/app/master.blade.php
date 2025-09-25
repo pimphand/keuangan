@@ -321,13 +321,19 @@
 
                     <li>
                         <a href="{{ route('brosur.index') }}" aria-expanded="false">
-                            <i class="icon-doc menu-icon mr-3"></i><span class="nav-text">Brosur</span>
+                            <i class="icon-doc menu-icon mr-3"></i><span class="nav-text">Katalog</span>
                         </a>
                     </li>
 
                     <li>
                         <a href="{{ route('client.index') }}" aria-expanded="false">
                             <i class="icon-briefcase menu-icon mr-3"></i><span class="nav-text">Client</span>
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="{{ route('project.index') }}" aria-expanded="false">
+                            <i class="icon-briefcase menu-icon mr-3"></i><span class="nav-text">Project</span>
                         </a>
                     </li>
 

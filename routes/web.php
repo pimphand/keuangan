@@ -106,6 +106,11 @@ Route::middleware(['auth', 'admin.access'])->group(function () {
 
     // Client Management Routes
     Route::resource('client', 'ClientController');
+
+    // Project Management Routes
+    Route::resource("project", "ProjectController");
+    Route::get("/project/{project}/payment", "ProjectController@payment")->name("project.payment");
+    Route::post("/project/{project}/payment", "ProjectController@processPayment")->name("project.payment.process");
 });
 
 // Storage file access route
