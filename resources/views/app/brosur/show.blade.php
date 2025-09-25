@@ -83,7 +83,7 @@
                                     <td><strong>File Brosur:</strong></td>
                                     <td>
                                         @if($brosur->file)
-                                            <a href="{{ asset('storage/files/brosur/' . $brosur->file) }}" target="_blank"
+                                            <a href="{{ asset('files/brosur/' . $brosur->file) }}" target="_blank"
                                                 class="btn btn-sm btn-outline-primary">
                                                 <i class="fas fa-download"></i> Download File
                                             </a>

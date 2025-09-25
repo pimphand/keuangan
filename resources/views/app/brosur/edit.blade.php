@@ -155,7 +155,7 @@
                                 <label for="file">File Brosur</label>
                                 @if($brosur->file)
                                     <div class="mb-2">
-                                        <a href="{{ asset('storage/files/brosur/' . $brosur->file) }}"
+                                        <a href="{{ asset('files/brosur/' . $brosur->file) }}"
                                            target="_blank"
                                            class="btn btn-sm btn-outline-primary">
                                             <i class="fas fa-download"></i> Lihat File Saat Ini

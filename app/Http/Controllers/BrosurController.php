@@ -98,7 +98,11 @@ class BrosurController extends Controller
         if ($request->hasFile('file')) {
             $file = $request->file('file');
             $fileName = time() . '_' . Str::slug($request->nama) . '.' . $file->getClientOriginalExtension();
-            $file->storeAs('public/files/brosur', $fileName);
+            $destinationPath = public_path('files/brosur');
+            if (!file_exists($destinationPath)) {
+                mkdir($destinationPath, 0755, true);
+            }
+            $file->move($destinationPath, $fileName);
             $data['file'] = $fileName;
         }
 
@@ -183,12 +187,19 @@ class BrosurController extends Controller
         if ($request->hasFile('file')) {
             // Delete old file
             if ($brosur->file) {
-                Storage::delete('public/files/brosur/' . $brosur->file);
+                $oldFilePath = public_path('files/brosur/' . $brosur->file);
+                if (file_exists($oldFilePath)) {
+                    unlink($oldFilePath);
+                }
             }
 
             $file = $request->file('file');
             $fileName = time() . '_' . Str::slug($request->nama) . '.' . $file->getClientOriginalExtension();
-            $file->storeAs('public/files/brosur', $fileName);
+            $destinationPath = public_path('files/brosur');
+            if (!file_exists($destinationPath)) {
+                mkdir($destinationPath, 0755, true);
+            }
+            $file->move($destinationPath, $fileName);
             $data['file'] = $fileName;
         }
 
@@ -212,7 +223,10 @@ class BrosurController extends Controller
         }
 
         if ($brosur->file) {
-            Storage::delete('public/files/brosur/' . $brosur->file);
+            $filePath = public_path('files/brosur/' . $brosur->file);
+            if (file_exists($filePath)) {
+                unlink($filePath);
+            }
         }
 
         $brosur->delete();
