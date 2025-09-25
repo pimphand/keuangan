@@ -6,6 +6,7 @@
 
 @section('content')
     <div class="space-y-4">
+
         @if (session('success'))
             <div class="p-3 rounded-md bg-green-50 text-green-700 border border-green-200">
                 {{ session('success') }}

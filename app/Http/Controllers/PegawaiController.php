@@ -24,9 +24,7 @@ class PegawaiController extends Controller
         $transaksiTerkini =  $query = Kasbon::where('user_id', $user->id)->orderBy('created_at', 'desc')->limit(3)->get();
 
         // Get recent announcements for the user
-        $pengumumanTerkini = Pengumuman::active()
-            ->current()
-            ->forRole($user->role ?? 'pegawai')
+        $pengumumanTerkini = Pengumuman::current()
             ->with(['creator'])
             ->orderByRaw("CASE prioritas WHEN 'tinggi' THEN 1 WHEN 'sedang' THEN 2 WHEN 'rendah' THEN 3 ELSE 4 END")
             ->orderBy('created_at', 'desc')
@@ -618,5 +616,27 @@ class PegawaiController extends Controller
         ]);
 
         return redirect()->route('pegawai.kunjungan')->with('success', 'Kunjungan berhasil ditambahkan');
+    }
+
+    public function brosur(Request $request)
+    {
+        if ($request->ajax()) {
+            $brosurs = \App\Models\Brosur::with('kategoriBrosur')
+                ->where('status', 'aktif')
+                ->when($request->has('kategori') && $request->kategori != 'all', function ($query) use ($request) {
+                    // Filter berdasarkan tag JSON array
+                    $query->whereJsonContains('tag', $request->kategori);
+                })
+                ->when($request->has('search') && $request->search, function ($query) use ($request) {
+                    // Search dalam field tag (JSON array)
+                    $query->whereJsonContains('tag', $request->search);
+                })
+                ->orderBy('created_at', 'desc')
+                ->paginate(12);
+
+            return response()->json($brosurs);
+        }
+
+        return view('pegawai.katalog');
     }
 }

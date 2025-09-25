@@ -410,6 +410,7 @@ class HomeController extends Controller
             'saldo' => $request->saldo ?? 0,
             'kasbon' => $request->kasbon ?? 0,
             'tunjangan' => $request->tunjangan ?? 0,
+            'tanggal_gajian' => $request->tanggal_gajian ?? 0,
         ]);
 
         // Assign roles to user
@@ -437,6 +438,7 @@ class HomeController extends Controller
             'foto' => 'image|mimes:jpeg,png,jpg|max:2048',
             'saldo' => 'nullable|numeric|min:0',
             'kasbon' => 'nullable|numeric|min:0',
+            'tanggal_gajian' => 'nullable',
         ]);
 
         $name = $req->input('nama');
@@ -454,6 +456,7 @@ class HomeController extends Controller
         $user->saldo = $req->saldo ?? $user->saldo;
         $user->kasbon = $req->kasbon ?? $user->kasbon;
         $user->tunjangan = $req->tunjangan ?? $user->tunjangan;
+        $user->tanggal_gajian = $req->tanggal_gajian ?? $user->tanggal_gajian;
 
         // menyimpan data file yang diupload ke variabel $file
         $file = $req->file('foto');

@@ -30,13 +30,12 @@
                 </div>
                 <div class="card-body pt-0">
 
-                    <div class="row">
+                    <form method="POST" action="{{ route('user.aksi') }}" enctype="multipart/form-data">
+                        @csrf
 
-                        <div class="col-lg-5">
-
-                            <form method="POST" action="{{ route('user.aksi') }}" enctype="multipart/form-data">
-                                @csrf
-
+                        <div class="row">
+                            <!-- Kolom Kiri -->
+                            <div class="col-lg-6">
                                 <div class="form-group">
                                     <div class="form-group has-feedback">
                                         <label class="text-dark">Nama</label>
@@ -66,7 +65,6 @@
                                     </div>
                                 </div>
 
-
                                 <div class="form-group">
                                     <div class="form-group has-feedback">
                                         <label class="text-dark">Role</label>
@@ -91,7 +89,6 @@
                                     </div>
                                 </div>
 
-
                                 <div class="form-group">
                                     <div class="form-group has-feedback">
                                         <label class="text-dark">Password</label>
@@ -106,13 +103,31 @@
                                         @enderror
                                     </div>
                                 </div>
+                            </div>
 
+                            <!-- Kolom Kanan -->
+                            <div class="col-lg-6">
+                                <div class="form-group">
+                                    <div class="form-group has-feedback">
+                                        <label class="text-dark">Tanggal Gajian</label>
+                                        <input id="tanggal_gajian" type="text" maxlength="2" placeholder="Tanggal (01-31)"
+                                            class="form-control @error('tanggal_gajian') is-invalid @enderror"
+                                            name="tanggal_gajian" value="{{ old('tanggal_gajian') }}" autocomplete="off">
+                                        <small class="text-muted">Masukkan tanggal (1-31)</small>
+                                        @error('tanggal_gajian')
+                                            <span class="invalid-feedback" role="alert">
+                                                <strong>{{ $message }}</strong>
+                                            </span>
+                                        @enderror
+                                    </div>
+                                </div>
                                 <div class="form-group">
                                     <div class="form-group has-feedback">
                                         <label class="text-dark">Gaji</label>
-                                        <input id="saldo" type="number" step="0.01" placeholder="Gaji"
+                                        <input id="saldo" type="number" min="0" placeholder=" Gaji"
                                             class="form-control @error('saldo') is-invalid @enderror" name="saldo"
                                             value="{{ old('saldo') }}" autocomplete="off">
+                                        <span id="text_saldo">Rp. 0</span>
                                         @error('saldo')
                                             <span class="invalid-feedback" role="alert">
                                                 <strong>{{ $message }}</strong>
@@ -136,9 +151,10 @@
                                 <div class="form-group">
                                     <div class="form-group has-feedback">
                                         <label class="text-dark">Limit Kasbon</label>
-                                        <input id="kasbon" type="number" step="0.01" placeholder="Limit Kasbon"
+                                        <input id="kasbon" type="number" min="0" placeholder=" Limit Kasbon"
                                             class="form-control @error('kasbon') is-invalid @enderror" name="kasbon"
                                             value="{{ old('kasbon') }}" autocomplete="off">
+                                        <span id="text_kasbon">Rp. 0</span>
                                         @error('kasbon')
                                             <span class="invalid-feedback" role="alert">
                                                 <strong>{{ $message }}</strong>
@@ -163,16 +179,17 @@
                                         @enderror
                                     </div>
                                 </div>
+                            </div>
+                        </div>
 
-
+                        <div class="row">
+                            <div class="col-12">
                                 <div class="form-group">
                                     <button type="submit" class="btn btn-primary">Simpan</button>
                                 </div>
-                            </form>
+                            </div>
                         </div>
-
-
-                    </div>
+                    </form>
 
                 </div>
 
@@ -181,5 +198,85 @@
         </div>
         <!-- #/ container -->
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const saldoInput = document.getElementById('saldo');
+            const kasbonInput = document.getElementById('kasbon');
+            const textSaldo = document.getElementById('text_saldo');
+            const textKasbon = document.getElementById('text_kasbon');
+            const tanggalGajianInput = document.getElementById('tanggal_gajian');
+
+            // Format number with thousand separators (dots)
+            function formatNumber(num) {
+                if (!num || isNaN(num) || num === 0) return '0';
+                return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+            }
+
+            // Update display text for saldo
+            function updateSaldoDisplay() {
+                if (saldoInput.value && !isNaN(saldoInput.value)) {
+                    textSaldo.textContent = 'Rp. ' + formatNumber(saldoInput.value);
+                } else {
+                    textSaldo.textContent = 'Rp. 0';
+                }
+            }
+
+            // Update display text for kasbon
+            function updateKasbonDisplay() {
+                if (kasbonInput.value && !isNaN(kasbonInput.value)) {
+                    textKasbon.textContent = 'Rp. ' + formatNumber(kasbonInput.value);
+                } else {
+                    textKasbon.textContent = 'Rp. 0';
+                }
+            }
+
+            // Update display on input change for saldo
+            saldoInput.addEventListener('input', updateSaldoDisplay);
+            saldoInput.addEventListener('blur', updateSaldoDisplay);
+
+            // Update display on input change for kasbon
+            kasbonInput.addEventListener('input', updateKasbonDisplay);
+            kasbonInput.addEventListener('blur', updateKasbonDisplay);
+
+            // Initialize display
+            updateSaldoDisplay();
+            updateKasbonDisplay();
+
+            // Validation for tanggal gajian input
+            tanggalGajianInput.addEventListener('input', function (e) {
+                let value = e.target.value;
+
+                // Only allow numbers
+                value = value.replace(/[^0-9]/g, '');
+
+                // Limit to 2 characters
+                if (value.length > 2) {
+                    value = value.substring(0, 2);
+                }
+
+                // Check if value exceeds 31
+                if (value && parseInt(value) > 31) {
+                    value = '31';
+                }
+
+                // Check if value is 0
+                if (value === '0') {
+                    value = '';
+                }
+
+                e.target.value = value;
+            });
+
+            // Additional validation on blur
+            tanggalGajianInput.addEventListener('blur', function (e) {
+                let value = e.target.value;
+                if (value && parseInt(value) > 31) {
+                    e.target.value = '31';
+                }
+            });
+
+        });
+    </script>
 
 @endsection

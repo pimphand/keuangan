@@ -26,7 +26,8 @@
     <div class="container mx-auto px-4 py-6 pb-24">
         <div class="flex justify-center">
             <div class="w-full max-w-2xl">
-                <div class="bg-white rounded-2xl shadow-lg p-6 mb-6">
+                <div
+                    class="bg-white rounded-2xl shadow-lg {{ request()->routeIs('pegawai.katalog.index') ? '' : 'p-6' }} mb-6">
                     <!-- Header -->
                     <div class="flex justify-between items-start mb-6">
                         <div class="text-center flex-1">

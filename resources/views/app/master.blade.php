@@ -319,6 +319,12 @@
                         </a>
                     </li>
 
+                    <li>
+                        <a href="{{ route('brosur.index') }}" aria-expanded="false">
+                            <i class="icon-doc menu-icon mr-3"></i><span class="nav-text">Brosur</span>
+                        </a>
+                    </li>
+
                     @if(Auth::user()->level == "admin")
                         <li>
                             <a href="{{ route('absensi.admin') }}" aria-expanded="false">

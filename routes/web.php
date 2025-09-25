@@ -18,6 +18,7 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     if (auth()->check()) {
         $user = auth()->user();
+        // dd($user);
         if ($user->hasRole('Karyawan')) {
             return redirect()->route('pegawai.beranda');
         } else {
@@ -99,6 +100,9 @@ Route::middleware(['auth', 'admin.access'])->group(function () {
     Route::get('/saldo-management', 'HomeController@saldo_management')->name('saldo.management');
     Route::post('/saldo/add', 'HomeController@add_saldo')->name('saldo.add');
     Route::get('/saldo/history/{userId}', 'HomeController@saldo_history')->name('saldo.history');
+
+    // Brosur Management Routes
+    Route::resource('brosur', 'BrosurController');
 });
 
 // Storage file access route
@@ -174,5 +178,7 @@ Route::middleware(['auth'])->prefix('pegawai')->name('pegawai.')->group(function
     // Kunjungan Kerja
     Route::get('/kunjungan', 'PegawaiController@kunjungan')->name('kunjungan');
     Route::post('/kunjungan', 'PegawaiController@kunjunganStore')->name('kunjungan.store');
+    Route::get('/client', 'PegawaiController@kunjunganStore')->name('client.index');
+    Route::get('/brosur', 'PegawaiController@brosur')->name('katalog.index');
 });
 //End Pegawai

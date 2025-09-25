@@ -4,10 +4,7 @@
 
 @section('header-icon', 'clock')
 @section('header-title', 'Absensi Pegawai')
-@section('header-subtitle')
-    <i class="fas fa-calendar mr-1"></i>
-    {{ \Carbon\Carbon::now()->format('d M Y, H:i') }}
-@endsection
+
 
 @section('content')
     <!-- Location Info -->

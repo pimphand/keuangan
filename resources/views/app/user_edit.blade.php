@@ -110,7 +110,24 @@
                             </div>
 
                             <!-- Kolom Kanan -->
+
                             <div class="col-lg-6">
+                                <div class="form-group">
+                                    <div class="form-group has-feedback">
+                                        <label class="text-dark">Tanggal Gajian</label>
+                                        <input id="tanggal_gajian" type="text" maxlength="2" placeholder="Tanggal (01-31)"
+                                            class="form-control @error('tanggal_gajian') is-invalid @enderror"
+                                            name="tanggal_gajian"
+                                            value="{{ old('tanggal_gajian', $user->tanggal_gajian ?? '') }}"
+                                            autocomplete="off">
+                                        <small class="text-muted">Masukkan tanggal (1-31)</small>
+                                        @error('tanggal_gajian')
+                                            <span class="invalid-feedback" role="alert">
+                                                <strong>{{ $message }}</strong>
+                                            </span>
+                                        @enderror
+                                    </div>
+                                </div>
                                 <div class="form-group">
                                     <div class="form-group has-feedback">
                                         <label class="text-dark">Gaji</label>
@@ -196,6 +213,7 @@
             const kasbonInput = document.getElementById('kasbon');
             const textSaldo = document.getElementById('text_saldo');
             const textKasbon = document.getElementById('text_kasbon');
+            const tanggalGajianInput = document.getElementById('tanggal_gajian');
 
             // Format number with thousand separators (dots)
             function formatNumber(num) {
@@ -232,6 +250,39 @@
             // Initialize display
             updateSaldoDisplay();
             updateKasbonDisplay();
+
+            // Validation for tanggal gajian input
+            tanggalGajianInput.addEventListener('input', function (e) {
+                let value = e.target.value;
+
+                // Only allow numbers
+                value = value.replace(/[^0-9]/g, '');
+
+                // Limit to 2 characters
+                if (value.length > 2) {
+                    value = value.substring(0, 2);
+                }
+
+                // Check if value exceeds 31
+                if (value && parseInt(value) > 31) {
+                    value = '31';
+                }
+
+                // Check if value is 0
+                if (value === '0') {
+                    value = '';
+                }
+
+                e.target.value = value;
+            });
+
+            // Additional validation on blur
+            tanggalGajianInput.addEventListener('blur', function (e) {
+                let value = e.target.value;
+                if (value && parseInt(value) > 31) {
+                    e.target.value = '31';
+                }
+            });
 
         });
     </script>

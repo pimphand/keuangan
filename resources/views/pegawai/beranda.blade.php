@@ -7,13 +7,10 @@
 @section('content')
     <div class="space-y-6">
         <!-- Header Section -->
-        <div class="flex justify-between items-center">
+        <div class="flex justify-center items-center mb-6">
             <div>
-                <h4 class="text font-bold text-gray-800">Halo, {{ $user->name }}!</h4>
+                <h1 class="text-2xl font-bold text-gray-800 text-left">Halo, {{ strtoupper($user->name) }}!</h1>
             </div>
-            {{-- <div class="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center shadow-sm">
-                <i class="fas fa-user text-gray-600"></i>
-            </div> --}}
         </div>
 
         <!-- Main Card with Purple Background -->
@@ -33,16 +30,10 @@
                 <div class="flex justify-between items-start mb-4">
                     <div>
                         <h2 class="text-sm font-medium opacity-90 mb-1">PT MATARAM DIGITAL TEKNOLOGI</h2>
-                        <div class="flex justify-content-between">
-                            <span>
-                                <p class="text-xs opacity-75">Limit Kasbon</p>
-                                <p class="text-2xl font-bold">Rp
-                                    {{ number_format($user->kasbon - $user->kasbon_terpakai, 0, ',', '.') }}
-                                </p>
-                            </span>
-                        </div>
-
-
+                        <p class="text-xs opacity-75 mb-1">Limit Kasbon</p>
+                        <p class="text-2xl font-bold">Rp
+                            {{ number_format($user->kasbon - $user->kasbon_terpakai, 0, ',', '.') }}
+                        </p>
                     </div>
                     <div class="text-right">
                         <h3 class="text-lg font-bold">MDTPay</h3>
@@ -50,20 +41,24 @@
                     </div>
                 </div>
 
-                <div class="mt-4">
-                    <p class="text-xs opacity-75">Pemegang Kartu</p>
-                    <p class="text-lg font-semibold">{{ strtoupper($user->name) }}</p>
+                <div class="flex justify-between items-end">
+                    <div>
+                        <p class="text-xs opacity-75">Pemegang Kartu</p>
+                        <p class="text-lg font-semibold">{{ strtoupper($user->name) }}</p>
+                    </div>
                 </div>
             </div>
         </div>
 
         <!-- Action Buttons -->
         <div class="grid grid-cols-4 gap-4">
+            <!-- Row 1 -->
             <a href="{{ route('pegawai.pengumuman') }}"
                 class="nav-item flex flex-col items-center space-y-2 cursor-pointer hover:opacity-80 transition-opacity">
                 <div
-                    class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center border-2 border-purple-300 hover:bg-purple-200 transition-colors">
+                    class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center border-2 border-purple-300 hover:bg-purple-200 transition-colors relative">
                     <i class="fas fa-bell text-purple-600"></i>
+                    <div class="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full"></div>
                 </div>
                 <span class="text-xs font-medium text-gray-700">Pengumuman</span>
             </a>
@@ -71,7 +66,7 @@
             <div class="nav-item flex flex-col items-center space-y-2 cursor-pointer hover:opacity-80 transition-opacity">
                 <div
                     class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center border-2 border-purple-300 hover:bg-purple-200 transition-colors">
-                    <i class="fas fa-calendar text-purple-600"></i>
+                    <i class="fas fa-calendar-check text-purple-600"></i>
                 </div>
                 <span class="text-xs font-medium text-gray-700">Absen</span>
             </div>
@@ -80,7 +75,7 @@
                 class="nav-item flex flex-col items-center space-y-2 cursor-pointer hover:opacity-80 transition-opacity">
                 <div
                     class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center border-2 border-green-300 hover:bg-green-200 transition-colors">
-                    <i class="fas fa-file-invoice-dollar text-green-600"></i>
+                    <i class="fas fa-file-invoice text-green-600"></i>
                 </div>
                 <span class="text-xs font-medium text-gray-700">Slip Gaji</span>
             </a>
@@ -89,19 +84,46 @@
                 class="nav-item flex flex-col items-center space-y-2 cursor-pointer hover:opacity-80 transition-opacity">
                 <div
                     class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center border-2 border-purple-300 hover:bg-purple-200 transition-colors">
-                    <i class="fas fa-money-bill text-purple-600"></i>
+                    <i class="fas fa-link text-purple-600"></i>
                 </div>
                 <span class="text-xs font-medium text-gray-700">Kasbon</span>
             </a>
 
-            {{-- <div
+            <!-- Row 2 -->
+            <a href="{{ route('pegawai.katalog.index') }}"
                 class="nav-item flex flex-col items-center space-y-2 cursor-pointer hover:opacity-80 transition-opacity">
                 <div
-                    class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center border-2 border-purple-300 hover:bg-purple-200 transition-colors">
-                    <i class="fas fa-arrow-down text-purple-600"></i>
+                    class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center border-2 border-blue-300 hover:bg-blue-200 transition-colors">
+                    <i class="fas fa-file-alt text-blue-600"></i>
                 </div>
-                <span class="text-xs font-medium text-gray-700">Withdraw</span>
-            </div> --}}
+                <span class="text-xs font-medium text-gray-700">Brosur</span>
+            </a>
+
+            <a href="{{ route('pegawai.client.index') }}"
+                class="nav-item flex flex-col items-center space-y-2 cursor-pointer hover:opacity-80 transition-opacity">
+                <div
+                    class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center border-2 border-green-300 hover:bg-green-200 transition-colors">
+                    <i class="fas fa-user-friends text-green-600"></i>
+                </div>
+                <span class="text-xs font-medium text-gray-700">Client</span>
+            </a>
+
+            <a href="{{ route('pegawai.kunjungan') }}"
+                class="nav-item flex flex-col items-center space-y-2 cursor-pointer hover:opacity-80 transition-opacity">
+                <div
+                    class="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center border-2 border-yellow-300 hover:bg-yellow-200 transition-colors">
+                    <i class="fas fa-map-marker-alt text-yellow-600"></i>
+                </div>
+                <span class="text-xs font-medium text-gray-700">Kunjungan</span>
+            </a>
+
+            <div class="nav-item flex flex-col items-center space-y-2 cursor-pointer hover:opacity-80 transition-opacity">
+                <div
+                    class="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center border-2 border-red-300 hover:bg-red-200 transition-colors">
+                    <i class="fas fa-file-download text-red-600"></i>
+                </div>
+                <span class="text-xs font-medium text-gray-700">PO</span>
+            </div>
         </div>
 
         <!-- Transaction History Section -->
@@ -111,9 +133,9 @@
                 <a href="#" class="text-blue-600 text-sm font-medium">Lihat Semua</a>
             </div>
 
-            <div class="space-y-3">
+            <div class="bg-white rounded-lg shadow-sm p-6">
                 @forelse($transaksiTerkini as $transaksi)
-                    <div class="flex items-center space-x-3 p-3 bg-white rounded-lg shadow-sm">
+                    <div class="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg mb-3 last:mb-0">
                         <div
                             class="w-8 h-8 {{ $transaksi->jenis == 'masuk' ? 'bg-green-100' : 'bg-red-100' }} rounded-full flex items-center justify-center">
                             <i
@@ -134,9 +156,9 @@
                         </div>
                     </div>
                 @empty
-                    <div class="text-center py-8 text-gray-500">
-                        <i class="fas fa-receipt text-4xl mb-2"></i>
-                        <p>Belum ada transaksi</p>
+                    <div class="text-center py-12 text-gray-500">
+                        <i class="fas fa-wallet text-6xl mb-4 text-gray-300"></i>
+                        <p class="text-lg">Belum ada transaksi</p>
                     </div>
                 @endforelse
             </div>
@@ -144,18 +166,12 @@
         <!-- Kunjungan -->
         <div class="space-y-4">
             <div class="flex justify-between items-center">
-                <h3 class="text-lg font-bold text-gray-800">
-                    <i class="fas fa-briefcase mr-2"></i>
-                    Kunjungan Terakhir
-                </h3>
-                <div class="flex items-center gap-2">
-
-                    <button id="openKunjunganModalBtn"
-                        class="inline-flex items-center gap-2 px-3 py-1.5 rounded-md bg-purple-600 text-white hover:bg-purple-700 text-sm">
-                        <i class="fas fa-plus"></i>
-                        <span>Tambah</span>
-                    </button>
-                </div>
+                <h3 class="text-lg font-bold text-gray-800">Kunjungan Terakhir</h3>
+                <button id="openKunjunganModalBtn"
+                    class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-purple-600 text-white hover:bg-purple-700 text-sm font-medium">
+                    <i class="fas fa-plus"></i>
+                    <span>Tambah</span>
+                </button>
             </div>
 
             <div class="space-y-3">
@@ -314,6 +330,55 @@
             </div>
         @endif
     </div>
+
+    <!-- Bottom Navigation Bar -->
+    <div class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-4 py-2 z-50">
+        <div class="flex justify-around items-center">
+            <!-- Beranda (Active) -->
+            <a href="{{ route('pegawai.index') }}" class="flex flex-col items-center space-y-1 text-purple-600">
+                <div class="w-6 h-6 flex items-center justify-center">
+                    <i class="fas fa-home-minus text-lg"></i>
+                </div>
+                <span class="text-xs font-medium">Beranda</span>
+            </a>
+
+            <!-- Absensi -->
+            <a href="#" class="flex flex-col items-center space-y-1 text-gray-500 hover:text-gray-700">
+                <div class="w-6 h-6 flex items-center justify-center">
+                    <i class="fas fa-calendar-check text-lg"></i>
+                </div>
+                <span class="text-xs font-medium">Absensi</span>
+            </a>
+
+            <!-- Histori -->
+            <a href="#" class="flex flex-col items-center space-y-1 text-gray-500 hover:text-gray-700">
+                <div class="w-6 h-6 flex items-center justify-center">
+                    <i class="fas fa-history text-lg"></i>
+                </div>
+                <span class="text-xs font-medium">Histori</span>
+            </a>
+
+            <!-- Kasbon -->
+            <a href="{{ route('pegawai.kasbon') }}"
+                class="flex flex-col items-center space-y-1 text-gray-500 hover:text-gray-700">
+                <div class="w-6 h-6 flex items-center justify-center">
+                    <i class="fas fa-link text-lg"></i>
+                </div>
+                <span class="text-xs font-medium">Kasbon</span>
+            </a>
+
+            <!-- Profil -->
+            <a href="#" class="flex flex-col items-center space-y-1 text-gray-500 hover:text-gray-700">
+                <div class="w-6 h-6 flex items-center justify-center">
+                    <i class="fas fa-user text-lg"></i>
+                </div>
+                <span class="text-xs font-medium">Profil</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Add bottom padding to prevent content from being hidden behind navigation -->
+    <div class="h-20"></div>
 @endsection
 
 @push('scripts')
