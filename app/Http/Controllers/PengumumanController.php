@@ -18,9 +18,7 @@ class PengumumanController extends Controller
         $user = Auth::user();
 
         // Get active and current announcements ordered by priority and date
-        $pengumuman = Pengumuman::active()
-            ->current()
-            ->forRole($user->role ?? 'pegawai')
+        $pengumuman = Pengumuman::current()
             ->with(['creator'])
             ->orderByRaw("CASE prioritas WHEN 'tinggi' THEN 1 WHEN 'sedang' THEN 2 WHEN 'rendah' THEN 3 ELSE 4 END")
             ->orderBy('created_at', 'desc')

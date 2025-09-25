@@ -232,11 +232,11 @@
         // Fungsi untuk menampilkan loading
         function showLoading() {
             brochureListContainer.innerHTML = `
-                                        <div class="flex justify-center items-center py-12">
-                                            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600"></div>
-                                            <span class="ml-3 text-gray-600">Memuat brosur...</span>
-                                        </div>
-                                    `;
+                                                    <div class="flex justify-center items-center py-12">
+                                                        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600"></div>
+                                                        <span class="ml-3 text-gray-600">Memuat brosur...</span>
+                                                    </div>
+                                                `;
         }
 
         // Fungsi untuk menyembunyikan loading
@@ -247,15 +247,15 @@
         // Fungsi untuk menampilkan error
         function showError(message) {
             brochureListContainer.innerHTML = `
-                                        <div class="text-center py-12">
-                                            <div class="text-red-500 mb-4">
-                                                <svg class="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
-                                                </svg>
-                                            </div>
-                                            <p class="text-gray-600">${message}</p>
-                                        </div>
-                                    `;
+                                                    <div class="text-center py-12">
+                                                        <div class="text-red-500 mb-4">
+                                                            <svg class="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                                                            </svg>
+                                                        </div>
+                                                        <p class="text-gray-600">${message}</p>
+                                                    </div>
+                                                `;
         }
 
         // Fungsi untuk membuat HTML untuk satu item brosur
@@ -272,42 +272,42 @@
             }
 
             return `
-                                        <div class="brochure-card bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300" data-brochure-id="${brochure.id}">
-                                            <div class="flex flex-col sm:flex-row">
-                                                <!-- Image Section -->
-                                                <div class="sm:w-1/3 w-full">
-                                                    <img src="${imageUrl}" alt="Gambar ${brochure.nama}" class="w-full h-48 sm:h-full object-cover">
-                                                </div>
+                                                    <div class="brochure-card bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300" data-brochure-id="${brochure.id}">
+                                                        <div class="flex flex-col sm:flex-row">
+                                                            <!-- Image Section -->
+                                                            <div class="sm:w-1/4 w-full">
+                                                                <img src="${imageUrl}" alt="Gambar ${brochure.nama}" class="w-full h-48 sm:h-full object-cover">
+                                                            </div>
 
-                                                <!-- Content Section -->
-                                                <div class="sm:w-2/3 w-full p-6 flex flex-col justify-between">
-                                                    <div class="flex-1">
-                                                        <h3 class="font-bold text-xl text-gray-800 mb-2">${brochure.nama}</h3>
-                                                        <p class="text-gray-600 mb-4 line-clamp-3">${brochure.deskripsi || 'Tidak ada deskripsi'}</p>
-                                                        ${tagBadges ? `<div class="mb-4">${tagBadges}</div>` : ''}
-                                                    </div>
+                                                            <!-- Content Section -->
+                                                            <div class="sm:w-3/4 w-full p-6 flex flex-col justify-between">
+                                                                <div class="flex-1">
+                                                                    <h3 class="font-bold text-xl text-gray-800 mb-2">${brochure.nama}</h3>
+                                                                    <p class="text-gray-600 mb-4 line-clamp-3">${brochure.deskripsi || 'Tidak ada deskripsi'}</p>
+                                                                    ${tagBadges ? `<div class="mb-4">${tagBadges}</div>` : ''}
+                                                                </div>
 
-                                                    <!-- Bottom Section with Price and Button -->
-                                                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between pt-4 border-t border-gray-100">
-                                                        <div class="mb-4 sm:mb-0">
-                                                            ${brochure.harga ? `
-                                                                <span class="text-sm font-semibold text-gray-600">Harga:</span>
-                                                                <p class="text-xl font-bold text-purple-600">Rp ${formatNumber(brochure.harga)}</p>
-                                                            ` : ''}
-                                                        </div>
-                                                        <div class="flex space-x-3">
-                                                            <button onclick="showBrochureDetails(${brochure.id})" class="px-4 py-2 text-purple-700 font-semibold border border-purple-700 rounded-lg transition-colors hover:bg-purple-50 text-sm">
-                                                                Lihat Detail
-                                                            </button>
-                                                            <a href="${downloadLink}" class="px-4 py-2 text-center text-white font-semibold purple-gradient rounded-lg transition-opacity hover:opacity-90 text-sm">
-                                                                Unduh Brosur
-                                                            </a>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                    </div>
-                                                </div>
-                                            `;
+                                                                <!-- Bottom Section with Price and Button -->
+                                                                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between pt-4 border-t border-gray-100">
+                                                                    <div class="mb-4 sm:mb-0">
+                                                                        ${brochure.harga ? `
+                                                                            <span class="text-sm font-semibold text-gray-600">Harga:</span>
+                                                                            <p class="text-xl font-bold text-purple-600">Rp ${formatNumber(brochure.harga)}</p>
+                                                                        ` : ''}
+                                                                    </div>
+                                                                    <div class="flex space-x-3">
+                                                                        <button onclick="showBrochureDetails(${brochure.id})" class="px-4 py-2 text-purple-700 font-semibold border border-purple-700 rounded-lg transition-colors hover:bg-purple-50 text-sm">
+                                                                            Lihat Detail
+                                                                        </button>
+                                                                        <a href="${downloadLink}" class="px-4 py-2 text-center text-white font-semibold purple-gradient rounded-lg transition-opacity hover:opacity-90 text-sm">
+                                                                            Unduh Brosur
+                                                                        </a>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                                </div>
+                                                            </div>
+                                                        `;
         }
 
         // Fungsi untuk format angka
@@ -330,16 +330,16 @@
             const downloadLink = brochure.file ? `{{ asset('gambar/brosur') }}/${brochure.file}` : '#';
 
             modalContentBody.innerHTML = `
-                                                                                                                    <img src="${imageUrl}" alt="Gambar ${brochure.nama}" class="w-full rounded-lg mb-4">
-                                                                                                                    <h2 class="text-2xl font-bold text-gray-900 mb-2">${brochure.nama}</h2>
-                                                                                                                    <p class="text-gray-600 mt-4">${brochure.deskripsi || 'Tidak ada deskripsi'}</p>
-                                                                                                                    ${brochure.harga ? `<p class="text-lg font-bold text-purple-600 mt-4">Rp ${formatNumber(brochure.harga)}</p>` : ''}
-                                                <div class="flex justify-center mt-6">
-                                                                                                                        <a href="${downloadLink}" class="text-center py-2 px-4 rounded-full text-white font-semibold purple-gradient transition-opacity hover:opacity-90 text-sm">
-                                                        Unduh Brosur
-                                                    </a>
-                                                </div>
-                                            `;
+                                                                                                                                <img src="${imageUrl}" alt="Gambar ${brochure.nama}" class=" rounded-lg mb-4">
+                                                                                                                                <h2 class="text-2xl font-bold text-gray-900 mb-2">${brochure.nama}</h2>
+                                                                                                                                <p class="text-gray-600 mt-4">${brochure.deskripsi || 'Tidak ada deskripsi'}</p>
+                                                                                                                                ${brochure.harga ? `<p class="text-lg font-bold text-purple-600 mt-4">Rp ${formatNumber(brochure.harga)}</p>` : ''}
+                                                            <div class="flex justify-center mt-6">
+                                                                                                                                    <a href="${downloadLink}" class="text-center py-2 px-4 rounded-full text-white font-semibold purple-gradient transition-opacity hover:opacity-90 text-sm">
+                                                                    Unduh Brosur
+                                                                </a>
+                                                            </div>
+                                                        `;
             modal.classList.add('open');
             modal.classList.remove('hidden');
         }
@@ -374,34 +374,34 @@
             }
 
             detailContent.innerHTML = `
-                                                                                    <h1 class="text-3xl font-bold text-gray-900 mb-4">${brochure.nama}</h1>
-                                                                                    <img src="${imageUrl}" alt="Gambar ${brochure.nama}" class="w-full h-64 object-cover rounded-lg mb-6">
-                                                                                    ${tagBadges ? `<div class="mb-6">${tagBadges}</div>` : ''}
-                                                                                    <p class="text-gray-700 leading-relaxed mb-6">${brochure.deskripsi || 'Tidak ada deskripsi'}</p>
+                                                                                                <h1 class="text-3xl font-bold text-gray-900 mb-4">${brochure.nama}</h1>
+                                                                                                <img src="${imageUrl}" alt="Gambar ${brochure.nama}" class=" h-64 object-cover rounded-lg mb-6">
+                                                                                                ${tagBadges ? `<div class="mb-6">${tagBadges}</div>` : ''}
+                                                                                                <p class="text-gray-700 leading-relaxed mb-6">${brochure.deskripsi || 'Tidak ada deskripsi'}</p>
 
-                                                                                    ${specsHtml ? `
-                                                <div class="bg-gray-50 p-6 rounded-xl">
-                                                    <h2 class="text-xl font-bold text-gray-800 mb-4">Spesifikasi</h2>
-                                                    <ul class="list-disc list-inside space-y-2">
-                                                        ${specsHtml}
-                                                    </ul>
-                                                </div>
-                                                                                    ` : ''}
+                                                                                                ${specsHtml ? `
+                                                            <div class="bg-gray-50 p-6 rounded-xl">
+                                                                <h2 class="text-xl font-bold text-gray-800 mb-4">Spesifikasi</h2>
+                                                                <ul class="list-disc list-inside space-y-2">
+                                                                    ${specsHtml}
+                                                                </ul>
+                                                            </div>
+                                                                                                ` : ''}
 
-                                                <div class="mt-6 flex justify-between items-center bg-gray-50 p-6 rounded-xl">
-                                                    <div class="text-gray-800">
-                                                                                            ${brochure.harga ? `
-                                                        <span class="text-sm font-semibold">Harga:</span>
-                                                                                            <p class="text-sm font-bold text-purple-600"> Mulai dari Rp ${formatNumber(brochure.harga)},- (tergantung paket dan fitur tambahan)</p>
-                                                                                            ` : ''}
-                                                    </div>
-                                                    <div class="flex space-x-4">
-                                                                                 <a href="${downloadLink}" class="text-center py-2 px-4 rounded-full text-white font-semibold purple-gradient transition-opacity hover:opacity-90 text-sm">
-                                                            Unduh Brosur
-                                                        </a>
-                                                    </div>
-                                                </div>
-                                            `;
+                                                            <div class="mt-6 flex justify-between items-center bg-gray-50 p-6 rounded-xl">
+                                                                <div class="text-gray-800">
+                                                                                                        ${brochure.harga ? `
+                                                                    <span class="text-sm font-semibold">Harga:</span>
+                                                                                                        <p class="text-sm font-bold text-purple-600"> Mulai dari Rp ${formatNumber(brochure.harga)},- (tergantung paket dan fitur tambahan)</p>
+                                                                                                        ` : ''}
+                                                                </div>
+                                                                <div class="flex space-x-4">
+                                                                                             <a href="${downloadLink}" class="text-center py-2 px-4 rounded-full text-white font-semibold purple-gradient transition-opacity hover:opacity-90 text-sm">
+                                                                        Unduh Brosur
+                                                                    </a>
+                                                                </div>
+                                                            </div>
+                                                        `;
 
             mainPage.classList.remove('active');
             detailPage.classList.add('active');
@@ -441,20 +441,20 @@
             }
 
             modalContentBody.innerHTML = `
-                                                                                        <img src="${imageUrl}" alt="Gambar ${brochure.nama}" class="w-full rounded-lg mb-4">
-                                                                                        <h2 class="text-2xl font-bold text-gray-900 mb-2">${brochure.nama}</h2>
-                                                                                        ${tagBadges ? `<div class="mb-4">${tagBadges}</div>` : ''}
-                                                                                        <p class="text-gray-600 mt-4">${brochure.deskripsi || 'Tidak ada deskripsi'}</p>
-                                                                                        ${brochure.harga ? `<p class="text-lg font-bold text-purple-600 mt-4">Rp ${formatNumber(brochure.harga)}</p>` : ''}
-                                                <div class="flex space-x-4 mt-6">
-                                                                                         <button onclick="showDetailPage(${brochure.id}); hideModal();" class="flex-1 text-center py-2 px-4 rounded-full text-purple-700 font-semibold border border-purple-700 transition-colors hover:bg-purple-50 text-sm">
-                                                        Lihat Detail
-                                                    </button>
-                                                                                         <a href="${downloadLink}" class="flex-1 text-center py-2 px-4 rounded-full text-white font-semibold purple-gradient transition-opacity hover:opacity-90 text-sm">
-                                                        Unduh Brosur
-                                                    </a>
-                                                </div>
-                                            `;
+                                                                                                    <img src="${imageUrl}" alt="Gambar ${brochure.nama}" class=" rounded-lg mb-4">
+                                                                                                    <h2 class="text-2xl font-bold text-gray-900 mb-2">${brochure.nama}</h2>
+                                                                                                    ${tagBadges ? `<div class="mb-4">${tagBadges}</div>` : ''}
+                                                                                                    <p class="text-gray-600 mt-4">${brochure.deskripsi || 'Tidak ada deskripsi'}</p>
+                                                                                                    ${brochure.harga ? `<p class="text-lg font-bold text-purple-600 mt-4">Rp ${formatNumber(brochure.harga)}</p>` : ''}
+                                                            <div class="flex space-x-4 mt-6">
+                                                                                                     <button onclick="showDetailPage(${brochure.id}); hideModal();" class="flex-1 text-center py-2 px-4 rounded-full text-purple-700 font-semibold border border-purple-700 transition-colors hover:bg-purple-50 text-sm">
+                                                                    Lihat Detail
+                                                                </button>
+                                                                                                     <a href="${downloadLink}" class="flex-1 text-center py-2 px-4 rounded-full text-white font-semibold purple-gradient transition-opacity hover:opacity-90 text-sm">
+                                                                    Unduh Brosur
+                                                                </a>
+                                                            </div>
+                                                        `;
             modal.classList.add('open');
             modal.classList.remove('hidden');
         }

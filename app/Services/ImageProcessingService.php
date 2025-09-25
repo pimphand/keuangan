@@ -53,6 +53,44 @@ class ImageProcessingService
     }
 
     /**
+     * Process base64 data URL or raw base64 image string and store as WebP in public
+     *
+     * @param string $base64Data data URL (e.g., data:image/jpeg;base64,...) or raw base64
+     * @param string $directory directory under public
+     * @param int $quality WebP quality (1-100)
+     * @return string relative public path (e.g., gambar/ktp/abc.webp)
+     */
+    public function processBase64AndStore(string $base64Data, string $directory = 'images', int $quality = 40): string
+    {
+        // Strip data URL prefix if present
+        if (str_starts_with($base64Data, 'data:')) {
+            $parts = explode(',', $base64Data, 2);
+            $base64Data = $parts[1] ?? '';
+        }
+
+        $binary = base64_decode($base64Data, true);
+        if ($binary === false) {
+            throw new \InvalidArgumentException('Invalid base64 image data');
+        }
+
+        $filename = Str::random(10) . '-' . Str::random(5) . '.webp';
+        $path = rtrim($directory, '/') . '/' . $filename;
+        $fullPath = public_path($path);
+
+        $image = $this->manager->read($binary);
+        $image = $this->resizeIfNeeded($image, 1920, 1080);
+        $webpData = $image->toWebp($quality);
+
+        if (!file_exists(dirname($fullPath))) {
+            mkdir(dirname($fullPath), 0755, true);
+        }
+
+        file_put_contents($fullPath, $webpData);
+
+        return $path;
+    }
+
+    /**
      * Resize image if it exceeds maximum dimensions while maintaining aspect ratio
      *
      * @param \Intervention\Image\Image $image

@@ -653,4 +653,41 @@ class HomeController extends Controller
 
         return view('app.kunjungan_admin', compact('kunjungans', 'users'));
     }
+
+    public function kunjungan_pdf(Request $request)
+    {
+        $query = KunjunganKerja::query()->with('user');
+
+        if ($request->filled('user_id')) {
+            $query->where('user_id', $request->user_id);
+        }
+        if ($request->filled('date_from')) {
+            $query->whereDate('tanggal_kunjungan', '>=', $request->date_from);
+        }
+        if ($request->filled('date_to')) {
+            $query->whereDate('tanggal_kunjungan', '<=', $request->date_to);
+        }
+        if ($request->filled('client')) {
+            $query->where('client', 'like', '%' . $request->client . '%');
+        }
+
+        $kunjungans = $query->orderBy('tanggal_kunjungan', 'asc')->get();
+
+        $karyawanLabel = 'SEMUA PEGAWAI';
+        if ($request->filled('user_id')) {
+            $user = User::find($request->user_id);
+            if ($user) {
+                $karyawanLabel = $user->name;
+            }
+        }
+
+        $pdf = Pdf::loadView('app.laporan_kunjungan', [
+            'kunjungans' => $kunjungans,
+            'date_from' => $request->get('date_from'),
+            'date_to' => $request->get('date_to'),
+            'karyawanLabel' => $karyawanLabel,
+        ]);
+
+        return $pdf->download('Laporan Kunjungan.pdf');
+    }
 }

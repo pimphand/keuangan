@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Hash;
 use App\Models\Absensi;
+use App\Models\Client;
 use App\Models\Kasbon;
 use App\Models\Pengumuman;
 use App\Models\Gajian;
@@ -638,5 +639,29 @@ class PegawaiController extends Controller
         }
 
         return view('pegawai.katalog');
+    }
+
+    public function client(Request $request)
+    {
+        if ($request->ajax()) {
+            $clients = Client::with(['projects'])->withCount('projects')->get();
+
+            $clients->transform(function ($client) {
+                // Collect project statuses without modifying the model directly
+                $statuses = $client->projects->pluck('status')->toArray();
+
+                // Add statuses as a new attribute to the response
+                $client->project_statuses = $statuses;
+
+                // Count projects by status
+                $client->status_counts = $client->projects->groupBy('status')->map->count();
+
+                return $client;
+            });
+
+            return response()->json($clients);
+        }
+
+        return view('pegawai.client');
     }
 }

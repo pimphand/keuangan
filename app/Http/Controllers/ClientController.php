@@ -6,10 +6,40 @@ use App\Models\Client;
 use App\Http\Requests\StoreClientRequest;
 use App\Http\Requests\UpdateClientRequest;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\ClientTemplateExport;
+use App\Imports\ClientImport;
 
 class ClientController extends Controller
 {
+    /**
+     * Normalize phone number format
+     * +62 -> 62, 08 -> 62, 62 -> 62
+     */
+    private function normalizePhoneNumber($phone)
+    {
+        if (empty($phone)) {
+            return $phone;
+        }
+
+        // Remove all non-numeric characters except +
+        $phone = preg_replace('/[^0-9+]/', '', $phone);
+
+        // Handle different formats
+        if (strpos($phone, '+62') === 0) {
+            // +62 -> 62
+            return '62' . substr($phone, 3);
+        } elseif (strpos($phone, '08') === 0) {
+            // 08 -> 62
+            return '62' . substr($phone, 2);
+        } elseif (strpos($phone, '62') === 0) {
+            // 62 -> 62 (already correct)
+            return $phone;
+        }
+
+        return $phone;
+    }
+
     /**
      * Display a listing of the resource.
      */
@@ -34,12 +64,46 @@ class ClientController extends Controller
     {
         $data = $request->validated();
 
+        // Normalize phone number
+        if (isset($data['telepon'])) {
+            $data['telepon'] = $this->normalizePhoneNumber($data['telepon']);
+        }
+
         // Handle logo upload
         if ($request->hasFile('logo')) {
             $logo = $request->file('logo');
-            $logoName = time() . '_' . $logo->getClientOriginalName();
-            $logoPath = $logo->storeAs('public/client-logos', $logoName);
-            $data['logo'] = 'client-logos/' . $logoName;
+            $logoName = time() . '_' . pathinfo($logo->getClientOriginalName(), PATHINFO_FILENAME) . '.webp';
+
+            // Create image resource based on file type
+            $imageType = exif_imagetype($logo->getPathname());
+            switch ($imageType) {
+                case IMAGETYPE_JPEG:
+                    $image = imagecreatefromjpeg($logo->getPathname());
+                    break;
+                case IMAGETYPE_PNG:
+                    $image = imagecreatefrompng($logo->getPathname());
+                    break;
+                case IMAGETYPE_WEBP:
+                    $image = imagecreatefromwebp($logo->getPathname());
+                    break;
+                default:
+                    return redirect()->back()
+                        ->with('error', 'Format gambar tidak didukung. Gunakan JPEG, PNG, atau WebP.');
+            }
+
+            // Convert to WebP and save
+            $logoPath = 'gambar/client-logos/' . $logoName;
+            $fullPath = public_path($logoPath);
+
+            // Ensure directory exists
+            if (!file_exists(dirname($fullPath))) {
+                mkdir(dirname($fullPath), 0755, true);
+            }
+
+            imagewebp($image, $fullPath, 80); // 80% quality
+            imagedestroy($image);
+
+            $data['logo'] = $logoPath;
         }
 
         Client::create($data);
@@ -71,17 +135,51 @@ class ClientController extends Controller
     {
         $data = $request->validated();
 
+        // Normalize phone number
+        if (isset($data['telepon'])) {
+            $data['telepon'] = $this->normalizePhoneNumber($data['telepon']);
+        }
+
         // Handle logo upload
         if ($request->hasFile('logo')) {
             // Delete old logo if exists
-            if ($client->logo && Storage::exists('public/' . $client->logo)) {
-                Storage::delete('public/' . $client->logo);
+            if ($client->logo && file_exists(public_path($client->logo))) {
+                unlink(public_path($client->logo));
             }
 
             $logo = $request->file('logo');
-            $logoName = time() . '_' . $logo->getClientOriginalName();
-            $logoPath = $logo->storeAs('public/client-logos', $logoName);
-            $data['logo'] = 'client-logos/' . $logoName;
+            $logoName = time() . '_' . pathinfo($logo->getClientOriginalName(), PATHINFO_FILENAME) . '.webp';
+
+            // Create image resource based on file type
+            $imageType = exif_imagetype($logo->getPathname());
+            switch ($imageType) {
+                case IMAGETYPE_JPEG:
+                    $image = imagecreatefromjpeg($logo->getPathname());
+                    break;
+                case IMAGETYPE_PNG:
+                    $image = imagecreatefrompng($logo->getPathname());
+                    break;
+                case IMAGETYPE_WEBP:
+                    $image = imagecreatefromwebp($logo->getPathname());
+                    break;
+                default:
+                    return redirect()->back()
+                        ->with('error', 'Format gambar tidak didukung. Gunakan JPEG, PNG, atau WebP.');
+            }
+
+            // Convert to WebP and save
+            $logoPath = 'gambar/client-logos/' . $logoName;
+            $fullPath = public_path($logoPath);
+
+            // Ensure directory exists
+            if (!file_exists(dirname($fullPath))) {
+                mkdir(dirname($fullPath), 0755, true);
+            }
+
+            imagewebp($image, $fullPath, 80); // 80% quality
+            imagedestroy($image);
+
+            $data['logo'] = $logoPath;
         }
 
         $client->update($data);
@@ -96,13 +194,38 @@ class ClientController extends Controller
     public function destroy(Client $client)
     {
         // Delete logo file if exists
-        if ($client->logo && Storage::exists('public/' . $client->logo)) {
-            Storage::delete('public/' . $client->logo);
+        if ($client->logo && file_exists(public_path($client->logo))) {
+            unlink(public_path($client->logo));
         }
 
         $client->delete();
 
         return redirect()->route('client.index')
             ->with('success', 'Client berhasil dihapus.');
+    }
+
+    /**
+     * Download client import template
+     */
+    public function template()
+    {
+        return Excel::download(new ClientTemplateExport, 'template_client.xlsx');
+    }
+
+    /**
+     * Import clients from uploaded Excel
+     */
+    public function import(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|mimes:xlsx,xls,csv'
+        ]);
+
+        try {
+            Excel::import(new ClientImport, $request->file('file'));
+            return redirect()->route('client.index')->with('success', 'Data client berhasil diimport!');
+        } catch (\Exception $e) {
+            return redirect()->route('client.index')->with('error', 'Error importing data: ' . $e->getMessage());
+        }
     }
 }

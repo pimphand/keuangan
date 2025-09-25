@@ -29,7 +29,7 @@ class Client extends Model
     public function getLogoUrlAttribute()
     {
         if ($this->logo) {
-            return asset('storage/' . $this->logo);
+            return asset($this->logo);
         }
         return null;
     }

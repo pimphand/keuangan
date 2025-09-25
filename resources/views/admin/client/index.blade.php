@@ -26,6 +26,13 @@
                         <a href="{{ route('client.create') }}" class="btn btn-primary btn-sm">
                             <i class="fas fa-plus"></i> Tambah Client
                         </a>
+                        <a href="{{ route('client.template') }}" class="btn btn-success btn-sm">
+                            <i class="fas fa-file-excel"></i> Download Template
+                        </a>
+                        <button type="button" class="btn btn-secondary btn-sm" data-toggle="modal"
+                            data-target="#importClientModal">
+                            <i class="fas fa-upload"></i> Import
+                        </button>
                     </div>
                 </div>
                 <div class="card-body">
@@ -33,6 +40,28 @@
                     @if(session('success'))
                         <div class="alert alert-success alert-dismissible fade show" role="alert">
                             {{ session('success') }}
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                    @endif
+
+                    @if(session('error'))
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            {{ session('error') }}
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                    @endif
+
+                    @if ($errors->any())
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <ul class="mb-0">
+                                @foreach ($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
                             <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                                 <span aria-hidden="true">&times;</span>
                             </button>
@@ -124,6 +153,39 @@
 
         </div>
         <!-- #/ container -->
+    </div>
+
+    <!-- Import Modal -->
+    <div class="modal fade" id="importClientModal" tabindex="-1" role="dialog" aria-labelledby="importClientModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="importClientModalLabel">Import Data Client</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <form action="{{ route('client.import') }}" method="POST" enctype="multipart/form-data">
+                    @csrf
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label for="file">File Excel</label>
+                            <input type="file" name="file" id="file" class="form-control" accept=".xlsx,.xls,.csv" required>
+                            <small class="form-text text-muted">Format yang didukung: .xlsx, .xls, .csv</small>
+                        </div>
+                        <div class="alert alert-info" role="alert">
+                            Gunakan template agar format sesuai. <a href="{{ route('client.template') }}">Download
+                                Template</a>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-light" data-dismiss="modal">Batal</button>
+                        <button type="submit" class="btn btn-primary">Import</button>
+                    </div>
+                </form>
+            </div>
+        </div>
     </div>
 
 @endsection

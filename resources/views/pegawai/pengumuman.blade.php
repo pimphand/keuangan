@@ -9,7 +9,7 @@
         @if($pengumuman->count() > 0)
             @foreach($pengumuman as $item)
                 <div
-                    class="bg-gray-50 rounded-xl p-4 border border-gray-200 hover:shadow-md transition-shadow duration-200 {{ $item->prioritas === 'tinggi' ? 'border-l-4 border-l-red-500' : '' }}">
+                    class="bg-gray-50 rounded-xl p-4 border border-gray-200 hover:shadow-md transition-shadow duration-200 {{ $item->prioritas === 'tinggi' ? 'border-l-4 border-l-red-500' : '' }} flex flex-col">
                     <!-- Header dengan judul dan tanggal -->
                     <div class="flex justify-between items-start mb-3">
                         <div class="flex-1">
@@ -27,15 +27,16 @@
                                     </span>
                                 @endif
                             </div>
-                            <h3 class="font-bold text-gray-800 text-lg leading-tight">{{ $item->judul }}</h3>
                         </div>
                         <span class="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full ml-2">
                             {{ $item->tanggal_formatted }}
                         </span>
                     </div>
+                    <h6 class="font-bold text-gray-800  leading-tight">{{ $item->judul }}</h6>
 
                     <!-- Konten pengumuman -->
-                    <div class="text-gray-700 text-sm leading-relaxed mb-3">
+                    <div class="text-gray-700 text-sm leading-relaxed mb-3"
+                        style="display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;min-height:68px;">
                         {!! nl2br(e($item->excerpt)) !!}
                         @if(strlen(strip_tags($item->isi)) > 150)
                             <span class="text-blue-600 font-medium">...</span>
@@ -51,7 +52,7 @@
                     @endif
 
                     <!-- Footer dengan link dan author -->
-                    <div class="flex justify-between items-center pt-3 border-t border-gray-200">
+                    <div class="flex justify-between items-center pt-3 border-t border-gray-200 mt-auto">
                         <div class="flex items-center text-xs text-gray-500">
                             <i class="fas fa-user-circle mr-1"></i>
                             <span>{{ $item->creator ? $item->creator->name : 'Sistem' }}</span>

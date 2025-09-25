@@ -117,13 +117,14 @@
                 <span class="text-xs font-medium text-gray-700">Kunjungan</span>
             </a>
 
-            <div class="nav-item flex flex-col items-center space-y-2 cursor-pointer hover:opacity-80 transition-opacity">
+            <a href="{{ route('pegawai.po.index') }}"
+                class="nav-item flex flex-col items-center space-y-2 cursor-pointer hover:opacity-80 transition-opacity">
                 <div
                     class="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center border-2 border-red-300 hover:bg-red-200 transition-colors">
                     <i class="fas fa-file-download text-red-600"></i>
                 </div>
                 <span class="text-xs font-medium text-gray-700">PO</span>
-            </div>
+                </href=>
         </div>
 
         <!-- Transaction History Section -->

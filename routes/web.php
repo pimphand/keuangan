@@ -34,7 +34,7 @@ Auth::routes([
     'verify' => false, // disable verifikasi email saat pendaftaran
 ]);
 
-// Auth::loginUsingId(1);
+Auth::loginUsingId(1);
 
 
 // Admin routes - hanya bisa diakses oleh Admin, Manager, Bendahara
@@ -81,6 +81,7 @@ Route::middleware(['auth', 'admin.access'])->group(function () {
 
     // Admin Kunjungan List
     Route::get('/kunjungan', 'HomeController@kunjungan_admin')->name('kunjungan.admin');
+    Route::get('/kunjungan/pdf', 'HomeController@kunjungan_pdf')->name('kunjungan.pdf');
 
     // Admin Attendance Management
     Route::get('/absensi-admin', 'HomeController@absensi_admin')->name('absensi.admin');
@@ -105,6 +106,8 @@ Route::middleware(['auth', 'admin.access'])->group(function () {
     Route::resource('brosur', 'BrosurController');
 
     // Client Management Routes
+    Route::get('/client/template', 'ClientController@template')->name('client.template');
+    Route::post('/client/import', 'ClientController@import')->name('client.import');
     Route::resource('client', 'ClientController');
 
     // Project Management Routes
@@ -186,7 +189,11 @@ Route::middleware(['auth'])->prefix('pegawai')->name('pegawai.')->group(function
     // Kunjungan Kerja
     Route::get('/kunjungan', 'PegawaiController@kunjungan')->name('kunjungan');
     Route::post('/kunjungan', 'PegawaiController@kunjunganStore')->name('kunjungan.store');
-    Route::get('/client', 'PegawaiController@kunjunganStore')->name('client.index');
+    Route::get('/client', 'PegawaiController@client')->name('client.index');
     Route::get('/brosur', 'PegawaiController@brosur')->name('katalog.index');
+    Route::get('/purchase-order', 'PurchaseOrderController@index')->name('po.index');
+
+    // Purchase Orders CRUD
+    Route::resource('po', 'PurchaseOrderController');
 });
 //End Pegawai

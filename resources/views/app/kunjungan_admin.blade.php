@@ -63,6 +63,11 @@
                                 <button type="submit" class="btn btn-primary mr-2"> <i class="fa fa-search"></i> &nbsp;
                                     Filter</button>
                                 <a href="{{ route('kunjungan.admin') }}" class="btn btn-outline-secondary">Reset</a>
+                                <a target="_blank"
+                                    href="{{ route('kunjungan.pdf') }}?{{ http_build_query(request()->only(['date_from', 'date_to', 'user_id', 'client'])) }}"
+                                    class="btn btn-danger ml-2">
+                                    <i class="fa fa-file-pdf-o"></i> Cetak PDF
+                                </a>
                             </div>
                         </div>
                     </form>
