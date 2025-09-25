@@ -320,6 +320,11 @@
                     </li>
 
                     <li>
+                        <a href="{{ route('admin.po.index') }}" aria-expanded="false">
+                            <i class="icon-doc menu-icon mr-3"></i><span class="nav-text">Purchase Order (PO)</span>
+                        </a>
+                    </li>
+                    <li>
                         <a href="{{ route('brosur.index') }}" aria-expanded="false">
                             <i class="icon-doc menu-icon mr-3"></i><span class="nav-text">Katalog</span>
                         </a>
