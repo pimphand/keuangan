@@ -114,6 +114,9 @@ Route::middleware(['auth', 'admin.access'])->group(function () {
     Route::resource("project", "ProjectController");
     Route::get("/project/{project}/payment", "ProjectController@payment")->name("project.payment");
     Route::post("/project/{project}/payment", "ProjectController@processPayment")->name("project.payment.process");
+
+    // Admin Purchase Orders CRUD
+    Route::resource('admin/po', 'AdminPurchaseController')->names('admin.po');
 });
 
 // Storage file access route
