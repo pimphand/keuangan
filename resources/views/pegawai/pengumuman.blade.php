@@ -46,8 +46,7 @@
                     <!-- Gambar jika ada -->
                     @if($item->gambar)
                         <div class="mb-3">
-                            <img src="{{ asset('gambar/pengumuman/' . $item->gambar) }}" alt="{{ $item->judul }}"
-                                class="w-full h-32 object-cover rounded-lg">
+                            <img src="{{ asset($item->gambar) }}" alt="{{ $item->judul }}" class="w-full h-32 object-cover rounded-lg">
                         </div>
                     @endif
 

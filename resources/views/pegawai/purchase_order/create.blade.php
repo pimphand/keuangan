@@ -5,178 +5,174 @@
 @section('header-icon', 'file-text')
 
 @section('content')
-    <div class="mx-auto bg-white rounded-3xl shadow-xl overflow-hidden p-4">
-        <div class="container max-w-lg w-full mx-auto">
-            <h1 class="form-title">Buat Purchase Order Baru</h1>
+    <div class="container max-w-lg w-full mx-auto">
+        <h1 class="form-title">Buat Purchase Order Baru</h1>
 
-            @if ($errors->any())
-                <div class="mb-4 p-3 rounded bg-red-100 text-red-800">
-                    <ul class="list-disc ml-5">
-                        @foreach ($errors->all() as $error)
-                            <li>{{ $error }}</li>
-                        @endforeach
-                    </ul>
-                </div>
-            @endif
+        @if ($errors->any())
+            <div class="mb-4 p-3 rounded bg-red-100 text-red-800">
+                <ul class="list-disc ml-5">
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
 
-            <div class="flex items-center justify-between mb-6">
-                <div>
-                    <p class="font-bold text-gray-800">Purchase Order</p>
-                    <p class="text-sm text-gray-500">Buat permintaan pembelian</p>
-                </div>
-                <div class="text-right">
-                    <p class="text-sm text-gray-500">Tanggal</p>
-                    <p id="current-date" class="font-semibold text-gray-700"></p>
-                </div>
+        <div class="flex items-center justify-between mb-6">
+            <div>
+                <p class="font-bold text-gray-800">Purchase Order</p>
+                <p class="text-sm text-gray-500">Buat permintaan pembelian</p>
+            </div>
+            <div class="text-right">
+                <p class="text-sm text-gray-500">Tanggal</p>
+                <p id="current-date" class="font-semibold text-gray-700"></p>
+            </div>
+        </div>
+
+        <form id="po-form" class="space-y-6" method="POST" action="{{ route('pegawai.po.store') }}"
+            enctype="multipart/form-data">
+            @csrf
+            <input type="hidden" name="ktp_photo" id="ktp_photo_input" value="{{ old('ktp_photo') }}">
+            <div id="items-hidden-inputs"></div>
+
+            <div class="input-group" style="display: none">
+                <label for="po-number">Nomor PO</label>
+                <input type="text" id="po-number" name="po_number" class="block w-full rounded-xl focus:border-indigo-500"
+                    readonly>
             </div>
 
-            <form id="po-form" class="space-y-6" method="POST" action="{{ route('pegawai.po.store') }}"
-                enctype="multipart/form-data">
-                @csrf
-                <input type="hidden" name="ktp_photo" id="ktp_photo_input" value="{{ old('ktp_photo') }}">
-                <div id="items-hidden-inputs"></div>
+            <div class="input-group">
+                <label for="client-type">Jenis Klien</label>
+                <select id="client-type" name="client_type" class="block w-full rounded-xl focus:border-indigo-500 p-3 mt-2"
+                    required>
+                    <option value="">Pilih Jenis Klien...</option>
+                    <option value="Pemerintahan" {{ old('client_type') === 'Pemerintahan' ? 'selected' : '' }}>
+                        Pemerintahan</option>
+                    <option value="Swasta" {{ old('client_type') === 'Swasta' ? 'selected' : '' }}>Swasta</option>
+                </select>
+                @error('client_type')
+                    <div class="text-sm text-red-600 mt-1">{{ $message }}</div>
+                @enderror
+            </div>
 
-                <div class="input-group" style="display: none">
-                    <label for="po-number">Nomor PO</label>
-                    <input type="text" id="po-number" name="po_number"
-                        class="block w-full rounded-xl focus:border-indigo-500" readonly>
+            <div class="input-group">
+                <label for="client-name">Nama Klien</label>
+                <input type="text" id="client-name" name="client_name" placeholder="Masukkan nama klien"
+                    class="block w-full rounded-xl focus:border-indigo-500" value="{{ old('client_name') }}" required>
+                @error('client_name')
+                    <div class="text-sm text-red-600 mt-1">{{ $message }}</div>
+                @enderror
+            </div>
+
+            <div class="input-group">
+                <label for="client-address">Alamat Klien</label>
+                <div class="relative mt-2">
+                    <textarea id="client-address" name="client_address" rows="3" placeholder="Masukkan alamat klien"
+                        class="block w-full rounded-xl focus:border-indigo-500 pr-12"
+                        required>{{ old('client_address') }}</textarea>
+                    <button type="button" id="map-btn"
+                        class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-indigo-600 focus:outline-none">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 24 24" fill="currentColor">
+                            <path
+                                d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" />
+                        </svg>
+                    </button>
+                </div>
+                @error('client_address')
+                    <div class="text-sm text-red-600 mt-1">{{ $message }}</div>
+                @enderror
+            </div>
+
+            <div class="input-group">
+                <label for="client-phone-number">Nomor HP Klien</label>
+                <input type="tel" id="client-phone-number" name="client_phone_number" placeholder="Masukkan nomor HP klien"
+                    class="block w-full rounded-xl focus:border-indigo-500" pattern="[0-9]+" inputmode="numeric"
+                    value="{{ old('client_phone_number') }}" required>
+                @error('client_phone_number')
+                    <div class="text-sm text-red-600 mt-1">{{ $message }}</div>
+                @enderror
+            </div>
+
+            <div class="input-group">
+                <label for="client-nik">NIK Klien</label>
+                <input type="tel" id="client-nik" name="client_nik" placeholder="Masukkan 16 digit NIK"
+                    class="block w-full rounded-xl focus:border-indigo-500" pattern="[0-9]{16}" inputmode="numeric"
+                    minlength="16" maxlength="16" value="{{ old('client_nik') }}" required>
+                @error('client_nik')
+                    <div class="text-sm text-red-600 mt-1">{{ $message }}</div>
+                @enderror
+            </div>
+
+            <div class="input-group">
+                <label for="client-ktp-name">Nama Lengkap Sesuai KTP</label>
+                <input type="text" id="client-ktp-name" name="client_ktp_name" placeholder="Masukkan nama sesuai KTP"
+                    class="block w-full rounded-xl focus:border-indigo-500" value="{{ old('client_ktp_name') }}" required>
+                @error('client_ktp_name')
+                    <div class="text-sm text-red-600 mt-1">{{ $message }}</div>
+                @enderror
+            </div>
+
+            <div class="input-group">
+                <label class="block mb-2">Foto KTP Klien</label>
+                <div id="ktp-upload-container">
+                    <button type="button" id="capture-ktp-btn" class="btn-primary w-full text-sm">Ambil Foto
+                        KTP</button>
+                    <img id="ktp-preview" class="w-full h-auto mt-4 {{ old('ktp_photo') ? '' : 'hidden' }} rounded-xl"
+                        src="{{ old('ktp_photo') ?: '#' }}" alt="Pratinjau Foto KTP">
                 </div>
 
-                <div class="input-group">
-                    <label for="client-type">Jenis Klien</label>
-                    <select id="client-type" name="client_type"
-                        class="block w-full rounded-xl focus:border-indigo-500 p-3 mt-2" required>
-                        <option value="">Pilih Jenis Klien...</option>
-                        <option value="Pemerintahan" {{ old('client_type') === 'Pemerintahan' ? 'selected' : '' }}>
-                            Pemerintahan</option>
-                        <option value="Swasta" {{ old('client_type') === 'Swasta' ? 'selected' : '' }}>Swasta</option>
-                    </select>
-                    @error('client_type')
-                        <div class="text-sm text-red-600 mt-1">{{ $message }}</div>
-                    @enderror
-                </div>
-
-                <div class="input-group">
-                    <label for="client-name">Nama Klien</label>
-                    <input type="text" id="client-name" name="client_name" placeholder="Masukkan nama klien"
-                        class="block w-full rounded-xl focus:border-indigo-500" value="{{ old('client_name') }}" required>
-                    @error('client_name')
-                        <div class="text-sm text-red-600 mt-1">{{ $message }}</div>
-                    @enderror
-                </div>
-
-                <div class="input-group">
-                    <label for="client-address">Alamat Klien</label>
-                    <div class="relative mt-2">
-                        <textarea id="client-address" name="client_address" rows="3" placeholder="Masukkan alamat klien"
-                            class="block w-full rounded-xl focus:border-indigo-500 pr-12"
-                            required>{{ old('client_address') }}</textarea>
-                        <button type="button" id="map-btn"
-                            class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-indigo-600 focus:outline-none">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 24 24" fill="currentColor">
-                                <path
-                                    d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" />
+                <div id="camera-view" class="camera-view mt-4">
+                    <div class="camera-container">
+                        <video id="camera-video" autoplay playsinline></video>
+                        <div class="ktp-frame-overlay">
+                            <div class="ktp-frame"></div>
+                        </div>
+                        <canvas id="camera-canvas" class="hidden"></canvas>
+                    </div>
+                    <div class="camera-actions">
+                        <button type="button" id="capture-btn"
+                            class="bg-blue-500 text-white rounded-full h-12 w-12 flex items-center justify-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
+                                stroke="currentColor" class="w-8 h-8">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M6.827 6.175A2.3 2.3 0 0110.154 3.75a2.3 2.3 0 013.841 2.45m-6.685 4.3a2.3 2.3 0 00-.51 2.113l-1.33 3.98a2.25 2.25 0 002.592 2.925 2.25 2.25 0 002.592-2.925L9.66 11.23a2.247 2.247 0 00-.51-2.113m6.685 4.3a2.25 2.25 0 01-2.592 2.925 2.25 2.25 0 01-2.592-2.925l1.33-3.98c.451-.795.539-1.748.24-2.671m-6.49 4.3l1.33 3.98a2.25 2.25 0 002.592 2.925 2.25 2.25 0 002.592-2.925l-1.33-3.98c-.451-.795-.539-1.748-.24-2.671M12 21.75c-5.522 0-10-4.478-10-10s4.478-10 10-10 10 4.478 10 10-4.478 10-10 10z" />
                             </svg>
                         </button>
                     </div>
-                    @error('client_address')
-                        <div class="text-sm text-red-600 mt-1">{{ $message }}</div>
-                    @enderror
                 </div>
+                @error('ktp_photo')
+                    <div class="text-sm text-red-600 mt-1">{{ $message }}</div>
+                @enderror
+            </div>
 
-                <div class="input-group">
-                    <label for="client-phone-number">Nomor HP Klien</label>
-                    <input type="tel" id="client-phone-number" name="client_phone_number"
-                        placeholder="Masukkan nomor HP klien" class="block w-full rounded-xl focus:border-indigo-500"
-                        pattern="[0-9]+" inputmode="numeric" value="{{ old('client_phone_number') }}" required>
-                    @error('client_phone_number')
-                        <div class="text-sm text-red-600 mt-1">{{ $message }}</div>
-                    @enderror
+            <div class="mt-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-xl font-bold text-gray-800">Detail Item</h2>
+                    <button type="button" id="add-item-btn" class="add-item-btn text-sm">Tambah Item</button>
                 </div>
-
-                <div class="input-group">
-                    <label for="client-nik">NIK Klien</label>
-                    <input type="tel" id="client-nik" name="client_nik" placeholder="Masukkan 16 digit NIK"
-                        class="block w-full rounded-xl focus:border-indigo-500" pattern="[0-9]{16}" inputmode="numeric"
-                        minlength="16" maxlength="16" value="{{ old('client_nik') }}" required>
-                    @error('client_nik')
-                        <div class="text-sm text-red-600 mt-1">{{ $message }}</div>
-                    @enderror
+                <div class="grid grid-cols-[1fr_80px_48px] gap-4 font-semibold text-gray-600 mb-2">
+                    <span>Produk</span>
+                    <span>Jumlah</span>
+                    <span></span>
                 </div>
+                <div id="item-list"></div>
+                @error('items')
+                    <div class="text-sm text-red-600 mt-1">{{ $message }}</div>
+                @enderror
+            </div>
 
-                <div class="input-group">
-                    <label for="client-ktp-name">Nama Lengkap Sesuai KTP</label>
-                    <input type="text" id="client-ktp-name" name="client_ktp_name" placeholder="Masukkan nama sesuai KTP"
-                        class="block w-full rounded-xl focus:border-indigo-500" value="{{ old('client_ktp_name') }}"
-                        required>
-                    @error('client_ktp_name')
-                        <div class="text-sm text-red-600 mt-1">{{ $message }}</div>
-                    @enderror
-                </div>
+            <div class="input-group">
+                <label for="notes">Jelaskan Uraian Sistem</label>
+                <textarea id="notes" name="notes" rows="4" placeholder="Jelaskan uraian sistem yang diminta di sini..."
+                    class="block w-full rounded-xl focus:border-indigo-500">{{ old('notes') }}</textarea>
+                @error('notes')
+                    <div class="text-sm text-red-600 mt-1">{{ $message }}</div>
+                @enderror
+            </div>
 
-                <div class="input-group">
-                    <label class="block mb-2">Foto KTP Klien</label>
-                    <div id="ktp-upload-container">
-                        <button type="button" id="capture-ktp-btn" class="btn-primary w-full text-sm">Ambil Foto
-                            KTP</button>
-                        <img id="ktp-preview" class="w-full h-auto mt-4 {{ old('ktp_photo') ? '' : 'hidden' }} rounded-xl"
-                            src="{{ old('ktp_photo') ?: '#' }}" alt="Pratinjau Foto KTP">
-                    </div>
-
-                    <div id="camera-view" class="camera-view mt-4">
-                        <div class="camera-container">
-                            <video id="camera-video" autoplay playsinline></video>
-                            <div class="ktp-frame-overlay">
-                                <div class="ktp-frame"></div>
-                            </div>
-                            <canvas id="camera-canvas" class="hidden"></canvas>
-                        </div>
-                        <div class="camera-actions">
-                            <button type="button" id="capture-btn"
-                                class="bg-blue-500 text-white rounded-full h-12 w-12 flex items-center justify-center">
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
-                                    stroke="currentColor" class="w-8 h-8">
-                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                        d="M6.827 6.175A2.3 2.3 0 0110.154 3.75a2.3 2.3 0 013.841 2.45m-6.685 4.3a2.3 2.3 0 00-.51 2.113l-1.33 3.98a2.25 2.25 0 002.592 2.925 2.25 2.25 0 002.592-2.925L9.66 11.23a2.247 2.247 0 00-.51-2.113m6.685 4.3a2.25 2.25 0 01-2.592 2.925 2.25 2.25 0 01-2.592-2.925l1.33-3.98c.451-.795.539-1.748.24-2.671m-6.49 4.3l1.33 3.98a2.25 2.25 0 002.592 2.925 2.25 2.25 0 002.592-2.925l-1.33-3.98c-.451-.795-.539-1.748-.24-2.671M12 21.75c-5.522 0-10-4.478-10-10s4.478-10 10-10 10 4.478 10 10-4.478 10-10 10z" />
-                                </svg>
-                            </button>
-                        </div>
-                    </div>
-                    @error('ktp_photo')
-                        <div class="text-sm text-red-600 mt-1">{{ $message }}</div>
-                    @enderror
-                </div>
-
-                <div class="mt-6">
-                    <div class="flex justify-between items-center mb-4">
-                        <h2 class="text-xl font-bold text-gray-800">Detail Item</h2>
-                        <button type="button" id="add-item-btn" class="add-item-btn text-sm">Tambah Item</button>
-                    </div>
-                    <div class="grid grid-cols-[1fr_80px_48px] gap-4 font-semibold text-gray-600 mb-2">
-                        <span>Produk</span>
-                        <span>Jumlah</span>
-                        <span></span>
-                    </div>
-                    <div id="item-list"></div>
-                    @error('items')
-                        <div class="text-sm text-red-600 mt-1">{{ $message }}</div>
-                    @enderror
-                </div>
-
-                <div class="input-group">
-                    <label for="notes">Jelaskan Uraian Sistem</label>
-                    <textarea id="notes" name="notes" rows="4" placeholder="Jelaskan uraian sistem yang diminta di sini..."
-                        class="block w-full rounded-xl focus:border-indigo-500">{{ old('notes') }}</textarea>
-                    @error('notes')
-                        <div class="text-sm text-red-600 mt-1">{{ $message }}</div>
-                    @enderror
-                </div>
-
-                <button type="submit" class="btn-primary w-full">Kirim Permintaan PO</button>
-            </form>
-        </div>
+            <button type="submit" class="btn-primary w-full">Kirim Permintaan PO</button>
+        </form>
     </div>
-
     <div id="toast" class="toast">Permintaan PO berhasil dikirim!</div>
 @endsection
 
@@ -452,10 +448,10 @@
                 const removeBtn = document.createElement('div');
                 removeBtn.className = 'remove-btn';
                 removeBtn.innerHTML = `
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                        <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
-                                    </svg>
-                                `;
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                                <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+                                            </svg>
+                                        `;
 
                 removeBtn.addEventListener('click', () => {
                     itemDiv.remove();

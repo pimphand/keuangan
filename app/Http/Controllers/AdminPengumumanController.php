@@ -6,9 +6,17 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use App\Models\Pengumuman;
+use App\Services\ImageProcessingService;
 
 class AdminPengumumanController extends Controller
 {
+    protected $imageService;
+
+    public function __construct(ImageProcessingService $imageService)
+    {
+        $this->imageService = $imageService;
+    }
+
     /**
      * Display a listing of the resource.
      */
@@ -36,9 +44,8 @@ class AdminPengumumanController extends Controller
 
         if ($request->hasFile('gambar')) {
             $file = $request->file('gambar');
-            $filename = time() . '_' . $file->getClientOriginalName();
-            $file->storeAs('public/pengumuman', $filename);
-            $data['gambar'] = $filename;
+            $imagePath = $this->imageService->processAndStore($file, 'gambar/pengumuman', 40);
+            $data['gambar'] = $imagePath;
         }
 
         Pengumuman::create($data);
@@ -64,13 +71,14 @@ class AdminPengumumanController extends Controller
         $data = $validated;
 
         if ($request->hasFile('gambar')) {
+            // Delete old image if exists
             if ($pengumuman->gambar) {
-                Storage::delete('public/pengumuman/' . $pengumuman->gambar);
+                $this->imageService->deleteImage($pengumuman->gambar);
             }
+
             $file = $request->file('gambar');
-            $filename = time() . '_' . $file->getClientOriginalName();
-            $file->storeAs('public/pengumuman', $filename);
-            $data['gambar'] = $filename;
+            $imagePath = $this->imageService->processAndStore($file, 'gambar/pengumuman', 40);
+            $data['gambar'] = $imagePath;
         }
 
         $pengumuman->update($data);
@@ -86,7 +94,7 @@ class AdminPengumumanController extends Controller
         $pengumuman = Pengumuman::findOrFail($id);
 
         if ($pengumuman->gambar) {
-            Storage::delete('public/pengumuman/' . $pengumuman->gambar);
+            $this->imageService->deleteImage($pengumuman->gambar);
         }
 
         $pengumuman->delete();

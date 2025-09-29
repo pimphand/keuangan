@@ -234,15 +234,15 @@
                 const newRow = document.createElement('div');
                 newRow.className = 'row mb-2 spesifikasi-row';
                 newRow.innerHTML = `
-                                                                    <div class="col-md-10">
-                                                                        <input type="text" class="form-control" name="spesifikasi_key[]" placeholder="Spesifikasi" value="{{ old('spesifikasi_key.${rowCount}') }}">
-                                                                    </div>
-                                                                    <div class="col-md-2">
-                                                                        <button type="button" class="btn btn-danger btn-sm remove-spesifikasi">
-                                                                            <i class="fas fa-trash"></i>
-                                                                        </button>
-                                                                    </div>
-                                                                `;
+                                                                        <div class="col-md-10">
+                                                                            <input type="text" class="form-control" name="spesifikasi_key[]" placeholder="Spesifikasi" value="{{ old('spesifikasi_key.${rowCount}') }}">
+                                                                        </div>
+                                                                        <div class="col-md-2">
+                                                                            <button type="button" class="btn btn-danger btn-sm remove-spesifikasi">
+                                                                                <i class="fas fa-trash"></i>
+                                                                            </button>
+                                                                        </div>
+                                                                    `;
 
                 container.appendChild(newRow);
                 rowCount++;

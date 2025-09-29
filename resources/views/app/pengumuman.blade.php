@@ -45,6 +45,7 @@
                                 <tr>
                                     <th class="text-center" width="1%">NO</th>
                                     <th class="text-center">JUDUL</th>
+                                    <th class="text-center">GAMBAR</th>
                                     <th class="text-center">Prioritas</th>
                                     <th class="text-center">TANGGAL</th>
                                     <th class="text-center">AKSI</th>
@@ -55,6 +56,14 @@
                                     <tr>
                                         <td class="text-center">{{ $pengumuman->firstItem() + $idx }}</td>
                                         <td>{{ $p->judul }}</td>
+                                        <td class="text-center">
+                                            @if($p->gambar)
+                                                <img src="{{ asset($p->gambar) }}" alt="Gambar Pengumuman" class="img-thumbnail"
+                                                    style="width: 60px; height: 60px; object-fit: cover;">
+                                            @else
+                                                <span class="text-muted">-</span>
+                                            @endif
+                                        </td>
                                         <td class="text-center">
                                             <span
                                                 class="badge {{ $p->prioritas == 'sedang' ? 'badge-success' : 'badge-danger' }}">{{ ucfirst($p->prioritas) }}</span>
@@ -122,8 +131,9 @@
                                                             <label>Gambar (opsional)</label>
                                                             <input type="file" name="gambar" class="form-control">
                                                             @if($p->gambar)
-                                                                <small class="d-block mt-1">Gambar saat ini:
-                                                                    {{ $p->gambar }}</small>
+                                                                <img src="{{ asset($p->gambar) }}" alt="Gambar Pengumuman"
+                                                                    class="img-thumbnail"
+                                                                    style="width: 400px; height: 400px; object-fit: cover;">
                                                             @endif
                                                         </div>
                                                     </div>

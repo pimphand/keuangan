@@ -63,7 +63,7 @@
             <div class="relative inline-block">
                 <div class="w-24 h-24 mx-auto rounded-full overflow-hidden border-4 border-blue-200">
                     @if($user->photo)
-                        <img src="{{ Storage::url($user->photo) }}" alt="Profile Photo" class="w-full h-full object-cover"
+                        <img src="{{ asset($user->photo) }}" alt="Profile Photo" class="w-full h-full object-cover"
                             id="profile-photo-preview">
                     @else
                         <div class="w-full h-full bg-blue-100 flex items-center justify-center">

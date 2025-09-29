@@ -30,7 +30,8 @@
                         <a href="{{ route('client.edit', $client) }}" class="btn btn-warning btn-sm">
                             <i class="fas fa-edit"></i> Edit
                         </a>
-                        <a href="{{ route("project.create", ["client_id" => $client->id]) }}" class="btn btn-success btn-sm">
+                        <a href="{{ route("project.create", ["client_id" => $client->id]) }}"
+                            class="btn btn-success btn-sm">
                             <i class="fas fa-plus"></i> Tambah Project
                         </a>
                     </div>
@@ -112,74 +113,76 @@
                     </div>
 
 
-            <!-- Projects Section -->
-            @if($client->projects->count() > 0)
-                <div class="card mt-4">
-                    <div class="card-header">
-                        <h4 class="card-title">Projects ({{ $client->projects->count() }})</h4>
-                    </div>
-                    <div class="card-body">
-                        <div class="table-responsive">
-                            <table class="table table-striped">
-                                <thead>
-                                    <tr>
-                                        <th>Brosur</th>
-                                        <th>Status</th>
-                                        <th>Harga</th>
-                                        <th>Total Bayar</th>
-                                        <th>Sisa Bayar</th>
-                                        <th>Dibuat</th>
-                                        <th>Aksi</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach($client->projects as $project)
-                                        <tr>
-                                            <td>{{ $project->brosur->nama ?? '-' }}</td>
-                                            <td>
-                                                @if($project->status == 'belum bayar')
-                                                    <span class="badge badge-danger">Belum Bayar</span>
-                                                @elseif($project->status == 'bayar')
-                                                    <span class="badge badge-success">Bayar</span>
-                                                @elseif($project->status == 'kurang')
-                                                    <span class="badge badge-warning">Kurang</span>
-                                                @endif
-                                            </td>
-                                            <td>Rp {{ number_format($project->harga, 0, ',', '.') }}</td>
-                                            <td>Rp {{ number_format($project->total_bayar, 0, ',', '.') }}</td>
-                                            <td>Rp {{ number_format($project->sisa_bayar, 0, ',', '.') }}</td>
-                                            <td>{{ $project->created_at->format('d M Y') }}</td>
-                                            <td>
-                                                <a href="{{ route('project.show', $project) }}" class="btn btn-info btn-sm">
-                                                    <i class="fas fa-eye"></i>
-                                                </a>
-                                                <a href="{{ route('project.edit', $project) }}" class="btn btn-warning btn-sm">
-                                                    <i class="fas fa-edit"></i>
-                                                </a>
-                                                <a href="{{ route("project.payment", $project) }}" class="btn btn-success btn-sm">
-                                                    <i class="fas fa-credit-card"></i> Bayar
-                                                </a>
-                                            </td>
-                                        </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
+                    <!-- Projects Section -->
+                    @if($client->projects->count() > 0)
+                        <div class="card mt-4">
+                            <div class="card-header">
+                                <h4 class="card-title">Projects ({{ $client->projects->count() }})</h4>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th>Brosur</th>
+                                                <th>Status</th>
+                                                <th>Harga</th>
+                                                <th>Total Bayar</th>
+                                                <th>Sisa Bayar</th>
+                                                <th>Dibuat</th>
+                                                <th>Aksi</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach($client->projects as $project)
+                                                <tr>
+                                                    <td>{{ $project->brosur->nama ?? '-' }}</td>
+                                                    <td>
+                                                        @if($project->status == 'belum bayar')
+                                                            <span class="badge badge-danger">Belum Bayar</span>
+                                                        @elseif($project->status == 'bayar')
+                                                            <span class="badge badge-success">Bayar</span>
+                                                        @elseif($project->status == 'kurang')
+                                                            <span class="badge badge-warning">Kurang</span>
+                                                        @endif
+                                                    </td>
+                                                    <td>Rp {{ number_format($project->harga, 0, ',', '.') }}</td>
+                                                    <td>Rp {{ number_format($project->total_bayar, 0, ',', '.') }}</td>
+                                                    <td>Rp {{ number_format($project->sisa_bayar, 0, ',', '.') }}</td>
+                                                    <td>{{ $project->created_at->format('d M Y') }}</td>
+                                                    <td>
+                                                        <a href="{{ route('project.show', $project) }}" class="btn btn-info btn-sm">
+                                                            <i class="fas fa-eye"></i>
+                                                        </a>
+                                                        <a href="{{ route('project.edit', $project) }}"
+                                                            class="btn btn-warning btn-sm">
+                                                            <i class="fas fa-edit"></i>
+                                                        </a>
+                                                        <a href="{{ route("project.payment", $project) }}"
+                                                            class="btn btn-success btn-sm">
+                                                            <i class="fas fa-credit-card"></i> Bayar
+                                                        </a>
+                                                    </td>
+                                                </tr>
+                                            @endforeach
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                </div>
-            @else
-                <div class="card mt-4">
-                    <div class="card-header">
-                        <h4 class="card-title">Projects</h4>
-                    </div>
-                    <div class="card-body text-center">
-                        <p class="text-muted">Belum ada project untuk client ini.</p>
-                        <a href="{{ route('project.create', ['client_id' => $client->id]) }}" class="btn btn-success">
-                            <i class="fas fa-plus"></i> Tambah Project Pertama
-                        </a>
-                    </div>
-                </div>
-            @endif
+                    @else
+                        <div class="card mt-4">
+                            <div class="card-header">
+                                <h4 class="card-title">Projects</h4>
+                            </div>
+                            <div class="card-body text-center">
+                                <p class="text-muted">Belum ada project untuk client ini.</p>
+                                <a href="{{ route('project.create', ['client_id' => $client->id]) }}" class="btn btn-success">
+                                    <i class="fas fa-plus"></i> Tambah Project Pertama
+                                </a>
+                            </div>
+                        </div>
+                    @endif
                 </div>
 
             </div>
@@ -187,5 +190,4 @@
         </div>
         <!-- #/ container -->
     </div>
-
 @endsection

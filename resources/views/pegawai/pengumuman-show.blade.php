@@ -49,7 +49,7 @@
         <!-- Gambar jika ada -->
         @if($pengumuman->gambar)
             <div class="mb-6">
-                <img src="{{ asset('gambar/pengumuman/' . $pengumuman->gambar) }}" alt="{{ $pengumuman->judul }}"
+                <img src="{{ asset($pengumuman->gambar) }}" alt="{{ $pengumuman->judul }}"
                     class="w-full h-48 object-cover rounded-lg shadow-sm">
             </div>
         @endif

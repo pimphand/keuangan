@@ -6,10 +6,17 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use App\Models\Pengumuman;
+use App\Services\ImageProcessingService;
 use Carbon\Carbon;
 
 class PengumumanController extends Controller
 {
+    protected $imageService;
+
+    public function __construct(ImageProcessingService $imageService)
+    {
+        $this->imageService = $imageService;
+    }
     /**
      * Display a listing of announcements for employees
      */
@@ -82,9 +89,8 @@ class PengumumanController extends Controller
         // Handle image upload
         if ($request->hasFile('gambar')) {
             $file = $request->file('gambar');
-            $filename = time() . '.' . $file->getClientOriginalExtension();
-            $file->storeAs('public/pengumuman', $filename);
-            $data['gambar'] = $filename;
+            $imagePath = $this->imageService->processAndStore($file, 'gambar/pengumuman', 80);
+            $data['gambar'] = $imagePath;
         }
 
         Pengumuman::create($data);
@@ -109,6 +115,7 @@ class PengumumanController extends Controller
      */
     public function update(Request $request, $id)
     {
+
         $pengumuman = Pengumuman::findOrFail($id);
 
         $request->validate([
@@ -126,13 +133,12 @@ class PengumumanController extends Controller
         if ($request->hasFile('gambar')) {
             // Delete old image if exists
             if ($pengumuman->gambar) {
-                Storage::delete('public/pengumuman/' . $pengumuman->gambar);
+                $this->imageService->deleteImage($pengumuman->gambar);
             }
 
             $file = $request->file('gambar');
-            $filename = time() . '.' . $file->getClientOriginalExtension();
-            $file->storeAs('public/pengumuman', $filename);
-            $data['gambar'] = $filename;
+            $imagePath = $this->imageService->processAndStore($file, 'gambar/pengumuman', 80);
+            $data['gambar'] = $imagePath;
         }
 
         $pengumuman->update($data);
@@ -150,7 +156,7 @@ class PengumumanController extends Controller
 
         // Delete image if exists
         if ($pengumuman->gambar) {
-            Storage::delete('public/pengumuman/' . $pengumuman->gambar);
+            $this->imageService->deleteImage($pengumuman->gambar);
         }
 
         $pengumuman->delete();

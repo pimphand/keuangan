@@ -39,7 +39,7 @@
                                 </div>
                             @endif
                         </div>
-                        <!-- Date Display -->
+                        {{-- <!-- Date Display -->
                         <div class="text-right">
                             <p class="text-sm text-gray-500 font-medium" id="current-date">
                                 {{ \Carbon\Carbon::now()->locale('id')->isoFormat('dddd, DD MMMM YYYY') }}
@@ -47,7 +47,7 @@
                             <p class="text-xs text-gray-400" id="current-time">
                                 {{ \Carbon\Carbon::now()->locale('id')->isoFormat('HH:mm:ss') }}
                             </p>
-                        </div>
+                        </div> --}}
                     </div>
 
                     <!-- Page Content -->
